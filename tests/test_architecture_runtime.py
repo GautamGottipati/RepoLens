@@ -12,15 +12,15 @@ from pathlib import Path
 
 import pytest
 
-from repolab.architecture.code_model import Corpus, build_code_model, code_only
-from repolab.architecture.models import (
+from repolens.architecture.code_model import Corpus, build_code_model, code_only
+from repolens.architecture.models import (
     ArchitectureGraph,
     CodeRelationType,
     Provenance,
     Subsystem,
 )
-from repolab.architecture.modules import module_dependencies
-from repolab.architecture.runtime_synthesis import (
+from repolens.architecture.modules import module_dependencies
+from repolens.architecture.runtime_synthesis import (
     ProposedComponent,
     ProposedFlow,
     ProposedLink,
@@ -29,9 +29,9 @@ from repolab.architecture.runtime_synthesis import (
     RuntimeProposal,
     apply_proposal,
 )
-from repolab.architecture.verify import cited_paths, verify_graph
-from repolab.evidence.models import CodeReference
-from repolab.sources import CloneSnapshot, MemorySnapshot
+from repolens.architecture.verify import cited_paths, verify_graph
+from repolens.evidence.models import CodeReference
+from repolens.sources import CloneSnapshot, MemorySnapshot
 
 COMMIT = "c" * 40
 
@@ -441,7 +441,7 @@ def test_a_field_named_like_a_type_is_not_a_call_on_it_unless_declared_so(tmp_pa
 
 
 def test_a_function_based_pipeline_uses_its_detected_steps(tmp_path: Path) -> None:
-    from repolab.architecture.models import (
+    from repolens.architecture.models import (
         ArchitectureEdge,
         ArchitectureFlow,
         ArchitectureNode,
@@ -497,8 +497,8 @@ def test_a_function_based_pipeline_uses_its_detected_steps(tmp_path: Path) -> No
 
 
 def test_the_reading_path_is_built_from_references_once_they_are_verified() -> None:
-    from repolab.architecture.code_model import reading_path, runtime_from_components
-    from repolab.architecture.models import ArchitectureNode, NodeCategory
+    from repolens.architecture.code_model import reading_path, runtime_from_components
+    from repolens.architecture.models import ArchitectureNode, NodeCategory
 
     text = "def main():\n    run()\n\ndef run():\n    pass\n"
     detector = CodeReference(path="jobs/etl.py", start_line=1, end_line=1)  # not yet verified

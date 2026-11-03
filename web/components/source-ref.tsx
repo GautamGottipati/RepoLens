@@ -3,8 +3,8 @@
  *
  * `SourceRef` shows `path:L120–184` (and the symbol, when there is one).
  * Clicking it opens the `SourceViewer` drawer, which fetches the file from
- * RepoLab's own copy *at the commit the claim was made against* and highlights
- * the range. A reference RepoLab could not verify says so instead of linking.
+ * RepoLens's own copy *at the commit the claim was made against* and highlights
+ * the range. A reference RepoLens could not verify says so instead of linking.
  *
  * The workspace provides the viewer (`SourceViewerProvider`); outside it, a chip
  * falls back to the same file at the same commit on its host.
@@ -162,7 +162,7 @@ export function SourceViewer({
       </dl>
       {target.verified ? (
         <p className="flex items-center gap-1.5 text-meta text-run-fg" data-testid="viewer-verified">
-          <CheckIcon size={14} /> RepoLab re-read these lines at this commit
+          <CheckIcon size={14} /> RepoLens re-read these lines at this commit
           {target.verification ? ` (${target.verification})` : ""}.
         </p>
       ) : target.verified === false && target.verification ? (
@@ -173,7 +173,7 @@ export function SourceViewer({
       {!file && !error && <p className="text-sm text-fg-secondary">Loading the file…</p>}
       {file && !file.captured && (
         <div className="rounded-lg border border-line bg-surface-subtle p-4 text-sm text-fg-secondary" data-testid="viewer-not-captured">
-          RepoLab did not keep a copy of this file at this commit, so it cannot show it here.
+          RepoLens did not keep a copy of this file at this commit, so it cannot show it here.
           {file.host_url && (
             <>
               {" "}
@@ -229,7 +229,7 @@ export function SourceViewer({
 }
 
 /**
- * A citation. Opens the viewer at its lines, or -- when RepoLab could not
+ * A citation. Opens the viewer at its lines, or -- when RepoLens could not
  * verify it -- says so instead of pretending.
  */
 export function SourceRef({

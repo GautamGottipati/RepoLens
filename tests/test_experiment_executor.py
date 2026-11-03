@@ -17,16 +17,16 @@ import asyncio
 
 import pytest
 
-from repolab.events import CollectingEmitter, EventType
-from repolab.experiences.spark.driver import SparkRunConfig
-from repolab.experiments.executor import (
+from repolens.events import CollectingEmitter, EventType
+from repolens.experiences.spark.driver import SparkRunConfig
+from repolens.experiments.executor import (
     ApprovalRequiredError,
     EquivalenceViolation,
     SparkVariantRunner,
     VariantExecutor,
     verify_equivalent_state,
 )
-from repolab.experiments.models import ExperimentStatus
+from repolens.experiments.models import ExperimentStatus
 from tests.support.experiments import DATASET_HASH, IMAGE, plan, spark_run_result, variant_run
 
 
@@ -238,7 +238,7 @@ class TestSparkVariantRunner:
         return SparkVariantRunner(
             repo_url="https://github.com/test/repo",
             commit_sha="c" * 40,
-            repository_root=Path("/tmp/repolab-test"),
+            repository_root=Path("/tmp/repolens-test"),
             image=IMAGE,
             variable=variable,
             base_config=SparkRunConfig(shuffle_partitions=200, driver_memory="2g"),

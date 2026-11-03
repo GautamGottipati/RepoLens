@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.experiences.spark.measurements import Determinism
-from repolab.experiments.statistics import (
+from repolens.experiences.spark.measurements import Determinism
+from repolens.experiments.statistics import (
     aggregate_samples,
     compute_statistics,
     relative_difference,
@@ -103,7 +103,7 @@ class TestRelativeDifference:
         """A negative baseline must not flip the sign of the change.
 
         Dividing by the signed baseline would report -50 against -100 as a *fall*
-        when it is a rise. No RepoLab metric is negative today, but a sign error
+        when it is a rise. No RepoLens metric is negative today, but a sign error
         here would read as a finding rather than as arithmetic.
         """
         assert relative_difference(-50.0, -100.0) == 50.0

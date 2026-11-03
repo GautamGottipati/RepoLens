@@ -9,23 +9,23 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds.models import BuildArtifact, SmokeTestResult
-from repolab.builds.session import UpgradeRefused
-from repolab.experiences.cli.session import (
+from repolens.builds.models import BuildArtifact, SmokeTestResult
+from repolens.builds.session import UpgradeRefused
+from repolens.experiences.cli.session import (
     CliSessionManager,
     SessionNotReady,
     SessionStatus,
     cql_command,
     keyspace_in,
 )
-from repolab.manifest.models import BuildKind
-from repolab.sandbox.fake import FakeSandboxProvider, ScriptedCommand
-from repolab.sandbox.models import SandboxError
+from repolens.manifest.models import BuildKind
+from repolens.sandbox.fake import FakeSandboxProvider, ScriptedCommand
+from repolens.sandbox.models import SandboxError
 
 REPO = "https://github.com/apache/cassandra"
 CQLSH = "/opt/cassandra/bin/cqlsh"
 SERVICE = "/usr/local/bin/docker-entrypoint.sh cassandra -f"
-TAG = "repolab/apache-cassandra:abc-official-release"
+TAG = "repolens/apache-cassandra:abc-official-release"
 
 
 def artifact(
@@ -133,13 +133,13 @@ class TestExecuting:
         message = "<stdin>:1:InvalidRequest: Error from server: use ALLOW FILTERING"
         fake = await provider_with_checkpoint()
         fake.script(
-            cql_command(CQLSH, "SELECT * FROM repolab.t WHERE c = 21.5"),
+            cql_command(CQLSH, "SELECT * FROM repolens.t WHERE c = 21.5"),
             ScriptedCommand(stderr=message, exit_code=2),
         )
         manager = CliSessionManager(fake)
         session = await manager.start(artifact(), repo_url=REPO)
 
-        record = await manager.execute(session.id, "SELECT * FROM repolab.t WHERE c = 21.5")
+        record = await manager.execute(session.id, "SELECT * FROM repolens.t WHERE c = 21.5")
 
         assert record.ok is False
         assert "ALLOW FILTERING" in record.output
@@ -272,7 +272,7 @@ class TestUpgrades:
 
         environment = manager.environment(session.id)
         assert environment is not None
-        environment.begin("CREATE KEYSPACE repolab")
+        environment.begin("CREATE KEYSPACE repolens")
 
         with pytest.raises(UpgradeRefused, match=r"must not change|once it finishes"):
             await manager.accept(session.id)
@@ -286,7 +286,7 @@ class TestUpgrades:
         environment = manager.environment(session.id)
         assert environment is not None
 
-        environment.begin("CREATE KEYSPACE repolab")
+        environment.begin("CREATE KEYSPACE repolens")
         with pytest.raises(UpgradeRefused):
             await manager.accept(session.id)
         environment.end()

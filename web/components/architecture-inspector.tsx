@@ -3,14 +3,14 @@
  *
  *     What is this? / Why does it matter here? / Role in this system /
  *     How does it connect? / Where is it implemented?
- *     Why RepoLab detected it / Source evidence /
+ *     Why RepoLens detected it / Source evidence /
  *     Static · Inferred · Measured / Questions / actions
  *
  * Information is still split by what backs it -- **Static** (read from
- * source), **Inferred** (interpreted, by RepoLab or Muse) and **Measured**
+ * source), **Inferred** (interpreted, by RepoLens or Muse) and **Measured**
  * (from a real run) -- and a value never moves between those sections.
  *
- * **Experiment** appears only when the API says RepoLab can really run
+ * **Experiment** appears only when the API says RepoLens can really run
  * something that exercises this. Otherwise nothing is shown, except one quiet
  * line when the only thing missing is a built environment.
  */
@@ -104,7 +104,7 @@ export function ArchitectureInspector({
           </>
         ) : (
           <>
-            A {CATEGORY_LABEL[node.category]} RepoLab found in the code.{" "}
+            A {CATEGORY_LABEL[node.category]} RepoLens found in the code.{" "}
             <span className="text-fg-secondary">No plain-language description was written for it.</span>
           </>
         )}
@@ -161,7 +161,7 @@ export function ArchitectureInspector({
 
       <Evidenced>
         <p className="text-xs text-fg-secondary" data-testid="detected-because">
-          <span className="font-medium">Why RepoLab detected it:</span> {node.detected_because}
+          <span className="font-medium">Why RepoLens detected it:</span> {node.detected_because}
         </p>
         <SourceEvidence repoUrl={repoUrl} commit={commit} node={node} />
 
@@ -311,7 +311,7 @@ export function ConceptInspector({
           <p className="text-xs text-fg-secondary">
             {inferred
               ? "This concept was proposed by Muse and kept only because it cites the evidence above."
-              : "This concept is a part of the repository RepoLab found from its structure."}
+              : "This concept is a part of the repository RepoLens found from its structure."}
           </p>
         </Section>
         <MeasuredSection measured={measured} />
@@ -373,7 +373,7 @@ export function EdgeInspector({
           edge.description
         ) : (
           <span className="text-fg-secondary">
-            RepoLab read the connection from the code but wrote no plain-language description for it.
+            RepoLens read the connection from the code but wrote no plain-language description for it.
           </span>
         )}
       </Meaning>
@@ -417,7 +417,7 @@ function Meaning({ title, testId, children }: { title: string; testId?: string; 
 function Evidenced({ children }: { children: React.ReactNode }) {
   return (
     <div data-testid="evidence-sections" className="flex flex-col gap-3 border-t border-line pt-3">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">How RepoLab knows</h4>
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">How RepoLens knows</h4>
       {children}
     </div>
   );
@@ -543,7 +543,7 @@ function MeasuredSection({ measured }: { measured: MeasuredValue[] }) {
     <Section title="Measured" hint="observed during a real run">
       {measured.length === 0 ? (
         <p className="text-xs text-fg-secondary" data-testid="nothing-measured">
-          Nothing measured yet. Values appear here only after RepoLab runs this repository.
+          Nothing measured yet. Values appear here only after RepoLens runs this repository.
         </p>
       ) : (
         <ul className="flex flex-col gap-1 text-xs" data-testid="measured-values">
@@ -613,7 +613,7 @@ function Actions({
           data-testid="ask-why"
           className="rounded bg-brand px-3 py-1.5 text-xs font-medium text-white"
         >
-          Ask RepoLab
+          Ask RepoLens
         </Link>
         {experiment?.available && experiment.question && (
           <Link

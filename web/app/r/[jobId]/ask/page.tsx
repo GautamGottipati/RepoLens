@@ -1,5 +1,5 @@
 /**
- * Ask RepoLab — the question, then an answer or an experiment.
+ * Ask RepoLens — the question, then an answer or an experiment.
  *
  * A question is triaged first. A conceptual one, or one about the code, is
  * answered from the repository and its official docs, laid out to teach: the
@@ -178,11 +178,11 @@ export default function AskPage() {
       <PageHeader
         eyebrow={
           <>
-            <AskIcon size={14} /> Ask RepoLab
+            <AskIcon size={14} /> Ask RepoLens
           </>
         }
         accent="ai"
-        title="Ask RepoLab"
+        title="Ask RepoLens"
         description="Understand anything about this repository. Answers come from its code and official docs — and when a question can be tested, from a real experiment you approve."
       />
       <Card className="p-5">

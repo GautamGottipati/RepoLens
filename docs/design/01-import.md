@@ -3,7 +3,7 @@
 ## Purpose
 
 Take a repository URL and start investigating it. The first thing anyone sees,
-so it also has to say what RepoLab is in one line without a tour.
+so it also has to say what RepoLens is in one line without a tour.
 
 ## Reads and writes
 
@@ -14,7 +14,7 @@ so it also has to say what RepoLab is in one line without a tour.
 
 ```
 ┌────────────────────────────────────────────────────┐
-│  RepoLab                                           │
+│  RepoLens                                           │
 │  Turn a repository into an executable experiment.  │
 │                                                    │
 │  ┌──────────────────────────────┐  ┌────────────┐  │
@@ -29,14 +29,14 @@ so it also has to say what RepoLab is in one line without a tour.
 ```
 
 The demo repository is offered as a one-click example, because the fastest way
-to understand RepoLab is to watch it work on something.
+to understand RepoLens is to watch it work on something.
 
 ## States
 
 - **Idle** — the field, prefilled with the demo repository.
 - **Submitting** — the button is disabled and says so.
 - **Rejected** — a 400 from URL validation is shown verbatim under the field.
-  Validation lives in the backend (`repolab/ingest/url.py`), and the browser
+  Validation lives in the backend (`repolens/ingest/url.py`), and the browser
   does not reimplement it.
 - **Unreachable API** — says the API is not responding and names the URL it
   tried, since the usual cause is the worker or API not running.

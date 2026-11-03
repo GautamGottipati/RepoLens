@@ -6,13 +6,13 @@ Two properties matter and are both asserted here: it finds the answer even when
 
 from __future__ import annotations
 
-from repolab.llm.response import (
+from repolens.llm.response import (
     MessageShape,
     extract_text,
     inspect_message,
     looks_like_reasoning,
 )
-from repolab.testing.fakes import FakeMessage, FakeToolCall
+from repolens.testing.fakes import FakeMessage, FakeToolCall
 
 SECRET_COT = "First I will consider the user's intent, then I will answer."
 

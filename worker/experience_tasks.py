@@ -8,7 +8,7 @@ truth a refreshed browser reconnects to.
               the commit, an official release, or a generated Mini Lab -- recorded
               on the session, never switched silently
     run       one action in a fresh, network-less container from that runtime
-    explain   Super, from the run's own evidence, verified like Ask RepoLab
+    explain   Super, from the run's own evidence, verified like Ask RepoLens
 """
 
 from __future__ import annotations
@@ -23,18 +23,18 @@ from typing import Any
 import structlog
 from sqlalchemy.orm import Session
 
-from repolab.config import get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.db.store import load_architecture, load_manifest
-from repolab.events import DbEventEmitter, EventType, JobStatus
-from repolab.events.liveness import ActivitySink, NoLiveness, liveness_for, session_key
-from repolab.experiences import sessions as store
-from repolab.experiences.adapters import spark as spark_adapter
-from repolab.experiences.adapters.library import SOURCE_ROOT as LIBRARY_ROOT
-from repolab.experiences.facts import python_image
-from repolab.experiences.model import Strategy
-from repolab.failures import describe, explain
+from repolens.config import get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.db.store import load_architecture, load_manifest
+from repolens.events import DbEventEmitter, EventType, JobStatus
+from repolens.events.liveness import ActivitySink, NoLiveness, liveness_for, session_key
+from repolens.experiences import sessions as store
+from repolens.experiences.adapters import spark as spark_adapter
+from repolens.experiences.adapters.library import SOURCE_ROOT as LIBRARY_ROOT
+from repolens.experiences.facts import python_image
+from repolens.experiences.model import Strategy
+from repolens.failures import describe, explain
 
 log = structlog.get_logger(__name__)
 
@@ -85,7 +85,7 @@ class _Context:
 def _router(settings: Any) -> Any:
     if settings.muse_api_key is None or not any(settings.configured_models.values()):
         return None
-    from repolab.llm import build_router
+    from repolens.llm import build_router
 
     return build_router(settings)
 
@@ -146,7 +146,7 @@ async def _prepare(context: _Context, session_id: str) -> str:
         save()
 
     if adapter == "minilab":
-        from repolab.builds.minilab import generate, validate
+        from repolens.builds.minilab import generate, validate
 
         step("generate", "writing a Mini Lab from the repository's own concepts", "started")
         lab = await generate(manifest, router=_router(context.settings))
@@ -188,8 +188,8 @@ async def _prepare(context: _Context, session_id: str) -> str:
         state.runtime.image = image
         state.runtime.python = "python"
         state.runtime.label = f"{manifest.facts.python.distribution} installed from this commit"  # type: ignore[union-attr]
-        from repolab.experiences.library_runner import run_snippet
-        from repolab.sandbox.docker import DockerEnvironment
+        from repolens.experiences.library_runner import run_snippet
+        from repolens.sandbox.docker import DockerEnvironment
 
         smoke = await run_snippet(
             DockerEnvironment(hardened=True),
@@ -209,8 +209,8 @@ async def _prepare(context: _Context, session_id: str) -> str:
 
 
 async def _spark_smoke(context, state, save, step, *, official: bool, manifest) -> str:
-    from repolab.experiences.spark.snippet import SnippetRunner, sample_dataset
-    from repolab.sandbox.docker import DockerEnvironment
+    from repolens.experiences.spark.snippet import SnippetRunner, sample_dataset
+    from repolens.sandbox.docker import DockerEnvironment
 
     state.dataset = sample_dataset()[1].model_dump(mode="json")
     step("smoke", "running a tiny Spark job to prove the runtime works", "started")
@@ -241,7 +241,7 @@ async def _spark_smoke(context, state, save, step, *, official: bool, manifest) 
 
 
 async def _ensure(context: _Context, image: str) -> None:
-    from repolab.sandbox.docker import ensure_image
+    from repolens.sandbox.docker import ensure_image
 
     context.liveness.set_activity("experience", "image")
     context.emit(EventType.STEP_STARTED, f"preparing the image {image}")
@@ -251,10 +251,10 @@ async def _ensure(context: _Context, image: str) -> None:
 
 
 async def _clone_archive(repo_url: str, commit: str) -> tuple[bytes, str]:
-    from repolab.builds.resolver import archive_repository
-    from repolab.ingest.clone import TemporaryClone
-    from repolab.ingest.limits import DEFAULT_LIMITS
-    from repolab.ingest.url import validate_repo_url
+    from repolens.builds.resolver import archive_repository
+    from repolens.ingest.clone import TemporaryClone
+    from repolens.ingest.limits import DEFAULT_LIMITS
+    from repolens.ingest.url import validate_repo_url
 
     with TemporaryClone(validate_repo_url(repo_url), limits=DEFAULT_LIMITS) as clone:
         return archive_repository(Path(clone.path), limit=512 * 1024 * 1024), clone.commit_sha
@@ -277,7 +277,7 @@ async def _in_container_build(
     tailed, so a build that takes an hour reports where it is, not just that it
     is still going.
     """
-    from repolab.sandbox.docker_provider import DockerSandboxProvider
+    from repolens.sandbox.docker_provider import DockerSandboxProvider
 
     provider = DockerSandboxProvider(memory=memory)
     handle = await provider.create(image)
@@ -291,21 +291,21 @@ async def _in_container_build(
         for name, command, timeout in commands:
             step(name, f"running `{command}`", "started")
             launched = (
-                f"cd {root} && nohup sh -c '{command} > /opt/repolab/{name}.log 2>&1; "
-                f"echo $? > /opt/repolab/{name}.exit' >/dev/null 2>&1 &"
+                f"cd {root} && nohup sh -c '{command} > /opt/repolens/{name}.log 2>&1; "
+                f"echo $? > /opt/repolens/{name}.exit' >/dev/null 2>&1 &"
             )
-            await provider.execute(handle, f"mkdir -p /opt/repolab && {launched}")
+            await provider.execute(handle, f"mkdir -p /opt/repolens && {launched}")
             started = time.monotonic()
             last = ""
             while True:
                 await asyncio.sleep(15)
                 _, done = await provider.execute(
-                    handle, f"cat /opt/repolab/{name}.exit 2>/dev/null"
+                    handle, f"cat /opt/repolens/{name}.exit 2>/dev/null"
                 )
                 _, tail = await provider.execute(
                     handle,
                     f"grep -E '\\[INFO\\] Building |Successfully|Installing|ERROR' "
-                    f"/opt/repolab/{name}.log | tail -1",
+                    f"/opt/repolens/{name}.log | tail -1",
                 )
                 line = (tail.stdout or "").strip()[:200]
                 if line and line != last:
@@ -316,7 +316,7 @@ async def _in_container_build(
                 if time.monotonic() - started > timeout:
                     return False, f"`{command}` ran past {timeout / 60:.0f} minutes"
             if (done.stdout or "").strip() != "0":
-                _, log_tail = await provider.execute(handle, f"tail -60 /opt/repolab/{name}.log")
+                _, log_tail = await provider.execute(handle, f"tail -60 /opt/repolens/{name}.log")
                 return False, log_tail.stdout[-6000:]
             minutes = (time.monotonic() - started) / 60
             step(name, f"`{command}` finished in {minutes:.0f} min")
@@ -329,7 +329,7 @@ async def _in_container_build(
 async def _source_build(context, repo_url, commit, manifest, step) -> str | None:
     facts = manifest.facts.spark if manifest.facts else None
     if facts is None or not facts.build_command or not _MVN.match(facts.build_command):
-        raise RuntimeError("the README's build command is missing or not one RepoLab will run")
+        raise RuntimeError("the README's build command is missing or not one RepoLens will run")
     with context.factory() as session:
         existing = store.find_build(session, repo_url, commit, "spark", "source_build")
         if existing is not None and existing.status == "ready" and existing.image:
@@ -380,7 +380,7 @@ async def _source_build(context, repo_url, commit, manifest, step) -> str | None
         f"build with the README's `{command}` (MAVEN_OPTS -Xmx{MAVEN_HEAP}: Maven's own "
         "heap, so the build's forked Scala compiler fits in the sandbox)",
     )
-    tag = f"repolab/experience-spark:{cloned[:12]}-source"
+    tag = f"repolens/experience-spark:{cloned[:12]}-source"
     ok, log_tail = await _in_container_build(
         context,
         image=f"eclipse-temurin:{java}-jdk",
@@ -465,7 +465,7 @@ async def _library_build(context, repo_url, commit, manifest, step) -> str | Non
     step("runtime", f"{image} ({why})")
     archive, cloned = await _clone_archive(repo_url, commit)
     slug = re.sub(r"[^a-z0-9]+", "-", package.distribution.lower())[:40]
-    tag = f"repolab/experience-lib-{slug}:{cloned[:12]}"
+    tag = f"repolens/experience-lib-{slug}:{cloned[:12]}"
     ok, log_tail = await _in_container_build(
         context,
         image=image,
@@ -490,7 +490,7 @@ async def _library_build(context, repo_url, commit, manifest, step) -> str | Non
 
 
 async def _run(context: _Context, session_id: str, run_id: str) -> str:
-    from repolab.sandbox.docker import DockerEnvironment
+    from repolens.sandbox.docker import DockerEnvironment
 
     with context.factory() as session:
         record, state = store.load_session(session, session_id)  # type: ignore[misc]
@@ -502,8 +502,8 @@ async def _run(context: _Context, session_id: str, run_id: str) -> str:
 
     context.emit(EventType.STEP_STARTED, "running your code in a fresh, network-less sandbox")
     if adapter == "spark":
-        from repolab.experiences.spark.snippet import SnippetConfig, SnippetRunner
-        from repolab.experiences.spark.understanding import map_run
+        from repolens.experiences.spark.snippet import SnippetConfig, SnippetRunner
+        from repolens.experiences.spark.understanding import map_run
 
         result = await SnippetRunner(DockerEnvironment(hardened=True)).run(
             image=state.runtime.image,
@@ -522,7 +522,7 @@ async def _run(context: _Context, session_id: str, run_id: str) -> str:
                 f"task(s) in {(m.total_runtime_ms or 0) / 1000:.1f} s (from its event log)",
             )
     else:
-        from repolab.experiences.library_runner import run_snippet
+        from repolens.experiences.library_runner import run_snippet
 
         outcome = await run_snippet(
             DockerEnvironment(hardened=True), image=state.runtime.image, code=run.code
@@ -541,8 +541,8 @@ async def _run(context: _Context, session_id: str, run_id: str) -> str:
 
 
 async def _explain(context: _Context, session_id: str, run_id: str) -> str:
-    from repolab.experiences.explain import evidence_for, explain_run
-    from repolab.experiences.spark.understanding import run_measurements
+    from repolens.experiences.explain import evidence_for, explain_run
+    from repolens.experiences.spark.understanding import run_measurements
 
     with context.factory() as session:
         _, state = store.load_session(session, session_id)  # type: ignore[misc]
@@ -551,7 +551,7 @@ async def _explain(context: _Context, session_id: str, run_id: str) -> str:
         raise RuntimeError("nothing has run to explain")
     router = _router(context.settings)
     if router is None:
-        run.explanation_error = "No model is configured, so RepoLab cannot explain this run."
+        run.explanation_error = "No model is configured, so RepoLens cannot explain this run."
     else:
         context.emit(EventType.STEP_STARTED, "explaining the run from its own evidence")
         evidence = evidence_for(

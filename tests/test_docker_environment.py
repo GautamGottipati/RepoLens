@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from repolab.sandbox import ExecutionEnvironment
-from repolab.sandbox.docker import (
+from repolens.sandbox import ExecutionEnvironment
+from repolens.sandbox.docker import (
     CONTAINER_WORKDIR,
     DockerEnvironment,
     build_exec_command,
@@ -43,32 +43,32 @@ class TestConformance:
 class TestCommandConstruction:
     def test_the_work_directory_is_bind_mounted(self, tmp_path: Path) -> None:
         """The mount is how the event log reaches the host without docker cp."""
-        argv = build_run_command(IMAGE, "repolab-test", tmp_path)
+        argv = build_run_command(IMAGE, "repolens-test", tmp_path)
         assert "--volume" in argv
         assert f"{tmp_path}:{CONTAINER_WORKDIR}" in argv
 
     def test_the_container_stays_alive(self, tmp_path: Path) -> None:
         """State must accumulate across commands, as it does in a sandbox."""
-        argv = build_run_command(IMAGE, "repolab-test", tmp_path)
+        argv = build_run_command(IMAGE, "repolens-test", tmp_path)
         assert "sleep infinity" in " ".join(argv)
         assert "--detach" in argv
 
     def test_the_image_is_passed(self, tmp_path: Path) -> None:
-        assert IMAGE in build_run_command(IMAGE, "repolab-test", tmp_path)
+        assert IMAGE in build_run_command(IMAGE, "repolens-test", tmp_path)
 
     def test_no_shell_interprets_the_argv(self, tmp_path: Path) -> None:
         """A list argv means a path with a space cannot be re-split."""
-        argv = build_run_command(IMAGE, "repolab-test", tmp_path / "a b")
+        argv = build_run_command(IMAGE, "repolens-test", tmp_path / "a b")
         assert isinstance(argv, list)
         assert f"{tmp_path / 'a b'}:{CONTAINER_WORKDIR}" in argv
 
     def test_exec_runs_the_command_in_a_shell_inside_the_container(self) -> None:
-        argv = build_exec_command("repolab-test", "echo hello")
+        argv = build_exec_command("repolens-test", "echo hello")
         assert argv[:2] == ["docker", "exec"]
         assert argv[-3:] == ["/bin/sh", "-lc", "echo hello"]
 
     def test_exec_can_set_a_working_directory(self) -> None:
-        argv = build_exec_command("repolab-test", "ls", cwd="/work/repo")
+        argv = build_exec_command("repolens-test", "ls", cwd="/work/repo")
         assert "--workdir" in argv
         assert "/work/repo" in argv
 
@@ -90,7 +90,7 @@ class TestWorkdirHandling:
             shutil.rmtree(environment.host_workdir, ignore_errors=True)
 
     def test_commands_before_start_are_refused(self, tmp_path: Path) -> None:
-        from repolab.sandbox import EnvironmentNotStartedError
+        from repolens.sandbox import EnvironmentNotStartedError
 
         environment = DockerEnvironment(host_workdir=tmp_path)
         assert environment.started is False

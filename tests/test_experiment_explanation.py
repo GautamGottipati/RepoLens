@@ -13,14 +13,14 @@ explanation so a reader sees exactly which claims the evidence did not support.
 
 from __future__ import annotations
 
-from repolab.evidence.models import (
+from repolens.evidence.models import (
     CodeReference,
     DocumentationReference,
     EvidenceBundle,
     LogReference,
 )
-from repolab.experiences.spark.measurements import Determinism
-from repolab.experiments.explanation import (
+from repolens.experiences.spark.measurements import Determinism
+from repolens.experiments.explanation import (
     Claim,
     ClaimKind,
     Explanation,
@@ -30,7 +30,7 @@ from repolab.experiments.explanation import (
     numbers_in,
     verify_explanation,
 )
-from repolab.experiments.statistics import compute_statistics
+from repolens.experiments.statistics import compute_statistics
 from tests.support.experiments import plan, variant_run
 
 DOC_URL = "https://spark.apache.org/docs/3.5.1/sql-performance-tuning.html"
@@ -102,7 +102,7 @@ class TestWhatTheModelReceives:
         text to cite, not a measurement table, and any number taken from one and
         labelled ``measured`` is caught by :func:`verify_explanation`.
         """
-        from repolab.experiments.explanation import ExplanationInput
+        from repolens.experiments.explanation import ExplanationInput
 
         assert "measurements" not in ExplanationInput.model_fields
 
@@ -116,7 +116,7 @@ class TestWhatTheModelReceives:
 
     def test_the_permitted_fields_are_exactly_these(self) -> None:
         """Pinned deliberately: adding a field here changes what a model can see."""
-        from repolab.experiments.explanation import ExplanationInput
+        from repolens.experiments.explanation import ExplanationInput
 
         assert set(ExplanationInput.model_fields) == {
             "question",
@@ -150,9 +150,9 @@ class TestWhatTheModelReceives:
 
 
 class TestNotes:
-    def test_repolabs_own_additions_are_disclosed(self) -> None:
+    def test_repolens_own_additions_are_disclosed(self) -> None:
         notes = default_notes(plan(), statistics())
-        assert any("RepoLab added" in note for note in notes)
+        assert any("RepoLens added" in note for note in notes)
 
     def test_timing_metrics_are_named_as_timings(self) -> None:
         notes = default_notes(plan(), statistics())

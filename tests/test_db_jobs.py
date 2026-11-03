@@ -11,10 +11,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.agents import AgentLimits, AgentRun, AgentStatus, AgentStep, ToolRequest, ToolResult
-from repolab.analytics import AnalyticsEvent, AnalyticsEventType, DbAnalyticsWriter
-from repolab.db import Base
-from repolab.db.jobs import (
+from repolens.agents import AgentLimits, AgentRun, AgentStatus, AgentStep, ToolRequest, ToolResult
+from repolens.analytics import AnalyticsEvent, AnalyticsEventType, DbAnalyticsWriter
+from repolens.db import Base
+from repolens.db.jobs import (
     append_event,
     count_events,
     create_job,
@@ -25,8 +25,8 @@ from repolab.db.jobs import (
     read_events_after,
     save_agent_run,
 )
-from repolab.db.models import AgentRunRecord, AnalyticsEventRecord, JobEventRecord
-from repolab.events import EventType, JobEvent, JobStatus
+from repolens.db.models import AgentRunRecord, AnalyticsEventRecord, JobEventRecord
+from repolens.events import EventType, JobEvent, JobStatus
 
 REPO = "https://github.com/example/demo"
 

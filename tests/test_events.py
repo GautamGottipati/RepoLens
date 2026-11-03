@@ -10,14 +10,14 @@ import json
 
 import pytest
 
-from repolab.events import (
+from repolens.events import (
     CollectingEmitter,
     EventType,
     JobEvent,
     JobStatus,
     NullEmitter,
 )
-from repolab.events.models import MAX_MESSAGE_LENGTH
+from repolens.events.models import MAX_MESSAGE_LENGTH
 
 #: Every event type the specification requires.
 REQUIRED_EVENTS = {

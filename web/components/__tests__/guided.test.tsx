@@ -52,7 +52,7 @@ describe("level 0: what is this repository?", () => {
     expect(within(known).getByRole("link", { name: "Cluster overview" }).getAttribute("href")).toContain("engine.example.org");
   });
 
-  it("offers a first question for Ask RepoLab", () => {
+  it("offers a first question for Ask RepoLens", () => {
     renderGuided();
     const href = screen.getByTestId("recommended-start").getAttribute("href")!;
     const url = new URL(href, "http://x");
@@ -128,7 +128,7 @@ describe("drilling down: subsystem -> component -> source", () => {
     expect(screen.getByTestId("inspector-title").textContent).toContain("Kmeans Wrapper pipeline");
   });
 
-  it("sends the level and part with Ask RepoLab", () => {
+  it("sends the level and part with Ask RepoLens", () => {
     const graph = guidedView().graph;
     const component = focusFor(graph, "pipeline:kmeans")!;
     expect(component.level).toBe("component");
@@ -145,7 +145,7 @@ describe("drilling down: subsystem -> component -> source", () => {
 });
 
 describe("experiments", () => {
-  it("are offered where RepoLab can run something, and otherwise stay quiet", () => {
+  it("are offered where RepoLens can run something, and otherwise stay quiet", () => {
     renderGuided(guidedView(), null, { subsystem: "sub:jobs", node: "pipeline:job" });
     expect(screen.getByTestId("experiment")).toBeTruthy();
 

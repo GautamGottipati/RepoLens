@@ -16,18 +16,18 @@ from pathlib import Path
 
 import pytest
 
-from repolab.builds.models import BuildArtifact, BuildCapabilities, SmokeTestResult
-from repolab.interfaces import SearchResultItem
-from repolab.lessons.agent import (
+from repolens.builds.models import BuildArtifact, BuildCapabilities, SmokeTestResult
+from repolens.interfaces import SearchResultItem
+from repolens.lessons.agent import (
     DOC_DOMAINS,
     MAX_GENERATION_ATTEMPTS,
     GeneratedLesson,
     GeneratedStep,
     LearningAgent,
 )
-from repolab.lessons.cassandra import CQLSH_DOC, gather_repository_evidence
-from repolab.lessons.models import CheckKind
-from repolab.manifest.models import BuildKind
+from repolens.lessons.cassandra import CQLSH_DOC, gather_repository_evidence
+from repolens.lessons.models import CheckKind
+from repolens.manifest.models import BuildKind
 from tests.support.builds import CASSANDRA_REPO, SHA, cassandra_manifest
 
 CQLSH = "/opt/cassandra/bin/cqlsh"
@@ -217,7 +217,7 @@ class TestGatheringTheFourInputs:
         assert "STATEMENTS THE TERMINAL PERMITS" in router.prompts[0]
 
     async def test_no_research_provider_means_no_documentation_citations(self) -> None:
-        """Citing a URL RepoLab never retrieved would be guessing at an external API."""
+        """Citing a URL RepoLens never retrieved would be guessing at an external API."""
         inputs, _ = await LearningAgent().gather(cassandra_manifest(), artifact(), None)
 
         assert inputs.official_documentation == []
@@ -244,11 +244,11 @@ class TestWhatIsPutInFrontOfALearner:
 
         assert [ref.path for ref in lesson.steps[0].code_references] == ["bin/cqlsh.py"]
 
-    async def test_a_step_citing_nothing_gets_repolabs_own_citation(self, checkout: Path) -> None:
+    async def test_a_step_citing_nothing_gets_repolens_own_citation(self, checkout: Path) -> None:
         """Observed on the real generator: eight correct steps, not one citation.
 
         The replacement is a lookup, not a claim: the statement says what it
-        does, and the reference is a file RepoLab already read at this commit.
+        does, and the reference is a file RepoLens already read at this commit.
         """
         uncited = generated()
         uncited.steps[0].code_paths = []
@@ -296,7 +296,7 @@ class TestWhatIsPutInFrontOfALearner:
             cassandra_manifest(), artifact(), checkout
         )
 
-        assert lesson.generated_by == "deterministic", "RepoLab's own lesson, not the rejected one"
+        assert lesson.generated_by == "deterministic", "RepoLens's own lesson, not the rejected one"
 
     async def test_a_lesson_with_an_uncheckable_step_is_rejected(self, checkout: Path) -> None:
         uncheckable = generated()
@@ -372,7 +372,7 @@ class TestEvidenceWithoutACheckout:
         assert len(evidence.unresolved) > 0, "a thin lesson should be explicable"
 
     def test_the_lesson_still_works(self) -> None:
-        from repolab.lessons.cassandra import cassandra_lesson
+        from repolens.lessons.cassandra import cassandra_lesson
 
         lesson = cassandra_lesson(CASSANDRA_REPO, SHA)
         assert lesson.step_count == 8

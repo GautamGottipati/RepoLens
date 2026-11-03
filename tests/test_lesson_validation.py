@@ -10,9 +10,9 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.lessons.cassandra import cassandra_lesson
-from repolab.lessons.models import CheckKind, Lesson, LessonStep, StepCheck
-from repolab.lessons.validation import (
+from repolens.lessons.cassandra import cassandra_lesson
+from repolens.lessons.models import CheckKind, Lesson, LessonStep, StepCheck
+from repolens.lessons.validation import (
     DETERMINISTIC,
     NANO,
     LessonRejected,
@@ -138,7 +138,7 @@ class TestWhatWasRunMustResembleWhatWasAsked:
     def test_a_different_keyspace_name_is_still_the_same_kind_of_statement(self) -> None:
         """Only the verb is compared; the content checks constrain the rest."""
         create = step(3)
-        altered = create.action.replace("repolab", "mine")
+        altered = create.action.replace("repolens", "mine")
 
         assert check_step(create, altered, "", 0).passed is True
 

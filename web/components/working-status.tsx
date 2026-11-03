@@ -1,5 +1,5 @@
 /**
- * What RepoLab is doing right now, said calmly.
+ * What RepoLens is doing right now, said calmly.
  *
  * One component for every long wait -- the repository analysis, a section
  * still being made, an experience being prepared -- so the rules live in one
@@ -60,7 +60,7 @@ const ARTIFACT_WORK: Record<ArtifactType, Copy> = {
 
 /** Every activity key the backend sets, and what a person reads for it. */
 export const ACTIVITY_COPY: Record<string, Copy> = {
-  // repository analysis: agent phases (repolab/events/activity.py)
+  // repository analysis: agent phases (repolens/events/activity.py)
   inspecting_repository: {
     headline: "Understanding repository structure",
     detail: "Fetching the repository and reading its layout.",
@@ -77,7 +77,7 @@ export const ACTIVITY_COPY: Record<string, Copy> = {
     headline: "Checking which experiences can run",
     detail: "Looking for a runtime this repository can use.",
   },
-  // analysis artifacts (repolab/artifacts/registry.py), and their verification
+  // analysis artifacts (repolens/artifacts/registry.py), and their verification
   ...ARTIFACT_WORK,
   ...Object.fromEntries(
     Object.entries(ARTIFACT_WORK).map(([key, copy]) => [
@@ -107,7 +107,7 @@ export const ACTIVITY_COPY: Record<string, Copy> = {
     detail: "Running a tiny job to prove the runtime works.",
   },
   ready: { headline: "Starting the interactive environment" },
-  // Ask RepoLab (adopted later)
+  // Ask RepoLens (adopted later)
   "ask.investigating": { headline: "Investigating your question" },
   "ask.sources": { headline: "Finding relevant source code" },
   "ask.verifying": { headline: "Verifying the explanation against the repository" },
@@ -204,7 +204,7 @@ export function WorkingStatus({
       >
         <div>
           <p className="font-medium text-exp-fg">⚠ Processing may have been interrupted</p>
-          <p className="mt-1 text-fg-secondary">RepoLab hasn&apos;t received a worker heartbeat recently.</p>
+          <p className="mt-1 text-fg-secondary">RepoLens hasn&apos;t received a worker heartbeat recently.</p>
         </div>
         {onRetry && (
           <Button size="sm" onClick={onRetry} data-testid={`${testId}-retry`}>

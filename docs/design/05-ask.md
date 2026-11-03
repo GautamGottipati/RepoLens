@@ -1,11 +1,11 @@
-# Ask RepoLab — `/r/{jobId}/ask`
+# Ask RepoLens — `/r/{jobId}/ask`
 
 ## Purpose
 
 The question, then an answer or an experiment. Every question is **triaged
 first**, because they deserve different responses:
 
-| Kind | Example | What RepoLab does |
+| Kind | Example | What RepoLens does |
 |---|---|---|
 | conceptual | *What is Cassandra?* | Reads the repository (README, manifest, matching code) and its official docs, then Super answers from that evidence |
 | repository | *Where is the CQL parser implemented?* | The same, weighted towards the code |
@@ -59,10 +59,10 @@ is re-analysed:
   join the evidence;
 - measured values, only from recorded runs.
 
-**Verification** (deterministic, `repolab/questions/layout.py`):
+**Verification** (deterministic, `repolens/questions/layout.py`):
 
 - **Arrows.** An arrow is drawn only when it cites a real file, or a slice
-  relationship joining the same components. Otherwise it is listed as "RepoLab
+  relationship joining the same components. Otherwise it is listed as "RepoLens
   could not establish …" and not drawn.
   - Inferred arrows are dashed.
   - A diagram made mostly of inferences is not drawn.
@@ -140,7 +140,7 @@ is executed during this stage, and the screen says so.
 When `approval_required` arrives, the plan is presented in full:
 
 ```
-┌─ RepoLab wants to run an experiment ───────────────┐
+┌─ RepoLens wants to run an experiment ───────────────┐
 │ Question    Why does this job use 200 shuffle…     │
 │ Hypothesis  …                                      │
 │                                                    │

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.architecture.models import (
+from repolens.architecture.models import (
     ArchitectureViewKind,
     Completeness,
     EdgeType,

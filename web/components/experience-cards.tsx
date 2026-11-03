@@ -1,10 +1,10 @@
 /**
  * The things to do with a repository, best first: a ★ recommended experience, a
- * few more, and -- when nothing real can run -- why, what RepoLab can run, and
+ * few more, and -- when nothing real can run -- why, what RepoLens can run, and
  * a Mini Lab clearly marked as a simulation.
  *
  * Each card answers: what will I do, what will I learn, is it real or
- * simulated, can RepoLab run it, and what happens when I click. Everything on a
+ * simulated, can RepoLens run it, and what happens when I click. Everything on a
  * card comes from the backend's experience definition; nothing is hardcoded per
  * repository.
  */
@@ -249,7 +249,7 @@ function NothingRuns({ listing, ...handlers }: { listing: ExperienceListing } & 
       <div>
         <h2 className="text-card font-semibold text-fg">No runnable experiences yet</h2>
         <p className="mt-1 text-sm text-fg-secondary">
-          RepoLab mapped this repository&apos;s architecture, but couldn&apos;t create a safe environment to
+          RepoLens mapped this repository&apos;s architecture, but couldn&apos;t create a safe environment to
           run it.
         </p>
       </div>
@@ -263,7 +263,7 @@ function NothingRuns({ listing, ...handlers }: { listing: ExperienceListing } & 
           </ul>
         </div>
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-muted">RepoLab runs</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-muted">RepoLens runs</h3>
           <ul className="mt-2 list-disc pl-5 text-sm text-fg-secondary">
             {listing.supported_kinds.map((kind) => (
               <li key={kind}>{kind}</li>

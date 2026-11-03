@@ -1,4 +1,4 @@
-# RepoLab web: a production Next.js build served by `next start`.
+# RepoLens web: a production Next.js build served by `next start`.
 #
 # NEXT_PUBLIC_API_URL is inlined into the browser bundle at build time, so it is
 # a build argument, and it is the only configuration the browser ever sees. It

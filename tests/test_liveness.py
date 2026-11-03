@@ -7,8 +7,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from repolab.events import Health, Liveness, LivenessRead, job_key, read_liveness, task_health
-from repolab.events.liveness import LivenessSnapshot, MemoryLivenessStore
+from repolens.events import Health, Liveness, LivenessRead, job_key, read_liveness, task_health
+from repolens.events.liveness import LivenessSnapshot, MemoryLivenessStore
 
 NOW = datetime(2026, 10, 27, 12, 0, tzinfo=UTC)
 ALIVE = LivenessRead(known=True, snapshot=LivenessSnapshot(heartbeat_at=NOW))

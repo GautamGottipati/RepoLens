@@ -6,7 +6,7 @@ computed from real history later rather than reconstructed.
 
 from __future__ import annotations
 
-from repolab.analytics import (
+from repolens.analytics import (
     Analytics,
     AnalyticsEvent,
     AnalyticsEventType,

@@ -11,11 +11,11 @@ from pathlib import Path
 
 import pytest
 
-from repolab.experiences.adapters.spark import OFFICIAL_IMAGE, OFFICIAL_SPARK_SUBMIT
-from repolab.experiences.library_runner import run_snippet
-from repolab.experiences.spark.snippet import SnippetConfig, SnippetRunner
-from repolab.experiences.spark.understanding import map_run
-from repolab.sandbox.docker import DockerEnvironment, docker_available
+from repolens.experiences.adapters.spark import OFFICIAL_IMAGE, OFFICIAL_SPARK_SUBMIT
+from repolens.experiences.library_runner import run_snippet
+from repolens.experiences.spark.snippet import SnippetConfig, SnippetRunner
+from repolens.experiences.spark.understanding import map_run
+from repolens.sandbox.docker import DockerEnvironment, docker_available
 
 pytestmark = [pytest.mark.docker, pytest.mark.skipif(not docker_available(), reason="needs Docker")]
 

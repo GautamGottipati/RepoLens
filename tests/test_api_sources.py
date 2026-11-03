@@ -1,4 +1,4 @@
-"""The source API serves RepoLab's own copies, at exactly the cited commit."""
+"""The source API serves RepoLens's own copies, at exactly the cited commit."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.sources import MemorySnapshot, capture
+from repolens.sources import MemorySnapshot, capture
 from tests.test_api_experiences import investigated
 from tests.test_experiences_discovery import manifest
 
@@ -20,7 +20,7 @@ REPO = "https://github.com/apache/spark"
 @pytest.fixture
 def db(monkeypatch: pytest.MonkeyPatch) -> Iterator[sessionmaker[Session]]:
     from api import deps
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -43,8 +43,8 @@ def client(db) -> Iterator[TestClient]:
 
 def job_with_source(db) -> tuple[str, str]:
     job = investigated(db, manifest(url=REPO))
-    from repolab.db.jobs import get_job
-    from repolab.db.models import Ingestion
+    from repolens.db.jobs import get_job
+    from repolens.db.models import Ingestion
 
     with db() as session:
         commit = session.get(Ingestion, get_job(session, job).ingestion_id).commit_sha

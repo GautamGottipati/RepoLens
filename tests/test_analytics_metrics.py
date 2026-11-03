@@ -1,7 +1,7 @@
 """The KPI dashboard's arithmetic, and its refusals.
 
 Two things are being tested, and the second matters more. The first is that the
-numbers are right. The second is that a number RepoLab cannot honestly produce
+numbers are right. The second is that a number RepoLens cannot honestly produce
 is **absent** rather than zero — because on a dashboard "0%" and "we do not
 record this" look identical, and only one of them is true.
 
@@ -20,15 +20,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.analytics.events import AnalyticsEventType
-from repolab.analytics.metrics import (
+from repolens.analytics.events import AnalyticsEventType
+from repolens.analytics.metrics import (
     NORTH_STAR_LABEL,
     Metric,
     MetricStatus,
     build_dashboard,
 )
-from repolab.db import Base
-from repolab.db.models import (
+from repolens.db import Base
+from repolens.db.models import (
     AgentRunRecord,
     AgentStepRecord,
     AnalyticsEventRecord,
@@ -116,7 +116,7 @@ class TestMetricHonesty:
         assert "longitudinal" in dashboard.north_star.detail
 
     def test_challenges_are_declared_uninstrumented(self, seeded: sessionmaker[Session]) -> None:
-        """RepoLab has no challenges, so a success rate would be an invention."""
+        """RepoLens has no challenges, so a success rate would be an invention."""
         with seeded() as session:
             dashboard = build_dashboard(session)
 
@@ -340,7 +340,7 @@ class TestAgentPerformance:
         assert by_key["agent_task_success_rate"].value == pytest.approx(66.7, abs=0.1)
         assert by_key["agent_steps_mean_completed"].value == 7.0
 
-    def test_the_recovery_definition_is_stated_as_repolabs_own(
+    def test_the_recovery_definition_is_stated_as_repolens_own(
         self, seeded: sessionmaker[Session]
     ) -> None:
         with seeded() as session:
@@ -416,7 +416,7 @@ class TestModelUsage:
         assert by_key["model_schema_retries"].value == 1
 
     def test_cost_is_withheld_when_no_call_was_priced(self, seeded: sessionmaker[Session]) -> None:
-        """MODEL_PRICING unset means no price exists. RepoLab does not guess one."""
+        """MODEL_PRICING unset means no price exists. RepoLens does not guess one."""
         with seeded() as session:
             session.add(
                 ModelCallRecord(
@@ -442,7 +442,7 @@ class TestProvenance:
     def test_the_dataset_is_described_as_development_traffic(
         self, seeded: sessionmaker[Session]
     ) -> None:
-        """These numbers come from building RepoLab, and must not read as adoption."""
+        """These numbers come from building RepoLens, and must not read as adoption."""
         with seeded() as session:
             dashboard = build_dashboard(session)
 

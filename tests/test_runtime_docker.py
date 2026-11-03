@@ -2,7 +2,7 @@
 
 A tiny Express app with a MongoDB connection read from the environment is
 planned from its own files, installed in a build container, started on a
-no-egress network next to an ephemeral MongoDB, exposed through RepoLab's
+no-egress network next to an ephemeral MongoDB, exposed through RepoLens's
 sidecar, health-checked, and then reached through the API's Host-routed proxy.
 
 Run with ``pytest -m docker tests/test_runtime_docker.py``.
@@ -19,10 +19,10 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from api.runtime_proxy import RuntimeProxyMiddleware
-from repolab.builds.resolver import archive_repository
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.models import (
+from repolens.builds.resolver import archive_repository
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Fidelity,
@@ -30,11 +30,11 @@ from repolab.manifest.models import (
     RepoManifest,
     SurfaceType,
 )
-from repolab.runtime.backend import DockerRuntimeBackend
-from repolab.runtime.launcher import Launcher, stop
-from repolab.runtime.models import RuntimeState, RuntimeStatus
-from repolab.runtime.plan import plan_runtime
-from repolab.sandbox.docker import docker_available
+from repolens.runtime.backend import DockerRuntimeBackend
+from repolens.runtime.launcher import Launcher, stop
+from repolens.runtime.models import RuntimeState, RuntimeStatus
+from repolens.runtime.plan import plan_runtime
+from repolens.sandbox.docker import docker_available
 
 pytestmark = pytest.mark.docker
 

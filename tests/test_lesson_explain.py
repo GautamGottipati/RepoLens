@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.evidence.models import CodeReference, DocumentationReference
-from repolab.lessons.cassandra import cassandra_lesson
-from repolab.lessons.explain import (
+from repolens.evidence.models import CodeReference, DocumentationReference
+from repolens.lessons.cassandra import cassandra_lesson
+from repolens.lessons.explain import (
     Claim,
     ExplainInput,
     SupportKind,
@@ -23,7 +23,7 @@ from repolab.lessons.explain import (
     explainable,
     verify_what_happened,
 )
-from repolab.lessons.models import CheckKind, StepCheck
+from repolens.lessons.models import CheckKind, StepCheck
 
 OUTPUT = " sensor_id | celsius\n-----------+---------\n   kitchen |    21.5\n\n(1 rows)\n"
 SOURCE = "src/java/org/apache/cassandra/cql3/statements/SelectStatement.java"
@@ -35,7 +35,7 @@ LESSON = cassandra_lesson("https://github.com/apache/cassandra", "c" * 40)
 def data(**overrides: object) -> ExplainInput:
     payload: dict[str, object] = {
         "command": (
-            "SELECT sensor_id, celsius FROM repolab.sensor_readings WHERE sensor_id = 'kitchen'"
+            "SELECT sensor_id, celsius FROM repolens.sensor_readings WHERE sensor_id = 'kitchen'"
         ),
         "output": OUTPUT,
         "exit_code": 0,

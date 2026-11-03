@@ -10,9 +10,9 @@ import json
 
 import pytest
 
-from repolab.config import Settings
-from repolab.llm import ModelTier, build_router
-from repolab.testing.fakes import FakeLLMProvider
+from repolens.config import Settings
+from repolens.llm import ModelTier, build_router
+from repolens.testing.fakes import FakeLLMProvider
 
 
 def settings(**overrides: object) -> Settings:
@@ -43,8 +43,8 @@ class TestPricingWiring:
     async def test_pricing_flows_from_settings_into_the_record(self) -> None:
         from pydantic import BaseModel
 
-        from repolab.llm import Purpose
-        from repolab.testing.fakes import FakeMessage
+        from repolens.llm import Purpose
+        from repolens.testing.fakes import FakeMessage
 
         class Answer(BaseModel):
             status: str
@@ -70,8 +70,8 @@ class TestTimeoutWiring:
     async def test_the_configured_timeout_reaches_the_provider(self) -> None:
         from pydantic import BaseModel
 
-        from repolab.llm import Purpose
-        from repolab.testing.fakes import FakeMessage
+        from repolens.llm import Purpose
+        from repolens.testing.fakes import FakeMessage
 
         class Answer(BaseModel):
             status: str

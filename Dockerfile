@@ -1,4 +1,4 @@
-# RepoLab backend: one image for the API, the RQ workers and migrations.
+# RepoLens backend: one image for the API, the RQ workers and migrations.
 #
 #   api      uvicorn api.main:app
 #   worker   python -m worker.main
@@ -35,7 +35,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock .python-version ./
 RUN uv sync --frozen --no-dev --no-install-project
 
-COPY repolab ./repolab
+COPY repolens ./repolens
 COPY api ./api
 COPY worker ./worker
 COPY alembic ./alembic

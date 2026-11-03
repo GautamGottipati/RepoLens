@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.sandbox.docker import docker_available, ensure_image, image_present
+from repolens.sandbox.docker import docker_available, ensure_image, image_present
 
 pytestmark = pytest.mark.docker
 
@@ -48,7 +48,7 @@ class TestAnImageThatIsPresent:
 class TestAnImageThatCannotBeFetched:
     def test_the_failure_is_returned_rather_than_raised(self) -> None:
         """An unavailable image must not take down an otherwise good investigation."""
-        status = ensure_image("repolab/deliberately-nonexistent:v0")
+        status = ensure_image("repolens/deliberately-nonexistent:v0")
 
         assert status.ready is False
         assert status.present is False
@@ -56,4 +56,4 @@ class TestAnImageThatCannotBeFetched:
         assert "unavailable" in status.describe()
 
     def test_image_present_is_false_for_something_that_does_not_exist(self) -> None:
-        assert image_present("repolab/deliberately-nonexistent:v0") is False
+        assert image_present("repolens/deliberately-nonexistent:v0") is False

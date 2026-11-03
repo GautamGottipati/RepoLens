@@ -67,7 +67,7 @@ describe("the inspector", () => {
     expect(screen.getByTestId("architecture-inspector").textContent).toContain("Totals revenue per region.inferred");
   });
 
-  it("sends Ask Why to Ask RepoLab with the component and a question", () => {
+  it("sends Ask Why to Ask RepoLens with the component and a question", () => {
     renderScreen();
     fireEvent.click(nodeButton("Sales pipeline"));
     const href = screen.getByTestId("ask-why").getAttribute("href")!;
@@ -77,7 +77,7 @@ describe("the inspector", () => {
     expect(url.searchParams.get("q")).toBe("Why does this use spark.sql.shuffle.partitions=200?");
   });
 
-  it("offers Experiment only where RepoLab can run something, without dwelling on it", () => {
+  it("offers Experiment only where RepoLens can run something, without dwelling on it", () => {
     renderScreen();
     fireEvent.click(nodeButton("Sales pipeline"));
     expect(screen.getByTestId("experiment")).toBeTruthy();

@@ -1,6 +1,6 @@
 """What each component offers: Ask, sometimes Experiment, and real measurements.
 
-Experiment is offered only where RepoLab can run this repository *and* the
+Experiment is offered only where RepoLens can run this repository *and* the
 component is one that run exercises. The runtime overlay carries only values a
 stored run produced -- never an estimate.
 """
@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from repolab.architecture.actions import node_actions
-from repolab.architecture.models import NodeCategory
-from repolab.architecture.runtime import RuntimeOverlay, cli_overlay, spark_overlay
-from repolab.builds.models import BuildArtifact, SmokeTestResult
-from repolab.manifest.models import BuildKind
+from repolens.architecture.actions import node_actions
+from repolens.architecture.models import NodeCategory
+from repolens.architecture.runtime import RuntimeOverlay, cli_overlay, spark_overlay
+from repolens.builds.models import BuildArtifact, SmokeTestResult
+from repolens.manifest.models import BuildKind
 from tests.support import architecture_fixtures as fx
 
 

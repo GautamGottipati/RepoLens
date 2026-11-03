@@ -10,8 +10,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from repolab.architecture.models import EdgeType, NodeCategory, Provenance, load_graph
-from repolab.architecture.synthesis import (
+from repolens.architecture.models import EdgeType, NodeCategory, Provenance, load_graph
+from repolens.architecture.synthesis import (
     ArchitectureSynthesis,
     ComponentGroup,
     ComponentRefinement,
@@ -20,8 +20,8 @@ from repolab.architecture.synthesis import (
     apply_synthesis,
     synthesise,
 )
-from repolab.llm import LLMError
-from repolab.manifest.architecture import GraphSource
+from repolens.llm import LLMError
+from repolens.manifest.architecture import GraphSource
 from tests.support import architecture_fixtures as fx
 
 
@@ -141,7 +141,7 @@ class TestWhatIsRefused:
         assert graph.node(ids["Read Orders"]).description is None  # type: ignore[union-attr]
         assert graph.dropped["invented measurement"] == 2
         assert graph.dropped["unknown component"] == 1
-        assert graph.dropped["relationship citing a line RepoLab did not show"] == 1
+        assert graph.dropped["relationship citing a line RepoLens did not show"] == 1
         assert graph.dropped["relationship to an unknown component"] == 1
         assert graph.dropped["unknown relationship type"] == 1
         assert graph.dropped["flow through unknown components"] == 1

@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.artifacts import (
+from repolens.artifacts import (
     ARCH_COMPONENTS,
     ARCH_RUNTIME,
     ARCH_RUNTIME_NAMING,
@@ -27,8 +27,8 @@ from repolab.artifacts import (
     Status,
     registry,
 )
-from repolab.artifacts import store as artifacts
-from repolab.events import CollectingEmitter, EventType
+from repolens.artifacts import store as artifacts
+from repolens.events import CollectingEmitter, EventType
 
 REPO = "https://github.com/example/engine"
 COMMIT = "a" * 40
@@ -37,7 +37,7 @@ OTHER = "b" * 40
 
 @pytest.fixture
 def engine():
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -203,7 +203,7 @@ def api(engine, monkeypatch) -> Iterator[tuple[TestClient, sessionmaker, list]]:
 
 
 def make_job(factory, *, commit: str | None = COMMIT) -> str:
-    from repolab.db.models import Job
+    from repolens.db.models import Job
 
     with factory() as session:
         session.add(Job(id="job-1", repo_url=REPO, status="running", commit_sha=commit))

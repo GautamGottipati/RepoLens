@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds import NoCandidatesError, candidates_for, is_cassandra
-from repolab.builds.cassandra import OFFICIAL_VERSION, SMOKE_MARKER
-from repolab.manifest.models import BuildKind, Fidelity
+from repolens.builds import NoCandidatesError, candidates_for, is_cassandra
+from repolens.builds.cassandra import OFFICIAL_VERSION, SMOKE_MARKER
+from repolens.manifest.models import BuildKind, Fidelity
 from tests.support.builds import cassandra_manifest
 
 
@@ -156,7 +156,7 @@ class TestSubmodules:
     def test_the_source_build_declares_that_it_needs_them(self) -> None:
         """`ant jar` invokes a gradle project in `modules/accord`, which a plain
         shallow clone leaves empty."""
-        from repolab.builds import needs_submodules
+        from repolens.builds import needs_submodules
 
         ladder = candidates_for(cassandra_manifest())
         assert ladder[0].plan.needs_submodules is True
@@ -172,7 +172,7 @@ class TestSubmodules:
 
     def test_spark_does_not(self, make_repo) -> None:
         """Ingestion reads files; nothing P0 needs a submodule."""
-        from repolab.builds import needs_submodules
+        from repolens.builds import needs_submodules
         from tests.test_build_resolver import manifest_for
         from tests.test_detectors import SPARK_REPO
 

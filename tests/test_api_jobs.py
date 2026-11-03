@@ -19,10 +19,10 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.main import app
-from repolab.db import Base
-from repolab.db.jobs import append_event, create_job, mark_finished, mark_running
-from repolab.db.models import AnalyticsEventRecord, Job, JobEventRecord, RepoManifestRecord
-from repolab.events import EventType, JobEvent, JobStatus
+from repolens.db import Base
+from repolens.db.jobs import append_event, create_job, mark_finished, mark_running
+from repolens.db.models import AnalyticsEventRecord, Job, JobEventRecord, RepoManifestRecord
+from repolens.events import EventType, JobEvent, JobStatus
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 
@@ -139,7 +139,7 @@ class TestSubmission:
         job_id = client.post("/jobs", json={"repo_url": REPO}).json()["job_id"]
 
         with db() as session:
-            from repolab.db.jobs import get_job
+            from repolens.db.jobs import get_job
 
             assert get_job(session, job_id).status == JobStatus.QUEUED.value
 
@@ -171,7 +171,7 @@ class TestJobState:
         self, client: TestClient, db: sessionmaker[Session], liveness_store
     ) -> None:
         """The case the old stall banner got wrong: a long model call, no events."""
-        from repolab.events import Liveness, job_key
+        from repolens.events import Liveness, job_key
 
         job_id = make_job(db, status=JobStatus.RUNNING)
         seed_events(db, job_id, 1)
@@ -365,7 +365,7 @@ class TestManifestEndpoint:
 
         expected = build_manifest(languages=["Python"])
         with db() as session:
-            from repolab.db.models import Ingestion, Repository
+            from repolens.db.models import Ingestion, Repository
 
             repository = Repository(url=REPO, host="github.com", owner="a", name="b")
             session.add(repository)

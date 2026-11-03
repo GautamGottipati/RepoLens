@@ -1,13 +1,13 @@
-"""Serving a live service on its own origin, through RepoLab.
+"""Serving a live service on its own origin, through RepoLens.
 
 A request whose Host is ``rt-<runtime>-<service>.<domain>`` never reaches the
 API's routes: this middleware answers it, by forwarding to the one port the
-runtime's record lists for that service -- the RepoLab sidecar on the host's
+runtime's record lists for that service -- the RepoLens sidecar on the host's
 loopback -- and nowhere else. Unknown, stopped or unlisted services are 404.
 HTTP is streamed both ways; WebSockets are relayed, because dev servers use them
 for live reload.
 
-The browser therefore talks only to RepoLab. It never learns a container
+The browser therefore talks only to RepoLens. It never learns a container
 address, and nothing in a request can redirect the proxy elsewhere.
 """
 
@@ -22,8 +22,8 @@ from typing import Any
 import httpx
 import structlog
 
-from repolab.runtime.models import RuntimeState
-from repolab.runtime.proxy import (
+from repolens.runtime.models import RuntimeState
+from repolens.runtime.proxy import (
     forward_request_headers,
     forward_response_headers,
     parse_host,
@@ -48,7 +48,7 @@ StateLoader = Callable[[str], RuntimeState | None]
 
 def _load_from_db(runtime_id: str) -> RuntimeState | None:
     import api.deps as deps
-    from repolab.db.runtimes import load_runtime, touch_runtime
+    from repolens.db.runtimes import load_runtime, touch_runtime
 
     with deps.session_factory()() as session:
         loaded = load_runtime(session, runtime_id)
@@ -81,7 +81,7 @@ class RuntimeProxyMiddleware:
             await self._websocket(scope, receive, send, port)
             return
         if port is None:
-            await _plain(send, 404, b"This RepoLab live app is not running.")
+            await _plain(send, 404, b"This RepoLens live app is not running.")
             return
         await self._http(scope, receive, send, port)
 
@@ -121,7 +121,7 @@ class RuntimeProxyMiddleware:
                 out = []
                 for key, value in forward_response_headers(list(response.headers.multi_items())):
                     if key.lower() == "set-cookie":
-                        # Host-only: a live app may not set cookies for RepoLab's domain.
+                        # Host-only: a live app may not set cookies for RepoLens's domain.
                         value = _COOKIE_DOMAIN.sub("", value)
                     out.append((key.encode("latin-1"), value.encode("latin-1")))
                 await send(

@@ -1,0 +1,97 @@
+"""Environment-derived settings.
+
+Secret values are held as ``SecretStr`` so that neither ``repr`` nor structured
+logging can leak them. Every external credential is optional: RepoLens must be
+able to boot, run its test suite, and report capabilities without any keys
+configured.
+"""
+
+from __future__ import annotations
+
+from functools import lru_cache
+
+from pydantic import AliasChoices, Field, SecretStr
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_MUSE_BASE_URL = "https://api.meta.ai/v1/"
+
+
+class Settings(BaseSettings):
+    """Runtime configuration read from the environment (and ``.env`` if present)."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        # `model_` is a protected namespace in pydantic; MODEL_NANO/SUPER/ULTRA
+        # are legitimate RepoLens settings, so the protection is lifted here.
+        protected_namespaces=(),
+        # `muse_api_key` also answers to MODEL_API_KEY; keep the field name
+        # usable for direct construction alongside the aliases.
+        populate_by_name=True,
+    )
+
+    muse_api_key: SecretStr | None = Field(
+        default=None,
+        validation_alias=AliasChoices("MUSE_API_KEY", "MODEL_API_KEY"),
+    )
+    """Meta Model API key, for Muse inference and research.
+
+    Either ``MUSE_API_KEY`` or Meta's official ``MODEL_API_KEY`` name configures
+    it; when both are set, ``MUSE_API_KEY`` wins.
+    """
+
+    muse_base_url: str = DEFAULT_MUSE_BASE_URL
+
+    model_nano: str | None = None
+    model_super: str | None = None
+    model_ultra: str | None = None
+
+    model_pricing: str | None = None
+    """JSON map of model ID -> {"input": usd_per_1m, "output": usd_per_1m}.
+
+    Absent or malformed pricing means cost is reported as unknown rather than
+    estimated from a guessed price.
+    """
+
+    llm_timeout_seconds: float = Field(default=60.0, gt=0)
+
+    database_url: str = Field(
+        default="postgresql://repolens:repolens@localhost:5432/repolens",
+    )
+    redis_url: str = Field(default="redis://localhost:6379/0")
+
+    runtime_proxy_domain: str = "localhost"
+    """Live apps are served at ``rt-<runtime>-<service>.<domain>``. Browsers resolve
+    any ``*.localhost`` name to the loopback address, so locally no DNS is needed."""
+
+    runtime_proxy_origin_port: int | None = 8000
+    """The port the API is reached on, for building a live app's address.
+
+    ``None`` (or the scheme's default port) leaves the port out, as it must be
+    behind a reverse proxy on 80/443."""
+
+    runtime_proxy_scheme: str = "http"
+    """``https`` once the proxy terminates TLS, so a live app's iframe is not
+    blocked as mixed content."""
+
+    cors_origins: list[str] = Field(
+        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+    )
+    """Browser origins allowed to call the API. A same-origin deployment (web and
+    API behind one proxy) needs none beyond these; set as a JSON list."""
+
+    @property
+    def configured_models(self) -> dict[str, str | None]:
+        """Model IDs by routing tier. Values are ``None`` when unset."""
+        return {
+            "nano": self.model_nano,
+            "super": self.model_super,
+            "ultra": self.model_ultra,
+        }
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Return process-wide settings, loaded once."""
+    return Settings()

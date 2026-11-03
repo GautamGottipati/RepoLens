@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.ingest.clone import CloneResult
+from repolens.ingest.clone import CloneResult
 from tests.support.builds import CASSANDRA_REPO, SHA, cassandra_manifest
 from worker.environment_tasks import CommitMovedError, ManifestMissingError, _resolve
 
@@ -99,8 +99,8 @@ async def test_docker_being_absent_is_said_plainly(monkeypatch: pytest.MonkeyPat
     never reached, so telling a user "every rung was tried" would be false.
     """
     import worker.environment_tasks as task
-    from repolab.failures import FailureKind, explain
-    from repolab.sandbox.models import SandboxError
+    from repolens.failures import FailureKind, explain
+    from repolens.sandbox.models import SandboxError
 
     monkeypatch.setattr(task, "docker_available", lambda: False)
 

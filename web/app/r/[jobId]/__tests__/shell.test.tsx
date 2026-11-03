@@ -76,10 +76,10 @@ async function renderShell() {
 }
 
 describe("the workspace shell", () => {
-  it("offers Overview, Experiences, Architecture and Ask RepoLab -- not Investigation", async () => {
+  it("offers Overview, Experiences, Architecture and Ask RepoLens -- not Investigation", async () => {
     await renderShell();
     const nav = screen.getByRole("navigation", { name: "Workspace" });
-    expect(nav.textContent).toBe("OverviewExperiencesArchitectureAsk RepoLab");
+    expect(nav.textContent).toBe("OverviewExperiencesArchitectureAsk RepoLens");
     expect(screen.queryByText("Investigation")).toBeNull();
     expect(screen.getByTestId("tab-Overview").getAttribute("aria-current")).toBe("page");
   });

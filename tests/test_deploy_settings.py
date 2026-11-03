@@ -6,8 +6,8 @@ import pytest
 from fastapi.testclient import TestClient
 
 import api.main as main
-from repolab.config import Settings
-from repolab.runtime import proxy
+from repolens.config import Settings
+from repolens.runtime import proxy
 
 
 class TestReadiness:
@@ -43,8 +43,8 @@ class TestCorsOrigins:
         assert settings.cors_origins == ["http://localhost:3000", "http://127.0.0.1:3000"]
 
     def test_read_from_the_environment_as_json(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        monkeypatch.setenv("CORS_ORIGINS", '["https://repolab.example"]')
-        assert Settings(_env_file=None).cors_origins == ["https://repolab.example"]
+        monkeypatch.setenv("CORS_ORIGINS", '["https://repolens.example"]')
+        assert Settings(_env_file=None).cors_origins == ["https://repolens.example"]
 
 
 class TestProxyOrigin:
@@ -62,11 +62,11 @@ class TestProxyOrigin:
         self.use(
             monkeypatch,
             runtime_proxy_scheme="https",
-            runtime_proxy_domain="repolab.example",
+            runtime_proxy_domain="repolens.example",
             runtime_proxy_origin_port=443,
         )
         assert proxy.proxy_origin("abcdef012345", "web") == (
-            "https://rt-abcdef012345-web.repolab.example"
+            "https://rt-abcdef012345-web.repolens.example"
         )
 
     def test_no_port_configured_means_none_in_the_origin(

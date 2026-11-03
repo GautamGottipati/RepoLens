@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.interfaces import LLMProvider, ResearchProvider
-from repolab.sandbox.provider import SandboxProvider
-from repolab.testing.fakes import (
+from repolens.interfaces import LLMProvider, ResearchProvider
+from repolens.sandbox.provider import SandboxProvider
+from repolens.testing.fakes import (
     FakeLLMProvider,
     FakeResearchProvider,
     FakeSandboxProvider,

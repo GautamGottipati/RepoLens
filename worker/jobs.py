@@ -9,19 +9,19 @@ from __future__ import annotations
 from redis import Redis
 from rq import Queue
 
-from repolab.config import Settings, get_settings
+from repolens.config import Settings, get_settings
 
 #: The original single queue. Still listened to, so jobs enqueued before the
 #: split are not stranded.
-QUEUE_NAME = "repolab"
+QUEUE_NAME = "repolens"
 
 #: Work is split by who is waiting for it, so a two-hour build never delays a
 #: new investigation. Workers listen to all of them, in this order.
-INTERACTIVE = "repolab-interactive"
+INTERACTIVE = "repolens-interactive"
 """A user is waiting: investigations, on-demand artifacts, Ask, runs."""
-DEFAULT = "repolab-default"
+DEFAULT = "repolens-default"
 """Background work that improves what the user already sees."""
-BACKGROUND = "repolab-background"
+BACKGROUND = "repolens-background"
 """Long work: builds, image pulls, experiment variants."""
 QUEUE_ORDER = (INTERACTIVE, DEFAULT, BACKGROUND, QUEUE_NAME)
 

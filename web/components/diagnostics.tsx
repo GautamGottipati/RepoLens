@@ -3,7 +3,7 @@
  * heartbeat arrived, which worker holds the job, the raw activity key.
  *
  * Hidden from normal users. Turned on with `?debug=1` (remembered in this
- * browser; `?debug=0` turns it off) or `NEXT_PUBLIC_REPOLAB_DEBUG=1`.
+ * browser; `?debug=0` turns it off) or `NEXT_PUBLIC_REPOLENS_DEBUG=1`.
  */
 
 "use client";
@@ -14,13 +14,13 @@ import { formatElapsed } from "@/components/working-status";
 import type { StreamStatus } from "@/lib/events";
 import type { JobEvent, JobState, TaskActivity, TaskHealth } from "@/lib/types";
 
-const KEY = "repolab.debug";
+const KEY = "repolens.debug";
 
 /** Whether developer diagnostics are on. False until mounted, so SSR matches. */
 export function useDebug(): boolean {
   const [debug, setDebug] = useState(false);
   useEffect(() => {
-    let on = process.env.NEXT_PUBLIC_REPOLAB_DEBUG === "1";
+    let on = process.env.NEXT_PUBLIC_REPOLENS_DEBUG === "1";
     try {
       const param = new URLSearchParams(window.location.search).get("debug");
       if (param === "1") window.localStorage.setItem(KEY, "1");

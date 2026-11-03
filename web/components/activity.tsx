@@ -3,7 +3,7 @@
  *
  * Both read the same stream. The tracker renders from `agent_status` events
  * carrying `{phase, label, index, total}` — the labels come from the backend
- * (`repolab/events/activity.py`), so the browser holds no copy of that
+ * (`repolens/events/activity.py`), so the browser holds no copy of that
  * vocabulary and the two cannot disagree.
  *
  * **Neither renders anything but `message` and named `data` keys.** An unknown

@@ -35,7 +35,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.builds import (  # noqa: E402
+from repolens.builds import (  # noqa: E402
     BuildLadder,
     BuildLimits,
     BuildRequest,
@@ -48,15 +48,15 @@ from repolab.builds import (  # noqa: E402
     candidates_for,
     needs_submodules,
 )
-from repolab.builds.models import BuildArtifact  # noqa: E402
-from repolab.config import get_settings  # noqa: E402
-from repolab.events import CollectingEmitter, EventType  # noqa: E402
-from repolab.ingest import ingest_repository  # noqa: E402
-from repolab.ingest.clone import TemporaryClone  # noqa: E402
-from repolab.ingest.limits import DEFAULT_LIMITS, IngestLimits  # noqa: E402
-from repolab.ingest.url import validate_repo_url  # noqa: E402
-from repolab.sandbox.docker import docker_available  # noqa: E402
-from repolab.sandbox.docker_provider import DockerSandboxProvider  # noqa: E402
+from repolens.builds.models import BuildArtifact  # noqa: E402
+from repolens.config import get_settings  # noqa: E402
+from repolens.events import CollectingEmitter, EventType  # noqa: E402
+from repolens.ingest import ingest_repository  # noqa: E402
+from repolens.ingest.clone import TemporaryClone  # noqa: E402
+from repolens.ingest.limits import DEFAULT_LIMITS, IngestLimits  # noqa: E402
+from repolens.ingest.url import validate_repo_url  # noqa: E402
+from repolens.sandbox.docker import docker_available  # noqa: E402
+from repolens.sandbox.docker_provider import DockerSandboxProvider  # noqa: E402
 
 DEMO_REPO = "https://github.com/apache/cassandra"
 
@@ -233,7 +233,7 @@ def _cache(args: argparse.Namespace):
     if not args.persist:
         return InMemoryBuildCache()
 
-    from repolab.db import build_engine, session_scope
+    from repolens.db import build_engine, session_scope
 
     engine = build_engine(get_settings())
     return DbBuildCache(lambda: session_scope(engine))

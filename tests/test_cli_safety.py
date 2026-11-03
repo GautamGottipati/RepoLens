@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.experiences.cli.safety import (
+from repolens.experiences.cli.safety import (
     MAX_LENGTH,
     Refusal,
     Statement,
@@ -40,27 +40,27 @@ class TestThePermittedLesson:
             "SELECT release_version FROM system.local",
             "DESCRIBE KEYSPACES",
             "DESC KEYSPACES",
-            "CREATE KEYSPACE IF NOT EXISTS repolab WITH replication = "
+            "CREATE KEYSPACE IF NOT EXISTS repolens WITH replication = "
             "{'class': 'SimpleStrategy', 'replication_factor': 1}",
-            "CREATE TABLE repolab.t (id text, at timestamp, c double, PRIMARY KEY (id, at))",
-            "INSERT INTO repolab.t (id, at, c) VALUES ('kitchen', '2026-01-01 09:00:00', 21.5)",
-            "SELECT id, c FROM repolab.t WHERE id = 'kitchen'",
-            "SELECT * FROM repolab.t WHERE c = 21.5 ALLOW FILTERING",
-            "USE repolab",
-            "DROP TABLE repolab.t",
+            "CREATE TABLE repolens.t (id text, at timestamp, c double, PRIMARY KEY (id, at))",
+            "INSERT INTO repolens.t (id, at, c) VALUES ('kitchen', '2026-01-01 09:00:00', 21.5)",
+            "SELECT id, c FROM repolens.t WHERE id = 'kitchen'",
+            "SELECT * FROM repolens.t WHERE c = 21.5 ALLOW FILTERING",
+            "USE repolens",
+            "DROP TABLE repolens.t",
         ],
     )
     def test_the_lesson_flow_is_permitted(self, statement: str) -> None:
         permitted(statement)
 
     def test_the_leading_verb_is_what_a_step_matches_on(self) -> None:
-        assert permitted("SELECT * FROM repolab.t").verb == "select"
+        assert permitted("SELECT * FROM repolens.t").verb == "select"
 
     def test_a_read_is_not_mutating(self) -> None:
-        assert permitted("SELECT * FROM repolab.t").is_mutating is False
+        assert permitted("SELECT * FROM repolens.t").is_mutating is False
 
     def test_a_write_is_mutating(self) -> None:
-        assert permitted("INSERT INTO repolab.t (id) VALUES ('a')").is_mutating is True
+        assert permitted("INSERT INTO repolens.t (id) VALUES ('a')").is_mutating is True
 
 
 class TestRefusals:
@@ -84,8 +84,8 @@ class TestRefusals:
     @pytest.mark.parametrize(
         "statement",
         [
-            "SELECT * FROM repolab.t WHERE at > '2026-01-01'",
-            "SELECT * FROM repolab.t WHERE celsius < 30 ALLOW FILTERING",
+            "SELECT * FROM repolens.t WHERE at > '2026-01-01'",
+            "SELECT * FROM repolens.t WHERE celsius < 30 ALLOW FILTERING",
         ],
     )
     def test_comparison_operators_are_not_mistaken_for_redirection(self, statement: str) -> None:
@@ -118,14 +118,14 @@ class TestEveryStatementIsChecked:
     """
 
     def test_a_refused_statement_hiding_behind_a_permitted_one(self) -> None:
-        outcome = refused("SELECT * FROM repolab.t; TRUNCATE system_auth.roles")
+        outcome = refused("SELECT * FROM repolens.t; TRUNCATE system_auth.roles")
         assert "system_auth" in outcome.reason
 
     def test_a_shell_command_hiding_behind_a_permitted_one(self) -> None:
         refused("SELECT 1; rm -rf /")
 
     def test_every_verb_is_recorded(self) -> None:
-        statement = permitted("SELECT * FROM repolab.t; INSERT INTO repolab.t (id) VALUES ('a')")
+        statement = permitted("SELECT * FROM repolens.t; INSERT INTO repolens.t (id) VALUES ('a')")
         assert statement.verbs == ["select", "insert"]
         assert statement.is_mutating is True, "a batch is mutating if any statement is"
 
@@ -170,4 +170,4 @@ class TestSplittingStatements:
 
     def test_the_stored_text_has_no_trailing_semicolon(self) -> None:
         """What reaches `cqlsh -e` should be the statement, not punctuation."""
-        assert permitted("SELECT * FROM repolab.t;").text == "SELECT * FROM repolab.t"
+        assert permitted("SELECT * FROM repolens.t;").text == "SELECT * FROM repolens.t"

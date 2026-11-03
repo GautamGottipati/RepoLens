@@ -12,12 +12,12 @@ from pathlib import Path
 
 import pytest
 
-from repolab.evidence.models import EvidenceBundle
-from repolab.interfaces import SearchResultItem
-from repolab.llm import LLMError
-from repolab.questions.answer import AnswerAgent, verify_answer
-from repolab.questions.investigation import official_domain
-from repolab.questions.models import (
+from repolens.evidence.models import EvidenceBundle
+from repolens.interfaces import SearchResultItem
+from repolens.llm import LLMError
+from repolens.questions.answer import AnswerAgent, verify_answer
+from repolens.questions.investigation import official_domain
+from repolens.questions.models import (
     AnswerClaim,
     AnswerClaimKind,
     GroundedAnswer,
@@ -227,12 +227,12 @@ class TestFindingTheOverview:
         ],
     )
     def test_any_top_level_readme_is_found(self, paths: list[str], expected: str | None) -> None:
-        from repolab.questions.investigation import overview_file
+        from repolens.questions.investigation import overview_file
 
         assert overview_file(paths) == expected
 
     def test_the_projects_own_name_is_not_searched_for(self) -> None:
-        from repolab.questions.investigation import QuestionInvestigationPlanner
+        from repolens.questions.investigation import QuestionInvestigationPlanner
 
         planner = QuestionInvestigationPlanner("What is cassandra", subject="cassandra")
         assert "cassandra" not in planner._terms

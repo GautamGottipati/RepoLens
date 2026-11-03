@@ -79,7 +79,7 @@ function listing(experiences: ExperienceDefinition[]): ExperienceListing {
     experiences,
     also: [],
     fallback: null,
-    nothing_runs_because: ["RepoLab has no build strategy for this kind of repository."],
+    nothing_runs_because: ["RepoLens has no build strategy for this kind of repository."],
     supported_kinds: [],
   } as ExperienceListing;
 }

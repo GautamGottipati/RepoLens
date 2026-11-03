@@ -10,7 +10,7 @@ the container, and compiles for ten to twenty minutes. It is excluded from
 It exists because the exact source build is the top rung of the ladder and the
 only one that produces ``EXACT`` fidelity. Everything else is tested with the
 official container, which is fast; this is the one test that proves the rung
-RepoLab claims is best can actually be built.
+RepoLens claims is best can actually be built.
 
 **A failure here is a legitimate outcome, not only a broken test.** Ivy may not
 reach the network, the toolchain may not match -- which is exactly why the
@@ -24,7 +24,7 @@ import asyncio
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildCandidate,
     BuildLadder,
     BuildLimits,
@@ -32,14 +32,14 @@ from repolab.builds import (
     InMemoryBuildCache,
     cassandra_source_plan,
 )
-from repolab.builds.cassandra import SOURCE_IMAGE
-from repolab.events import CollectingEmitter
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import IngestLimits
-from repolab.ingest.url import validate_repo_url
-from repolab.manifest.models import BuildKind, Fidelity
-from repolab.sandbox import DockerSandboxProvider
-from repolab.sandbox.docker import docker_available, ensure_image
+from repolens.builds.cassandra import SOURCE_IMAGE
+from repolens.events import CollectingEmitter
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import IngestLimits
+from repolens.ingest.url import validate_repo_url
+from repolens.manifest.models import BuildKind, Fidelity
+from repolens.sandbox import DockerSandboxProvider
+from repolens.sandbox.docker import docker_available, ensure_image
 from tests.support.builds import CASSANDRA_REPO, cassandra_manifest
 
 pytestmark = [pytest.mark.docker, pytest.mark.slow]
@@ -81,7 +81,7 @@ def built():
                 emitter=emitter,
                 limits=BuildLimits(max_attempts=1, candidate_timeout_seconds=BUILD_TIMEOUT),
             )
-            from repolab.builds import BuildUnavailableError
+            from repolens.builds import BuildUnavailableError
 
             try:
                 return await ladder.resolve(

@@ -1,7 +1,7 @@
 """Timeout and transport error handling.
 
 AGENTS.md requires explicit execution timeouts and clear errors. The router must
-never hang, and provider failures must arrive as RepoLab error types rather than
+never hang, and provider failures must arrive as RepoLens error types rather than
 vendor exceptions leaking upward.
 """
 
@@ -12,7 +12,7 @@ import time
 import pytest
 from pydantic import BaseModel
 
-from repolab.llm import (
+from repolens.llm import (
     LLMError,
     LLMTimeoutError,
     LLMTransportError,
@@ -20,7 +20,7 @@ from repolab.llm import (
     ModelTier,
     Purpose,
 )
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 
 class Answer(BaseModel):

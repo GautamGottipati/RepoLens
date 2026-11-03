@@ -8,10 +8,10 @@ So this file is a list of things the simulated lesson refuses to do.
 
 from __future__ import annotations
 
-from repolab.builds.minilab import SIMULATED_LABEL, MiniLab, MiniLabEntry
-from repolab.evidence.models import CodeReference
-from repolab.lessons.cassandra import KEYSPACE, cassandra_lesson
-from repolab.lessons.minilab_lesson import (
+from repolens.builds.minilab import SIMULATED_LABEL, MiniLab, MiniLabEntry
+from repolens.evidence.models import CodeReference
+from repolens.lessons.cassandra import KEYSPACE, cassandra_lesson
+from repolens.lessons.minilab_lesson import (
     NEEDS_REAL_ENVIRONMENT,
     NO_OBSERVATION,
     WITHHELD,
@@ -123,7 +123,7 @@ class TestNoMeasurements:
 
 class TestLinkedToRealSource:
     def test_steps_keep_the_repository_references_the_real_lesson_has(self) -> None:
-        from repolab.lessons.cassandra import RepositoryEvidence
+        from repolens.lessons.cassandra import RepositoryEvidence
 
         reference = CodeReference(path="bin/cqlsh.py", start_line=1)
         evidence = RepositoryEvidence(commit_sha=SHA, code={"cqlsh": reference})

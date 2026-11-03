@@ -1,9 +1,9 @@
-# Operating a RepoLab deployment
+# Operating a RepoLens deployment
 
 Written for the Google Compute Engine VM ([DEPLOY_GCP.md](DEPLOY_GCP.md)),
 which runs `docker-compose.prod.yml`.
 
-Commands run on the VM from the repository directory (`cd /opt/repolab`).
+Commands run on the VM from the repository directory (`cd /opt/repolens`).
 
 Contents:
 [Verify](#verify-the-deployment) ·
@@ -51,7 +51,7 @@ Use a browser at `https://<DOMAIN>`. Each step lists what you should see.
 
 | # | Do | Expect |
 |---|---|---|
-| 1 | Open RepoLab | The import screen, with the Spark demo URL prefilled. |
+| 1 | Open RepoLens | The import screen, with the Spark demo URL prefilled. |
 | 2 | Submit `https://github.com/AlexIoannides/pyspark-example-project` | You land on `/r/<job_id>`. |
 | 3 | Watch the job | `docker compose -f docker-compose.prod.yml logs -f worker` shows the job starting. |
 | 4 | Watch the screen | The phases announce themselves, with "Working on …" activity. |
@@ -59,12 +59,12 @@ Use a browser at `https://<DOMAIN>`. Each step lists what you should see.
 | 6 | Experiences | The Spark data playground is listed. |
 | 7 | Architecture | It fills in progressively, citing repository lines. |
 | 8 | A source reference | Click one: it opens the cited file and lines. |
-| 9 | Ask RepoLab | Ask *"Why does this job use 200 shuffle partitions?"*: a plan with its cost, and nothing runs until you approve. |
+| 9 | Ask RepoLens | Ask *"Why does this job use 200 shuffle partitions?"*: a plan with its cost, and nothing runs until you approve. |
 | 10 | Approve | Variants run, the charts fill in, and the measurements come from Spark's event log. |
 | 11 | Refresh mid-analysis | History replays, the stream continues, and **no new job** appears (the URL keeps the same id). |
 | 12 | SSE reconnect | `docker compose -f docker-compose.prod.yml restart nginx`. The page reconnects and resumes from `Last-Event-ID`. |
 | 13 | Sandbox execution | Run the playground: the metrics show tasks and stages measured from the event log. |
-| 14 | No repository code on the API host | `docker ps` shows repository containers (`repolab-*`, `apache/spark…`) separate from the api/worker containers, and the isolation probes in [Verify](#verify-the-deployment) pass. |
+| 14 | No repository code on the API host | `docker ps` shows repository containers (`repolens-*`, `apache/spark…`) separate from the api/worker containers, and the isolation probes in [Verify](#verify-the-deployment) pass. |
 
 An automated version runs the existing Playwright suite from your laptop
 against the deployment:
@@ -90,7 +90,7 @@ docker compose -f docker-compose.prod.yml logs -f worker
 docker compose -f docker-compose.prod.yml logs -f web
 docker compose -f docker-compose.prod.yml logs -f nginx
 docker compose -f docker-compose.prod.yml logs migrate
-docker ps --filter "name=repolab-"          # repository containers
+docker ps --filter "name=repolens-"          # repository containers
 ```
 
 Each model call is logged as `llm.call`, with its model, tier, latency and
@@ -107,7 +107,7 @@ The services restart on their own (`unless-stopped`), and after a reboot.
 
 - **Data survives restarts.** Completed analyses, experiments and measurements
   live in Postgres (volume `postgres_data`). Event logs live in
-  `/var/lib/repolab/state`, and checkpoint images in Docker's image store.
+  `/var/lib/repolens/state`, and checkpoint images in Docker's image store.
 - **Running jobs do not.** A job running at the moment of a restart is
   interrupted. The worker's startup sweep and the liveness record report it as
   interrupted; it is never shown as silently stalled. Submit it again.
@@ -117,7 +117,7 @@ The services restart on their own (`unless-stopped`), and after a reboot.
 ### By hand
 
 ```bash
-cd /opt/repolab
+cd /opt/repolens
 git pull --ff-only
 docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 bash scripts/check_deployment.sh
@@ -140,13 +140,13 @@ One-time setup:
 1. **Make a deploy-only SSH key.** On your laptop:
 
    ```bash
-   ssh-keygen -t ed25519 -N "" -f repolab_ci -C "github-actions"
+   ssh-keygen -t ed25519 -N "" -f repolens_ci -C "github-actions"
    ```
 
 2. **Authorize it on the VM:**
 
    ```bash
-   cat repolab_ci.pub | ssh <USER>@<VM_PUBLIC_IP> 'cat >> ~/.ssh/authorized_keys'
+   cat repolens_ci.pub | ssh <USER>@<VM_PUBLIC_IP> 'cat >> ~/.ssh/authorized_keys'
    ```
 
 3. **Open SSH to GitHub's runners.** GitHub-hosted runners have no fixed IP, so
@@ -161,11 +161,11 @@ One-time setup:
    |---|---|
    | `VM_HOST` | `<VM_PUBLIC_IP>` or `<DOMAIN>` |
    | `VM_USER` | `<USER>` |
-   | `VM_SSH_KEY` | the contents of `repolab_ci` (the private key) |
+   | `VM_SSH_KEY` | the contents of `repolens_ci` (the private key) |
    | `VM_KNOWN_HOSTS` | the output of `ssh-keyscan -t ed25519 <VM_PUBLIC_IP>` |
 
 5. **Optional repository variable:** `VM_APP_DIR`, if you didn't clone to
-   `/opt/repolab`.
+   `/opt/repolens`.
 
 Your local branch may be called `master`. The workflow fires on `main`:
 
@@ -176,7 +176,7 @@ git push origin master:main
 ## Backup and restore
 
 A daily dump runs at 02:30 UTC, and the last 7 are kept in
-`/var/lib/repolab/backups`. To take one now:
+`/var/lib/repolens/backups`. To take one now:
 
 ```bash
 bash scripts/deploy/backup_postgres.sh
@@ -186,7 +186,7 @@ Copy dumps off the VM; a backup on the same disk doesn't survive losing that
 disk:
 
 ```bash
-scp <USER>@<VM_PUBLIC_IP>:/var/lib/repolab/backups/repolab-<TIMESTAMP>.dump .
+scp <USER>@<VM_PUBLIC_IP>:/var/lib/repolens/backups/repolens-<TIMESTAMP>.dump .
 ```
 
 Restore. This overwrites the current data, so take a fresh dump first:
@@ -194,7 +194,7 @@ Restore. This overwrites the current data, so take a fresh dump first:
 ```bash
 docker compose -f docker-compose.prod.yml stop api worker
 docker compose -f docker-compose.prod.yml exec -T postgres \
-  pg_restore -U repolab -d repolab --clean --if-exists < repolab-<TIMESTAMP>.dump
+  pg_restore -U repolens -d repolens --clean --if-exists < repolens-<TIMESTAMP>.dump
 docker compose -f docker-compose.prod.yml up -d
 ```
 
@@ -204,7 +204,7 @@ console, or copy the dumps off the VM as above.
 
 ## Troubleshooting
 
-Commands assume `cd /opt/repolab`. `dc` stands for
+Commands assume `cd /opt/repolens`. `dc` stands for
 `docker compose -f docker-compose.prod.yml`.
 
 | Symptom | Likely cause | Check | Fix |
@@ -214,18 +214,18 @@ Commands assume `cd /opt/repolab`. `dc` stands for
 | **SSE disconnecting** (the activity feed stalls and reconnects) | A proxy buffering or timing out the stream | `curl -N -s -D - https://<DOMAIN>/api/jobs/<JOB_ID>/events \| head`: expect `text/event-stream` and, while idle, `: keep-alive` every 15 s | Make sure nothing in front of nginx (a CDN or another proxy) buffers. The stream resumes from `Last-Event-ID` regardless. |
 | **Worker not receiving jobs** (a job stays "queued") | No worker running, or the worker can't reach Redis | `dc ps worker`, `dc logs --tail 50 worker`; the check's "RQ workers registered" line | `dc up -d worker`. If Redis auth fails, `REDIS_PASSWORD` changed since Redis started: run `dc up -d --force-recreate redis api worker`. |
 | **Redis unavailable** (`/api/health/ready` shows `"redis": false`) | Redis down, or its 512 MB maxmemory reached (`noeviction`) | `dc logs redis`, then `dc exec redis redis-cli info memory` | `dc restart redis`. If memory is full, clear stale RQ job keys or raise `--maxmemory`. |
-| **Postgres unavailable** (`"database": false`) | Postgres down, or the password changed after the volume was created | `dc logs postgres`, then `dc exec postgres pg_isready -U repolab` | The volume keeps its original password. Restore the old `POSTGRES_PASSWORD`, or change it with `ALTER USER` inside psql. |
+| **Postgres unavailable** (`"database": false`) | Postgres down, or the password changed after the volume was created | `dc logs postgres`, then `dc exec postgres pg_isready -U repolens` | The volume keeps its original password. Restore the old `POSTGRES_PASSWORD`, or change it with `ALTER USER` inside psql. |
 | **Muse authentication failure** (explanations missing; the worker logs `llm.call … success=False`) | Wrong or missing `MUSE_API_KEY`, or an unknown model ID | `CHECK_LIVE=1 bash scripts/check_deployment.sh` | Fix `.env`, then run `dc up -d api worker`. The model IDs must match the Meta Model API catalog. |
 | **Sandbox failure** ("The execution environment is not available") | The worker can't use Docker | `dc exec worker docker info` | Check that `/var/run/docker.sock` exists on the host and that Docker is running (`systemctl status docker`). |
 | **"Could not build a runnable environment"** | Every ladder rung failed, usually from memory (Cassandra needs 4 GB) | `free -g`; the activity feed names the failing rung | Use a bigger VM preset, or close idle terminals. |
-| **GitHub clone failure** | The repository is private, the URL is wrong, or egress is blocked | `dc exec worker git ls-remote https://github.com/<OWNER>/<REPO>` | RepoLab supports public repositories only. Check that the security group's egress rule allows HTTPS. |
+| **GitHub clone failure** | The repository is private, the URL is wrong, or egress is blocked | `dc exec worker git ls-remote https://github.com/<OWNER>/<REPO>` | RepoLens supports public repositories only. Check that the security group's egress rule allows HTTPS. |
 | **Certificate failure** (`init_tls.sh` fails) | DNS doesn't point at the VM yet, port 80 is closed, or the rate limit was hit | `dig +short <DOMAIN>`, then `curl -I http://<DOMAIN>/.well-known/acme-challenge/x` (should be 404 from nginx) | Fix DNS or the firewall, wait, and retry. Let's Encrypt rate-limits repeated failures for an hour. |
 | **Disk full** | Images, build checkpoints and leftover repository containers | `df -h /`, `docker system df` | `docker container prune` and `docker builder prune`. **Not** `docker image prune -a`: it deletes Cassandra and experience checkpoints that Postgres still points to, and they'd need rebuilding (minutes for Cassandra). |
 | **Container restart loop** | A crash at startup | `dc ps` (look for "Restarting"), then `dc logs --tail 100 <service>` | For nginx, a config error appears at the top of its log. For api or worker, usually a bad `.env` value or Postgres not reachable. |
 
 ## Isolation model
 
-What RepoLab's production deployment isolates, and what it does not. This is
+What RepoLens's production deployment isolates, and what it does not. This is
 **container isolation on one VM, not a security sandbox.**
 
 ```
@@ -236,14 +236,14 @@ Cloud VM (one kernel)
  └── repository runtime (untrusted) Spark jobs, Cassandra nodes, live apps,
        experiences, learner snippets
          ✕ no Docker socket
-         ✕ no metadata service       (REPOLAB-CONTAINERS iptables chain)
+         ✕ no metadata service       (REPOLENS-CONTAINERS iptables chain)
          ✕ no other cloud-internal hosts (10/8, 172.16/12, 192.168/16, 100.64/10
                                          via the VM's NIC)
-         ✕ no RepoLab ports          (every control-plane service binds 127.0.0.1)
+         ✕ no RepoLens ports          (every control-plane service binds 127.0.0.1)
          ✓ DNS to the VM's resolver, internet egress (builds need it)
 ```
 
-| Path | Hardening (from `repolab/sandbox/` and `repolab/runtime/`) |
+| Path | Hardening (from `repolens/sandbox/` and `repolens/runtime/`) |
 |---|---|
 | Learner code (experience snippets, hardened Spark variants) | no network, `--cap-drop ALL`, `no-new-privileges`, pids 512, 4 CPUs, 4 GB |
 | Live app services | internal network only, `--cap-drop ALL`, non-root user, pids 512, 2 CPUs, 3 GB |
@@ -255,8 +255,8 @@ reaches the control plane. The stronger option (a dedicated execution VM)
 is under [Future architecture](#future-architecture).
 
 The firewall is installed by `scripts/deploy/bootstrap_gcp.sh` and
-rebuilt at every boot and Docker restart (`repolab-container-firewall.service`).
-To inspect it: `sudo iptables -S REPOLAB-CONTAINERS`.
+rebuilt at every boot and Docker restart (`repolens-container-firewall.service`).
+To inspect it: `sudo iptables -S REPOLENS-CONTAINERS`.
 
 ## Security checklist
 
@@ -264,7 +264,7 @@ Verify each item before calling the deployment ready.
 
 | Item | How it's ensured | How to check |
 |---|---|---|
-| No secrets committed | `.env` is gitignored; `.dockerignore` keeps it out of images | `git status`; `docker run --rm repolab-backend:latest ls /app/.env` fails |
+| No secrets committed | `.env` is gitignored; `.dockerignore` keeps it out of images | `git status`; `docker run --rm repolens-backend:latest ls /app/.env` fails |
 | No secrets in the frontend | Only `PUBLIC_URL/api` is inlined | `make check-secrets` locally; grep the bundle for key prefixes |
 | Postgres not public | Published on `127.0.0.1` only | `ss -tlnp \| grep 5432` shows `127.0.0.1` |
 | Redis not public | `127.0.0.1` only, plus a password | `ss -tlnp \| grep 6379` |
@@ -273,12 +273,12 @@ Verify each item before calling the deployment ready.
 | HTTPS enabled | Your provider guide's HTTPS section; HSTS on | `curl -I https://<DOMAIN>` |
 | SSH restricted | Cloud firewall rule for 22; key-only login | Your provider guide's firewall section |
 | Repository execution isolated | See [Isolation model](#isolation-model) | The isolation probes in `check_deployment.sh` |
-| Cloud-internal hosts unreachable | `REPOLAB-CONTAINERS` drops private ranges out of the NIC | `sudo iptables -S REPOLAB-CONTAINERS` |
+| Cloud-internal hosts unreachable | `REPOLENS-CONTAINERS` drops private ranges out of the NIC | `sudo iptables -S REPOLENS-CONTAINERS` |
 | Only api/worker hold the socket; nothing privileged | Compose file; checked live | `check_deployment.sh`, "Containers" section |
 | No unnecessary privilege | No service is `privileged`; repository containers never get the socket | `docker inspect` the repository containers: no socket mount |
-| Metadata service unreachable | `REPOLAB-CONTAINERS` chain; no service account on the VM | Isolation probes; `sudo iptables -S REPOLAB-CONTAINERS` |
+| Metadata service unreachable | `REPOLENS-CONTAINERS` chain; no service account on the VM | Isolation probes; `sudo iptables -S REPOLENS-CONTAINERS` |
 | CORS correct | Same-origin; `CORS_ORIGINS` defaults to dev origins only | `curl -H 'Origin: https://evil.example' -I https://<DOMAIN>/api/health` has no `access-control-allow-origin` |
-| Debug off | No `--reload`; `next start`; `NEXT_PUBLIC_REPOLAB_DEBUG` unset | `dc ps` commands |
+| Debug off | No `--reload`; `next start`; `NEXT_PUBLIC_REPOLENS_DEBUG` unset | `dc ps` commands |
 
 ## Known limitations
 

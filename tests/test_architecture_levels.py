@@ -12,8 +12,8 @@ from typing import Any
 
 import pytest
 
-from repolab.architecture.actions import ExperimentAvailability, NodeActions, concept_actions
-from repolab.architecture.models import (
+from repolens.architecture.actions import ExperimentAvailability, NodeActions, concept_actions
+from repolens.architecture.models import (
     ArchitectureLevel,
     EvidenceKind,
     LearningTargetKind,
@@ -21,10 +21,10 @@ from repolab.architecture.models import (
     RepositoryKind,
     load_graph,
 )
-from repolab.architecture.runtime import MeasuredValue, RuntimeOverlay, roll_up
-from repolab.architecture.source import is_peripheral
-from repolab.architecture.subsystems import MAX_SUBSYSTEMS
-from repolab.architecture.understanding import (
+from repolens.architecture.runtime import MeasuredValue, RuntimeOverlay, roll_up
+from repolens.architecture.source import is_peripheral
+from repolens.architecture.subsystems import MAX_SUBSYSTEMS
+from repolens.architecture.understanding import (
     OrientationConcept,
     OrientationLink,
     OrientationStep,
@@ -34,9 +34,9 @@ from repolab.architecture.understanding import (
     RepositoryOrientation,
     overview_walkthroughs,
 )
-from repolab.evidence.models import DocumentationReference
-from repolab.llm import LLMError
-from repolab.manifest.architecture import GraphSource
+from repolens.evidence.models import DocumentationReference
+from repolens.llm import LLMError
+from repolens.manifest.architecture import GraphSource
 from tests.support import architecture_fixtures as fx
 
 DOC = DocumentationReference(
@@ -539,7 +539,7 @@ class TestReadmeReading:
 
 
 def test_only_retrieved_documentation_is_passed_on() -> None:
-    from repolab.agents.models import AgentRun, AgentStep, ToolRequest, ToolResult
+    from repolens.agents.models import AgentRun, AgentStep, ToolRequest, ToolResult
     from worker.tasks import retrieved_docs
 
     hit = {"url": DOC.url, "title": "Cluster overview", "excerpt": "Executors run tasks."}

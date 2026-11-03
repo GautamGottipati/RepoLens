@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildCandidate,
     BuildLadder,
     BuildLimits,
@@ -30,21 +30,21 @@ from repolab.builds import (
     BuildUnavailableError,
     InMemoryBuildCache,
 )
-from repolab.builds.cassandra import SMOKE_MARKER
-from repolab.db.jobs import create_job, fail_abandoned_jobs
-from repolab.db.models import Job, JobEventRecord
-from repolab.events import CollectingEmitter, EventType, JobStatus
-from repolab.experiences.spark.runner import SparkRunFailed
-from repolab.experiments import ExperimentAgent, ExperimentBudget
-from repolab.experiments.executor import NotEnoughRuns, VariantExecutor
-from repolab.experiments.models import ExperimentStatus
-from repolab.failures import FailureKind, describe, explain
-from repolab.llm import ModelRouter, ModelTier
-from repolab.llm.errors import LLMTimeoutError, SchemaValidationError
-from repolab.manifest.models import BuildKind
-from repolab.sandbox import FakeSandboxProvider
-from repolab.sandbox.models import SandboxError
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.builds.cassandra import SMOKE_MARKER
+from repolens.db.jobs import create_job, fail_abandoned_jobs
+from repolens.db.models import Job, JobEventRecord
+from repolens.events import CollectingEmitter, EventType, JobStatus
+from repolens.experiences.spark.runner import SparkRunFailed
+from repolens.experiments import ExperimentAgent, ExperimentBudget
+from repolens.experiments.executor import NotEnoughRuns, VariantExecutor
+from repolens.experiments.models import ExperimentStatus
+from repolens.failures import FailureKind, describe, explain
+from repolens.llm import ModelRouter, ModelTier
+from repolens.llm.errors import LLMTimeoutError, SchemaValidationError
+from repolens.manifest.models import BuildKind
+from repolens.sandbox import FakeSandboxProvider
+from repolens.sandbox.models import SandboxError
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 from tests.support.builds import (
     CASSANDRA_REPO,
     SHA,
@@ -87,7 +87,7 @@ def db_session():
     from sqlalchemy.orm import sessionmaker
     from sqlalchemy.pool import StaticPool
 
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -197,7 +197,7 @@ class TestSandboxFailure:
 
     async def test_a_build_reports_it_without_claiming_readiness(self, tmp_path: Path) -> None:
         manifest = cassandra_manifest()
-        from repolab.builds import cassandra_official_plan
+        from repolens.builds import cassandra_official_plan
 
         plan = cassandra_official_plan(manifest)
         sandbox = FakeSandboxProvider(fail_on_create=SandboxError("docker is not running"))
@@ -218,7 +218,7 @@ class TestBuildFailure:
 
     async def test_the_user_is_told_which_rungs_were_tried(self, tmp_path: Path) -> None:
         manifest = cassandra_manifest()
-        from repolab.builds import cassandra_official_plan, cassandra_partial_plan
+        from repolens.builds import cassandra_official_plan, cassandra_partial_plan
 
         plans = [cassandra_official_plan(manifest), cassandra_partial_plan(manifest)]
         sandbox = provider(*(failing_smoke(plan) for plan in plans))
@@ -249,7 +249,7 @@ class TestBuildFailure:
     async def test_nothing_is_cached_or_served(self, tmp_path: Path) -> None:
         """A failed build must not leave something that looks usable behind."""
         manifest = cassandra_manifest()
-        from repolab.builds import cassandra_official_plan
+        from repolens.builds import cassandra_official_plan
 
         plan = cassandra_official_plan(manifest)
         cache = InMemoryBuildCache()
@@ -276,7 +276,7 @@ class TestBuildFailure:
         a step only it has, which is also how it would fail in practice.
         """
         manifest = cassandra_manifest()
-        from repolab.builds import cassandra_official_plan, cassandra_partial_plan
+        from repolens.builds import cassandra_official_plan, cassandra_partial_plan
 
         broken, working = cassandra_official_plan(manifest), cassandra_partial_plan(manifest)
         sandbox = provider(
@@ -318,7 +318,7 @@ class TestMuseResearchUnavailable:
     """6. External documentation cannot be retrieved."""
 
     def test_the_user_is_told_nothing_is_blocked(self) -> None:
-        from repolab.research.muse import MuseResearchError
+        from repolens.research.muse import MuseResearchError
 
         failure = explain(MuseResearchError("503 Service Unavailable"))
 
@@ -333,10 +333,10 @@ class TestMuseResearchUnavailable:
             async def search(self, *args: object, **kwargs: object):
                 raise RuntimeError("research is down")
 
-        from repolab.agents.investigator import RepositoryInvestigatorAgent
-        from repolab.ingest.content import ReadBudget
-        from repolab.ingest.detectors.base import DetectionContext
-        from repolab.ingest.tree import build_file_tree
+        from repolens.agents.investigator import RepositoryInvestigatorAgent
+        from repolens.ingest.content import ReadBudget
+        from repolens.ingest.detectors.base import DetectionContext
+        from repolens.ingest.tree import build_file_tree
 
         tree = build_file_tree(spark_repository)
         context = DetectionContext(root=spark_repository, tree=tree, commit_sha="c" * 40)
@@ -510,14 +510,14 @@ class TestTheMessagesThemselves:
 class TestTheMessageMustMatchWhatHappened:
     """Found by provoking a real failure: a true sentence about the wrong thing.
 
-    Asking RepoLab to build `pallets/click` reported *"every rung of the ladder
+    Asking RepoLens to build `pallets/click` reported *"every rung of the ladder
     was tried and none passed"*, because the worker wrapped "no rung covers this
     repository" in the error that means "they all failed". A confident message
     that misdescribes the failure is worse than a vague one.
     """
 
     def test_no_build_strategy_is_not_reported_as_every_rung_failing(self) -> None:
-        from repolab.builds.candidates import NoCandidatesError
+        from repolens.builds.candidates import NoCandidatesError
 
         failure = explain(NoCandidatesError("https://github.com/pallets/click", "cli"))
 
@@ -526,7 +526,7 @@ class TestTheMessageMustMatchWhatHappened:
         assert "still works for any repository" in failure.next_step
 
     def test_a_wrapped_known_failure_keeps_its_own_sentence(self) -> None:
-        """An unrecognised wrapper must not hide a failure RepoLab can explain."""
+        """An unrecognised wrapper must not hide a failure RepoLens can explain."""
 
         class Wrapper(RuntimeError):
             pass
@@ -582,7 +582,7 @@ class TestStaleCheckpoints:
     """
 
     def test_a_missing_checkpoint_is_its_own_failure(self) -> None:
-        from repolab.sandbox.models import CheckpointMissingError
+        from repolens.sandbox.models import CheckpointMissingError
 
         failure = explain(
             CheckpointMissingError("the prepared environment 'x:y' is no longer on this machine")
@@ -597,7 +597,7 @@ class TestStaleCheckpoints:
 
     def test_it_is_not_confused_with_docker_being_down(self) -> None:
         """Two different remedies, so two different messages."""
-        from repolab.sandbox.models import CheckpointMissingError
+        from repolens.sandbox.models import CheckpointMissingError
 
         gone = explain(CheckpointMissingError("x"))
         down = explain(SandboxError("Cannot connect to the Docker daemon"))
@@ -607,7 +607,7 @@ class TestStaleCheckpoints:
 
     def test_a_forgotten_row_lets_the_next_build_succeed(self) -> None:
         """The cache must be able to drop a build nothing can start from."""
-        from repolab.builds.models import BuildArtifact, SmokeTestResult
+        from repolens.builds.models import BuildArtifact, SmokeTestResult
 
         cache = InMemoryBuildCache()
         artifact = BuildArtifact(
@@ -615,7 +615,7 @@ class TestStaleCheckpoints:
             commit_sha=SHA,
             kind=BuildKind.OFFICIAL_RELEASE,
             checkpoint_id="ckpt",
-            checkpoint_tag="repolab/gone:tag",
+            checkpoint_tag="repolens/gone:tag",
             smoke=SmokeTestResult(name="s", command="c", passed=True),
         )
         cache.put(artifact)
@@ -626,15 +626,15 @@ class TestStaleCheckpoints:
         assert cache.forget(CASSANDRA_REPO, SHA, BuildKind.OFFICIAL_RELEASE.value) is False
 
     async def test_a_session_on_a_missing_checkpoint_fails_with_the_right_sentence(self) -> None:
-        from repolab.builds.models import BuildArtifact, SmokeTestResult
-        from repolab.experiences.cli.session import CliSessionManager, SessionStatus
+        from repolens.builds.models import BuildArtifact, SmokeTestResult
+        from repolens.experiences.cli.session import CliSessionManager, SessionStatus
 
         artifact = BuildArtifact(
             repo_url=CASSANDRA_REPO,
             commit_sha=SHA,
             kind=BuildKind.OFFICIAL_RELEASE,
             checkpoint_id="ckpt",
-            checkpoint_tag="repolab/gone:tag",
+            checkpoint_tag="repolens/gone:tag",
             service_command="cassandra -f",
             cli_command="/opt/cassandra/bin/cqlsh",
             smoke=SmokeTestResult(name="s", command="c", passed=True),
@@ -663,8 +663,8 @@ class TestEveryExternalCallHasADeadline:
     ) -> None:
         import asyncio as _asyncio
 
-        import repolab.research.muse as muse_module
-        from repolab.research.muse import DEFAULT_TIMEOUT_SECONDS, MuseResearchProvider
+        import repolens.research.muse as muse_module
+        from repolens.research.muse import DEFAULT_TIMEOUT_SECONDS, MuseResearchProvider
 
         recorded: dict[str, object] = {}
 
@@ -713,13 +713,13 @@ class TestEveryExternalCallHasADeadline:
     )
     def test_the_container_timeouts_are_bounded(self, name: str, limit: float) -> None:
         """Every docker operation has a deadline, and none of them is a whole demo."""
-        from repolab.sandbox import docker
+        from repolens.sandbox import docker
 
         value = getattr(docker, name)
         assert 0 < value <= limit
 
     def test_a_terminal_statement_cannot_run_forever(self) -> None:
-        from repolab.experiences.cli.session import (
+        from repolens.experiences.cli.session import (
             COMMAND_TIMEOUT_SECONDS,
             IDLE_TIMEOUT_SECONDS,
             READY_TIMEOUT_SECONDS,

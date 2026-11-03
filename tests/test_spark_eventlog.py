@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.experiences.spark.eventlog import (
+from repolens.experiences.spark.eventlog import (
     IN_PROGRESS_SUFFIX,
     find_event_log,
     parse_event_log,
@@ -58,7 +58,7 @@ class TestTheFixtureIsReal:
 class TestApplicationLevel:
     def test_the_application_is_identified(self, real_log) -> None:
         assert real_log.app_id
-        assert real_log.app_name == "repolab-spark-demo"
+        assert real_log.app_name == "repolens-spark-demo"
 
     def test_the_spark_version_is_recovered(self, real_log) -> None:
         assert real_log.spark_version == "3.5.1"

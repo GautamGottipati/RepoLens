@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 
-from repolab.builds import (
+from repolens.builds import (
     BuildAttempt,
     BuildLimits,
     SmokeTestResult,
@@ -19,10 +19,10 @@ from repolab.builds import (
     diagnose,
     summarise,
 )
-from repolab.builds.diagnosis import failing_output
-from repolab.builds.plan import BuildPlan, SmokeTest
-from repolab.llm import ModelRouter, ModelTier
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.builds.diagnosis import failing_output
+from repolens.builds.plan import BuildPlan, SmokeTest
+from repolens.llm import ModelRouter, ModelTier
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 
 def a_plan() -> BuildPlan:
@@ -65,7 +65,7 @@ class TestLogsComeFirst:
 
     def test_the_log_is_bounded(self) -> None:
         """A runaway build log must not become an expensive prompt."""
-        from repolab.builds.diagnosis import MAX_LOG_CHARS
+        from repolens.builds.diagnosis import MAX_LOG_CHARS
 
         assert len(failing_output(failed_step_attempt("x" * 50_000))) <= MAX_LOG_CHARS
 
@@ -131,7 +131,7 @@ class TestSummarising:
 
 class TestDiagnosing:
     async def test_without_a_model_a_retry_is_never_recommended(self) -> None:
-        """RepoLab does not spend minutes on a guess."""
+        """RepoLens does not spend minutes on a guess."""
         result = await diagnose(failed_step_attempt(), a_plan())
 
         assert result.retry_worthwhile is False

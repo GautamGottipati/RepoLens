@@ -17,24 +17,24 @@ from pathlib import Path
 import structlog
 from sqlalchemy.orm import Session
 
-from repolab.builds.resolver import archive_repository
-from repolab.config import get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.db.runtimes import active_runtimes, load_runtime, save_runtime
-from repolab.db.store import load_manifest
-from repolab.events import DbEventEmitter, EventType, JobStatus
-from repolab.failures import describe, explain
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.tree import build_file_tree
-from repolab.ingest.url import validate_repo_url
-from repolab.runtime.backend import DockerRuntimeBackend
-from repolab.runtime.launcher import Launcher, stop
-from repolab.runtime.models import RuntimeState, RuntimeStatus
-from repolab.runtime.plan import plan_runtime
-from repolab.runtime.proxy import proxy_origin
+from repolens.builds.resolver import archive_repository
+from repolens.config import get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.db.runtimes import active_runtimes, load_runtime, save_runtime
+from repolens.db.store import load_manifest
+from repolens.events import DbEventEmitter, EventType, JobStatus
+from repolens.failures import describe, explain
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.tree import build_file_tree
+from repolens.ingest.url import validate_repo_url
+from repolens.runtime.backend import DockerRuntimeBackend
+from repolens.runtime.launcher import Launcher, stop
+from repolens.runtime.models import RuntimeState, RuntimeStatus
+from repolens.runtime.plan import plan_runtime
+from repolens.runtime.proxy import proxy_origin
 
 log = structlog.get_logger(__name__)
 

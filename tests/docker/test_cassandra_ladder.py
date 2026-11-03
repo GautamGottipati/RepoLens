@@ -19,7 +19,7 @@ import asyncio
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildCandidate,
     BuildLadder,
     BuildLimits,
@@ -30,12 +30,12 @@ from repolab.builds import (
     cassandra_official_plan,
     cassandra_partial_plan,
 )
-from repolab.builds.cassandra import OFFICIAL_IMAGE, OFFICIAL_VERSION
-from repolab.builds.models import BuildArtifact
-from repolab.events import CollectingEmitter, EventType
-from repolab.manifest.models import BuildKind, Fidelity
-from repolab.sandbox import DockerSandboxProvider
-from repolab.sandbox.docker import docker_available, ensure_image
+from repolens.builds.cassandra import OFFICIAL_IMAGE, OFFICIAL_VERSION
+from repolens.builds.models import BuildArtifact
+from repolens.events import CollectingEmitter, EventType
+from repolens.manifest.models import BuildKind, Fidelity
+from repolens.sandbox import DockerSandboxProvider
+from repolens.sandbox.docker import docker_available, ensure_image
 from tests.support.builds import CASSANDRA_REPO, SHA, cassandra_manifest, repository
 
 pytestmark = pytest.mark.docker

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup of a Google Compute Engine VM (Ubuntu 24.04, amd64) for RepoLab.
+# One-time setup of a Google Compute Engine VM (Ubuntu 24.04, amd64) for RepoLens.
 #
 #   sudo bash scripts/deploy/bootstrap_gcp.sh "$USER"
 #
@@ -37,12 +37,12 @@ check_gcp_identity() {
     fi
     warn "service account attached: ${accounts}"
     warn "scopes: $(gcp_metadata instance/service-accounts/default/scopes | tr '\n' ' ')"
-    warn "RepoLab needs no GCP APIs. Repository containers cannot reach the metadata"
-    warn "server, but RepoLab's own services and any shell on this VM can obtain this"
+    warn "RepoLens needs no GCP APIs. Repository containers cannot reach the metadata"
+    warn "server, but RepoLens's own services and any shell on this VM can obtain this"
     warn "account's token. Remove it from the VM (it must be stopped to change it)."
 }
 
-if [ "${REPOLAB_BOOTSTRAP_DRY_RUN:-0}" != 1 ]; then
+if [ "${REPOLENS_BOOTSTRAP_DRY_RUN:-0}" != 1 ]; then
     require_root
 fi
 DEPLOY_USER="$(resolve_deploy_user "${1:-}")"
@@ -57,7 +57,7 @@ cat <<MSG
 Done. Log out and back in so '${DEPLOY_USER}' picks up the docker group.
 
 Google Cloud firewall (VPC network -> Firewall), if not done yet:
-  - allow tcp:80,443 from 0.0.0.0/0 to this VM (target tag repolab-web)
+  - allow tcp:80,443 from 0.0.0.0/0 to this VM (target tag repolens-web)
   - delete default-allow-rdp; keep default-allow-ssh (key-only login)
   - never open 3000, 8000, 5432 or 6379
 

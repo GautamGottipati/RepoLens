@@ -24,8 +24,8 @@ from pathlib import Path
 import structlog
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.analytics import Analytics, DbAnalyticsWriter
-from repolab.builds import (
+from repolens.analytics import Analytics, DbAnalyticsWriter
+from repolens.builds import (
     BuildLadder,
     BuildLimits,
     BuildRequest,
@@ -33,19 +33,19 @@ from repolab.builds import (
     candidates_for,
     needs_submodules,
 )
-from repolab.builds.models import BuildArtifact
-from repolab.config import get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.db.store import load_manifest
-from repolab.events import DbEventEmitter, EventType, JobStatus
-from repolab.failures import describe, explain
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.url import validate_repo_url
-from repolab.sandbox.docker import docker_available
-from repolab.sandbox.docker_provider import DockerSandboxProvider
-from repolab.sandbox.models import SandboxError
+from repolens.builds.models import BuildArtifact
+from repolens.config import get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.db.store import load_manifest
+from repolens.events import DbEventEmitter, EventType, JobStatus
+from repolens.failures import describe, explain
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.url import validate_repo_url
+from repolens.sandbox.docker import docker_available
+from repolens.sandbox.docker_provider import DockerSandboxProvider
+from repolens.sandbox.models import SandboxError
 
 log = structlog.get_logger(__name__)
 
@@ -139,7 +139,7 @@ async def _resolve(
         manifest = load_manifest(session, url.normalized)
     if manifest is None:
         raise ManifestMissingError(
-            f"{url.slug} has not been investigated yet, so RepoLab does not know how to build it"
+            f"{url.slug} has not been investigated yet, so RepoLens does not know how to build it"
         )
 
     # Deliberately not wrapped in BuildUnavailableError: "no rung covers this

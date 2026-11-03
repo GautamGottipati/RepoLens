@@ -16,18 +16,18 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.db.base import Base
-from repolab.db.experiments import (
+from repolens.db.base import Base
+from repolens.db.experiments import (
     count_measurements,
     get_experiment,
     list_experiments,
     load_experiment,
     save_experiment,
 )
-from repolab.db.jobs import create_job
-from repolab.experiments.executor import ApprovalRequiredError, VariantExecutor
-from repolab.experiments.experiment import Experiment, IllegalTransitionError
-from repolab.experiments.models import ExperimentStatus
+from repolens.db.jobs import create_job
+from repolens.experiments.executor import ApprovalRequiredError, VariantExecutor
+from repolens.experiments.experiment import Experiment, IllegalTransitionError
+from repolens.experiments.models import ExperimentStatus
 from tests.support.experiments import plan, spark_run_result, variant_run
 
 
@@ -184,7 +184,7 @@ class TestPersistence:
         assert count_measurements(session, subject.id) == first * 2
 
     def test_the_reproducibility_record_is_persisted(self, session: Session) -> None:
-        from repolab.experiments.models import ReproducibilityRecord, ResourceProfile
+        from repolens.experiments.models import ReproducibilityRecord, ResourceProfile
         from tests.support.experiments import IMAGE, dataset_spec
 
         subject = experiment(
@@ -218,7 +218,7 @@ class TestPersistence:
         assert {record.id for record in listed} == {first.id, second.id}
 
     def test_a_refusal_is_persisted_with_its_reason(self, session: Session) -> None:
-        from repolab.experiments.validation import PlanRejected
+        from repolens.experiments.validation import PlanRejected
 
         subject = experiment(plan=None)
         subject.refuse(PlanRejected(reason="variable is not allowed", detail="nope"))
@@ -247,7 +247,7 @@ class TestPersistence:
 class TestVariantRunResults:
     def test_a_runner_result_becomes_a_variant_run(self) -> None:
         """Pins the conversion the executor relies on."""
-        from repolab.experiments.executor import _variant_run
+        from repolens.experiments.executor import _variant_run
 
         result = spark_run_result(value=50, repeat=2)
         run = _variant_run(result, variant_id="50-abc", value=50, repeat=2, contended=True)

@@ -24,15 +24,15 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.config import get_settings  # noqa: E402
-from repolab.ingest import (  # noqa: E402
+from repolens.config import get_settings  # noqa: E402
+from repolens.ingest import (  # noqa: E402
     CloneError,
     IngestLimits,
     InvalidRepoUrlError,
     ingest_repository,
     summarize,
 )
-from repolab.llm import ModelRouter  # noqa: E402
+from repolens.llm import ModelRouter  # noqa: E402
 
 
 def build_router_if_requested(enabled: bool) -> tuple[ModelRouter | None, str | None]:
@@ -46,7 +46,7 @@ def build_router_if_requested(enabled: bool) -> tuple[ModelRouter | None, str | 
     if not any(settings.configured_models.values()):
         return None, "no MODEL_NANO/MODEL_SUPER/MODEL_ULTRA configured"
 
-    from repolab.llm import build_router
+    from repolens.llm import build_router
 
     return build_router(settings), None
 
@@ -86,7 +86,7 @@ async def run(args: argparse.Namespace) -> int:
         print(f"full result written to {args.json}")
 
     if args.persist:
-        from repolab.db import build_engine, save_ingestion, session_scope
+        from repolens.db import build_engine, save_ingestion, session_scope
 
         engine = build_engine()
         try:

@@ -1,6 +1,6 @@
 """The gate deciding whether a model may be consulted.
 
-The rule that matters most is negative: RepoLab must never ask a model to
+The rule that matters most is negative: RepoLens must never ask a model to
 classify something the repository already states plainly.
 """
 
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.classify import (
+from repolens.classify import (
     classify,
     classify_deterministic,
     explain_gate,
@@ -16,17 +16,17 @@ from repolab.classify import (
     should_consult_model,
     tie_gap,
 )
-from repolab.classify.signals import STRONG_CONFIDENCE, TIE_MARGIN
-from repolab.evidence.models import CodeReference
-from repolab.ingest.detectors.base import DetectorRun
-from repolab.llm import ModelRouter, ModelTier
-from repolab.manifest.models import (
+from repolens.classify.signals import STRONG_CONFIDENCE, TIE_MARGIN
+from repolens.evidence.models import CodeReference
+from repolens.ingest.detectors.base import DetectorRun
+from repolens.llm import ModelRouter, ModelTier
+from repolens.manifest.models import (
     Classification,
     ClassificationSource,
     InteractionSurface,
     SurfaceType,
 )
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 JUDGEMENT = '{"primary_surface": "cli", "reason": "the shell is the way in"}'
 

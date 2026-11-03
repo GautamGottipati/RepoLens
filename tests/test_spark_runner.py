@@ -12,11 +12,11 @@ from pathlib import Path
 
 import pytest
 
-from repolab.events import CollectingEmitter, EventType
-from repolab.experiences.spark import SparkDemoRunner, SparkRunConfig, SparkRunFailed
-from repolab.experiences.spark.driver import DISCLOSURE_MARKER, SUCCESS_MARKER
-from repolab.interfaces import CommandResult
-from repolab.sandbox.models import Checkpoint, SandboxCapabilities
+from repolens.events import CollectingEmitter, EventType
+from repolens.experiences.spark import SparkDemoRunner, SparkRunConfig, SparkRunFailed
+from repolens.experiences.spark.driver import DISCLOSURE_MARKER, SUCCESS_MARKER
+from repolens.interfaces import CommandResult
+from repolens.sandbox.models import Checkpoint, SandboxCapabilities
 from tests.test_detectors import SPARK_REPO
 
 FIXTURE = Path(__file__).parent / "fixtures" / "spark" / "real_event_log.jsonl"
@@ -74,7 +74,7 @@ class FakeSparkEnvironment:
                 shutil.copy2(FIXTURE, events / "local-1790831454261")
             stdout = self._submit_stdout
             if stdout is None:
-                stdout = f"REPOLAB_SPARK_VERSION 3.5.1\n{DISCLOSURE_MARKER} ok\n{SUCCESS_MARKER}\n"
+                stdout = f"REPOLENS_SPARK_VERSION 3.5.1\n{DISCLOSURE_MARKER} ok\n{SUCCESS_MARKER}\n"
             return CommandResult(stdout=stdout, exit_code=self._submit_exit_code)
 
         return CommandResult(stdout="", exit_code=0)
@@ -153,7 +153,7 @@ class TestWhatIsPlacedInTheEnvironment:
     ) -> None:
         """The measurements must describe the repository's own code."""
         _, environment, _ = await run_demo(tmp_path, repo)
-        driver = environment.uploaded["/work/repolab_driver.py"].decode()
+        driver = environment.uploaded["/work/repolens_driver.py"].decode()
 
         assert "from jobs.etl_job import transform_data as repo_transform" in driver
         assert "repo_transform(frame, STEPS_PER_FLOOR)" in driver
@@ -252,13 +252,13 @@ class TestEvidenceAndProgress:
         assert result.evidence.simulated is False
 
     async def test_the_additions_are_disclosed(self, tmp_path: Path, repo: Path) -> None:
-        """What RepoLab added beyond the repository's own code must be stated."""
+        """What RepoLens added beyond the repository's own code must be stated."""
         result, _, _ = await run_demo(tmp_path, repo)
         disclosure = " ".join(result.added_steps)
 
         assert "repartition" in disclosure
         assert "groupBy" in disclosure
-        assert "added by RepoLab" in disclosure
+        assert "added by RepoLens" in disclosure
 
     async def test_progress_is_reported(self, tmp_path: Path, repo: Path) -> None:
         _, _, emitter = await run_demo(tmp_path, repo)

@@ -14,7 +14,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildRequest,
     BuildResolver,
     BuildSource,
@@ -24,10 +24,10 @@ from repolab.builds import (
     archive_repository,
     spark_plan,
 )
-from repolab.builds.resolver import ArchiveTooLargeError
-from repolab.events import CollectingEmitter, EventType
-from repolab.manifest.models import RepoManifest
-from repolab.sandbox import FakeSandboxProvider, ScriptedCommand
+from repolens.builds.resolver import ArchiveTooLargeError
+from repolens.events import CollectingEmitter, EventType
+from repolens.manifest.models import RepoManifest
+from repolens.sandbox import FakeSandboxProvider, ScriptedCommand
 from tests.test_detectors import SPARK_REPO
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
@@ -41,12 +41,12 @@ def manifest_for(root: Path, sha: str = SHA) -> RepoManifest:
     event loop inside a test that already has one would be both unnecessary and
     broken.
     """
-    from repolab.classify import classify_deterministic
-    from repolab.ingest.content import ReadBudget
-    from repolab.ingest.detectors import DetectionContext, detect_all
-    from repolab.ingest.languages import detect_languages
-    from repolab.ingest.tree import build_file_tree
-    from repolab.manifest.builder import build_manifest
+    from repolens.classify import classify_deterministic
+    from repolens.ingest.content import ReadBudget
+    from repolens.ingest.detectors import DetectionContext, detect_all
+    from repolens.ingest.languages import detect_languages
+    from repolens.ingest.tree import build_file_tree
+    from repolens.manifest.builder import build_manifest
 
     tree = build_file_tree(root)
     context = DetectionContext(root=root, tree=tree, commit_sha=sha)
@@ -65,10 +65,10 @@ def manifest_for(root: Path, sha: str = SHA) -> RepoManifest:
 
 def provider_that_builds(**overrides: ScriptedCommand) -> FakeSandboxProvider:
     """A fake whose smoke job succeeds, unless overridden."""
-    from repolab.builds.spark import SMOKE_MARKER
+    from repolens.builds.spark import SMOKE_MARKER
 
     scripted = {
-        "python3 /work/repolab_smoke.py": ScriptedCommand(stdout=f"{SMOKE_MARKER} 3.5.1\n"),
+        "python3 /work/repolens_smoke.py": ScriptedCommand(stdout=f"{SMOKE_MARKER} 3.5.1\n"),
     }
     scripted.update(overrides)
     return FakeSandboxProvider(scripted=scripted)
@@ -169,7 +169,7 @@ class TestSmokeTestGatesReadiness:
         root, plan = spark_fixture
         provider = provider_that_builds(
             **{
-                "python3 /work/repolab_smoke.py": ScriptedCommand(
+                "python3 /work/repolens_smoke.py": ScriptedCommand(
                     stderr="ModuleNotFoundError: pyspark", exit_code=1
                 )
             }
@@ -183,7 +183,7 @@ class TestSmokeTestGatesReadiness:
         """A silent success is not proof the Spark job ran."""
         root, plan = spark_fixture
         provider = provider_that_builds(
-            **{"python3 /work/repolab_smoke.py": ScriptedCommand(stdout="", exit_code=0)}
+            **{"python3 /work/repolens_smoke.py": ScriptedCommand(stdout="", exit_code=0)}
         )
 
         with pytest.raises(BuildUnavailableError, match="did not contain"):
@@ -195,7 +195,7 @@ class TestSmokeTestGatesReadiness:
         root, plan = spark_fixture
         cache = InMemoryBuildCache()
         provider = provider_that_builds(
-            **{"python3 /work/repolab_smoke.py": ScriptedCommand(exit_code=1)}
+            **{"python3 /work/repolens_smoke.py": ScriptedCommand(exit_code=1)}
         )
 
         with pytest.raises(BuildUnavailableError):
@@ -208,7 +208,7 @@ class TestSmokeTestGatesReadiness:
         """Checkpointing a broken environment would cache a trap."""
         root, plan = spark_fixture
         provider = provider_that_builds(
-            **{"python3 /work/repolab_smoke.py": ScriptedCommand(exit_code=1)}
+            **{"python3 /work/repolens_smoke.py": ScriptedCommand(exit_code=1)}
         )
 
         with pytest.raises(BuildUnavailableError):
@@ -453,7 +453,7 @@ class TestSymlinksInTheArchive:
     )
     def test_containment_is_decided_textually(self, name, target, inside) -> None:
         """Where the link points once extracted *elsewhere*, not where it points now."""
-        from repolab.builds.resolver import points_inside
+        from repolens.builds.resolver import points_inside
 
         assert points_inside(name, target) is inside
 

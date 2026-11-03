@@ -27,8 +27,8 @@ read CSV  →  repository's transform_data()  →  repartition by dept
           →  groupBy + aggregate  →  write
 ```
 
-The repository's own step is marked as the repository's. The three RepoLab adds
-are marked **added by RepoLab**, with the reason, from the run's `added_steps`.
+The repository's own step is marked as the repository's. The three RepoLens adds
+are marked **added by RepoLens**, with the reason, from the run's `added_steps`.
 The repository's job performs no shuffle at all; without the addition there
 would be nothing to measure. Saying so is not a footnote, it is the honest
 framing of every number on the screen.

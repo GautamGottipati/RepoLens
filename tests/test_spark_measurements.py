@@ -12,14 +12,14 @@ from pathlib import Path
 
 import pytest
 
-from repolab.evidence.models import MeasurementSource
-from repolab.experiences.spark.eventlog import (
+from repolens.evidence.models import MeasurementSource
+from repolens.experiences.spark.eventlog import (
     ParsedEventLog,
     StageRecord,
     TaskRecord,
     parse_event_log,
 )
-from repolab.experiences.spark.measurements import Determinism, measure
+from repolens.experiences.spark.measurements import Determinism, measure
 
 FIXTURE = Path(__file__).parent / "fixtures" / "spark" / "real_event_log.jsonl"
 

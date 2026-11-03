@@ -174,3 +174,18 @@ explicitly excluded). Web-only change set, 8 files:
   `tests/test_question_{triage,layout,answer}.py` all pass.
 - State: tour changes + diagram module uncommitted on the branch; merge to
   `main` pending user go-ahead.
+
+## Rename to RepoLens (2026-11-03)
+
+- Full rename `RepoLab`/`repolab`/`REPOLAB` → `RepoLens`/`repolens`/`REPOLENS`
+  across code, UI, docs, containers, volumes, DB names, and env vars
+  (`git mv repolab repolens` + scripted sweep; `uv.lock` regenerated).
+- Kept verbatim as history: `docs/PROGRESS.md` and earlier entries in this
+  file. Live `.env` updated to the `repolens` database (fresh volume —
+  run `make db-upgrade` after restarting the stack).
+- New `LensIcon` magnifier (`web/components/kit/icons.tsx`) on the wordmark:
+  landing header tile + workspace breadcrumb.
+- Gates after rename: `ruff check` + `ruff format --check` clean; full
+  offline `pytest` failure set identical to baseline (same 1 FAILED workdir
+  + 12 sandbox-environmental ERRORs in `test_api_runtimes.py`); web
+  `vitest` 157/157, `tsc` clean, `eslint` clean.

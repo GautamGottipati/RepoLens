@@ -1,5 +1,5 @@
 /**
- * The handful of icons RepoLab uses, inline so no icon library is needed.
+ * The handful of icons RepoLens uses, inline so no icon library is needed.
  *
  * Every icon is decorative (`aria-hidden`): meaning is always carried by the
  * text next to it.
@@ -58,6 +58,14 @@ export const ExperimentIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M6 1.75h4M6.75 1.75v4.5L2.6 12.9a1 1 0 0 0 .86 1.35h9.08a1 1 0 0 0 .86-1.35L9.25 6.25v-4.5" />
     <path d="M4.5 10h7" />
+  </Svg>
+);
+
+/** The product lens: a magnifier for the RepoLens wordmark. */
+export const LensIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="7" cy="7" r="4.75" />
+    <path d="m10.6 10.6 3.4 3.4" />
   </Svg>
 );
 

@@ -1,10 +1,10 @@
-# RepoLab
+# RepoLens
 
 **An agentic experimentation and learning environment for real software, reasoned by Meta Muse.**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-Give RepoLab a repository URL. It investigates the codebase, works out how the
+Give RepoLens a repository URL. It investigates the codebase, works out how the
 software is meant to run, maps its architecture down to cited source lines, and
 turns it into something you can *use*: a Spark playground, a real CLI, a
 runnable library. When you ask "why?", it prefers to **run an experiment**
@@ -42,9 +42,9 @@ GitHub URL → investigate → RepoManifest → architecture (every claim cites 
 | Screen | What you get |
 |---|---|
 | **Overview** | What the repository is, in plain language, and where to start. It is published progressively, so the first content appears in seconds. |
-| **Experiences** | Every way to interact with the project RepoLab detected: a Spark data playground, a real `cqlsh`, a library console, a guided lesson. Each is honestly labelled as running the real repository, an official release, or a clearly marked **SIMULATED** Mini Lab. |
-| **Architecture** | Overview → runtime components → flows → modules → source. Every component, relation and step cites a file and line that RepoLab **verified exists at the investigated commit**. Inferred names are labelled as inferred. |
-| **Ask RepoLab** | Questions are triaged. Answerable ones are answered from code, pinned to the commit. Testable ones become an **experiment plan** that runs only after your approval, with statistics computed by deterministic Python, never by a model. |
+| **Experiences** | Every way to interact with the project RepoLens detected: a Spark data playground, a real `cqlsh`, a library console, a guided lesson. Each is honestly labelled as running the real repository, an official release, or a clearly marked **SIMULATED** Mini Lab. |
+| **Architecture** | Overview → runtime components → flows → modules → source. Every component, relation and step cites a file and line that RepoLens **verified exists at the investigated commit**. Inferred names are labelled as inferred. |
+| **Ask RepoLens** | Questions are triaged. Answerable ones are answered from code, pinned to the commit. Testable ones become an **experiment plan** that runs only after your approval, with statistics computed by deterministic Python, never by a model. |
 | **/metrics** | Product and agent KPIs (time to first meaningful content, cache hit rate, experiment completion…), each computed only from recorded data and labelled when unmeasured. |
 
 Demo repositories: `AlexIoannides/pyspark-example-project` and `apache/spark`
@@ -55,13 +55,13 @@ Demo repositories: `AlexIoannides/pyspark-example-project` and `apache/spark`
 
 ## How Muse is used
 
-RepoLab's reasoning runs entirely on **Muse Spark** models, served
+RepoLens's reasoning runs entirely on **Muse Spark** models, served
 through the **Meta Model API**. Agents reason and choose actions; deterministic
 tools act; application code validates everything a model returns.
 
 ### Three tiers, routed by purpose
 
-All model access goes through one router (`repolab/llm/`). A call site names a
+All model access goes through one router (`repolens/llm/`). A call site names a
 **tier** and a **purpose**, never a model ID. Model IDs come only from the
 environment (`MODEL_NANO`, `MODEL_SUPER`, `MODEL_ULTRA`).
 
@@ -84,7 +84,7 @@ environment (`MODEL_NANO`, `MODEL_SUPER`, `MODEL_ULTRA`).
   application validates each one before a tool runs it, and every tool call is
   an auditable event.
 - **Verification after generation.** Muse proposes architecture names,
-  relations and flows. RepoLab keeps only what it can verify against the source
+  relations and flows. RepoLens keeps only what it can verify against the source
   at the investigated commit (symbol present, line in range, relation really in
   the caller's code). Everything else is dropped and counted.
 - **No manufactured measurements.** Ultra designs experiments and interprets
@@ -93,7 +93,7 @@ environment (`MODEL_NANO`, `MODEL_SUPER`, `MODEL_ULTRA`).
 
 ### Measured usage during development
 
-From RepoLab's own model-call telemetry (`model_calls` table, 5–27 Oct 2026),
+From RepoLens's own model-call telemetry (`model_calls` table, 5–27 Oct 2026),
 recorded by the router on every call:
 
 | Tier | Calls | Successful | Median latency | Prompt tokens | Completion tokens |
@@ -115,7 +115,7 @@ and architecture (102), then Super grounded answers (43), Nano question triage
 
 - **One OpenAI-compatible endpoint for every tier.** `MUSE_BASE_URL`
   (`https://api.meta.ai/v1/`) serves Nano, Super and Ultra
-  through the same client (`repolab/llm/muse.py`). Switching the tier for a
+  through the same client (`repolens/llm/muse.py`). Switching the tier for a
   task is a one-line routing change, not a new integration.
 - **It made the cost/quality split practical.**
   - Cheap, fast Nano answers the user immediately (question triage, "is this
@@ -124,7 +124,7 @@ and architecture (102), then Super grounded answers (43), Nano question triage
   - Ultra is reserved for the few calls where reasoning quality decides the
     outcome (experiment design and interpretation).
 - **It enabled the progressive pipeline.** Because each pass is a fast,
-  independent API call, RepoLab publishes the deterministic analysis in seconds
+  independent API call, RepoLens publishes the deterministic analysis in seconds
   and lets Super passes refine it afterwards. On `apache/spark` the verified
   runtime architecture is on screen at about 31 s, and the Super summary
   follows at about 205 s.
@@ -134,7 +134,7 @@ and architecture (102), then Super grounded answers (43), Nano question triage
 
 ### Docker: local execution
 
-`repolab/sandbox/docker_provider.py` implements RepoLab's `SandboxProvider`
+`repolens/sandbox/docker_provider.py` implements RepoLens's `SandboxProvider`
 (create, upload, execute, checkpoint, restore, terminate) on local Docker:
 `docker commit` is a real checkpoint, each experiment variant restores the
 same checkpoint, and images can really be deleted. Experiments and builds run
@@ -161,14 +161,14 @@ bypassed and nothing simulated is substituted.
   - a **Meta Model API** key (`MUSE_API_KEY`, or Meta's `MODEL_API_KEY`
     name), for Muse inference and documentation research.
 
-  Without them RepoLab still runs its deterministic analysis and says plainly
+  Without them RepoLens still runs its deterministic analysis and says plainly
   which model-powered parts are unavailable.
 
 ### Setup
 
 ```bash
-git clone https://github.com/GautamGottipati/RepoLab.git
-cd RepoLab
+git clone https://github.com/GautamGottipati/RepoLens.git
+cd RepoLens
 
 cp .env.example .env      # then add MUSE_API_KEY
 make install              # Python 3.11 + backend deps (uv) + web deps (npm)
@@ -200,11 +200,11 @@ If a previous session left something running, `make stop` clears it.
 2. **Overview** shows facts and the manifest at once, then the summary from
    Muse Super. The activity chip reads "Still learning…" until every part
    is ready.
-3. **Experiences**: start one. RepoLab builds or resolves an environment,
+3. **Experiences**: start one. RepoLens builds or resolves an environment,
    smoke-tests it, and only then marks it ready.
 4. **Architecture**: explore it from the overview down to source lines. Click
    any reference to read the exact file at the investigated commit.
-5. **Ask RepoLab**: ask *"Why does this job use 200 shuffle partitions?"*.
+5. **Ask RepoLens**: ask *"Why does this job use 200 shuffle partitions?"*.
    Ultra proposes an experiment (variable, values, repeats, estimated runs).
    Approve it, and the variants run and are measured. The explanation cites
    the measurements.
@@ -264,7 +264,7 @@ credentials.
 web/      Next.js 16 + React 19 + TypeScript + Tailwind v4 (SSE for progress, xterm.js for terminals)
 api/      FastAPI (Python 3.11): sessions, jobs, artifacts, approvals, SSE streams, terminal WebSockets
 worker/   RQ workers on three queues (interactive / default / background): investigation, builds, experiments
-repolab/  shared package
+repolens/  shared package
   agents/       orchestrator + repository-investigator agent (structured actions, validated)
   llm/          the model router: tiers, schemas, retries, telemetry, reasoning-model handling
   ingest/       hardened cloning and static detectors (nothing is executed during ingestion)
@@ -314,7 +314,7 @@ make smoke         # live model checks (skipped without credentials)
 
 These are stated plainly; [docs/PROGRESS.md](docs/PROGRESS.md) has the detail.
 
-- **Some interaction surfaces have no runnable adapter yet.** RepoLab detects
+- **Some interaction surfaces have no runnable adapter yet.** RepoLens detects
   web, API, notebook and terminal surfaces, but cannot run them. The
   Experiences screen says so per surface instead of pretending.
 - **The Airflow demo shows detection only.** It demonstrates multi-surface
@@ -329,5 +329,5 @@ These are stated plainly; [docs/PROGRESS.md](docs/PROGRESS.md) has the detail.
 Licensed under the [Apache License, Version 2.0](LICENSE).
 
 Muse models are used through the Meta Model API under their own
-model licenses. The repositories RepoLab analyses keep their own licenses.
-RepoLab reads them at a specific commit and does not redistribute them.
+model licenses. The repositories RepoLens analyses keep their own licenses.
+RepoLens reads them at a specific commit and does not redistribute them.

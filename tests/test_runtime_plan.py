@@ -1,6 +1,6 @@
 """Runtime plans, from a repository's own files. Offline; nothing runs.
 
-A plan is how RepoLab would start a web app or API: which directory, which
+A plan is how RepoLens would start a web app or API: which directory, which
 image, which install, which of the project's own scripts, which port and why.
 Every value must come from evidence, or be labelled as inferred.
 """
@@ -13,9 +13,9 @@ from typing import ClassVar
 
 import pytest
 
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.models import (
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Fidelity,
@@ -23,9 +23,9 @@ from repolab.manifest.models import (
     RepoManifest,
     SurfaceType,
 )
-from repolab.runtime import node
-from repolab.runtime.models import DependencyState, EnvKind
-from repolab.runtime.plan import plan_runtime
+from repolens.runtime import node
+from repolens.runtime.models import DependencyState, EnvKind
+from repolens.runtime.plan import plan_runtime
 
 
 def manifest(*surfaces: SurfaceType) -> RepoManifest:

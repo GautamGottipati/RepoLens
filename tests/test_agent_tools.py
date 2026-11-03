@@ -11,23 +11,23 @@ from pathlib import Path
 
 import pytest
 
-from repolab.agents.models import ToolRequest
-from repolab.agents.repository_tools import (
+from repolens.agents.models import ToolRequest
+from repolens.agents.repository_tools import (
     PathEscapesRepositoryError,
     build_repository_tools,
     resolve_within,
 )
-from repolab.agents.tools import (
+from repolens.agents.tools import (
     ApprovalRequiredError,
     InvalidArgumentsError,
     ToolRegistry,
     ToolResult,
     UnknownToolError,
 )
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.tree import build_file_tree
-from repolab.testing.fakes import FakeResearchProvider
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.tree import build_file_tree
+from repolens.testing.fakes import FakeResearchProvider
 from tests.test_detectors import SPARK_REPO
 
 
@@ -116,7 +116,7 @@ class TestRegistryValidation:
 
     def test_registering_a_duplicate_name_is_rejected(self, tools) -> None:
         shared, registry, _ = tools
-        from repolab.agents.repository_tools import ReadFileTool
+        from repolens.agents.repository_tools import ReadFileTool
 
         with pytest.raises(ValueError, match="already registered"):
             registry.register(ReadFileTool(shared))
@@ -133,7 +133,7 @@ class TestRegistryValidation:
             description = "would destroy state"
             requires_approval = True
             arguments_model = __import__(
-                "repolab.agents.repository_tools", fromlist=["NoArgs"]
+                "repolens.agents.repository_tools", fromlist=["NoArgs"]
             ).NoArgs
 
             async def execute(self, arguments: dict) -> ToolResult:  # pragma: no cover

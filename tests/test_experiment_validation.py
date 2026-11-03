@@ -2,15 +2,15 @@
 
 This is the approval gate's teeth. A model proposes; the code here decides what
 may run. The tests that matter most are the refusals: a variable off the
-allowlist, a metric RepoLab cannot measure, and a plan that would cost more than
+allowlist, a metric RepoLens cannot measure, and a plan that would cost more than
 the budget allows.
 """
 
 from __future__ import annotations
 
-from repolab.experiences.spark.driver import SparkRunConfig
-from repolab.experiments.models import ProposedPlan
-from repolab.experiments.validation import (
+from repolens.experiences.spark.driver import SparkRunConfig
+from repolens.experiments.models import ProposedPlan
+from repolens.experiments.validation import (
     ALLOWED_VARIABLES,
     REQUIRED_METRICS,
     ExperimentBudget,
@@ -111,7 +111,7 @@ class TestMetricReconciliation:
     def test_unmeasurable_metrics_are_dropped_and_named(self) -> None:
         """Ultra was observed proposing exactly these two.
 
-        Accepting them would promise a figure no instrument in RepoLab produces.
+        Accepting them would promise a figure no instrument in RepoLens produces.
         """
         result = validate(metrics=["gc_time_ms", "executor_cpu_time_ms", "runtime"])
 

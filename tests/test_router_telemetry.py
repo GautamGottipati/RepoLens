@@ -8,14 +8,14 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from repolab.llm import (
+from repolens.llm import (
     ModelRouter,
     ModelTier,
     Purpose,
     SchemaValidationError,
 )
-from repolab.llm.telemetry import CallRecord, ModelPrice, ModelPricing
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.llm.telemetry import CallRecord, ModelPrice, ModelPricing
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 SECRET_PROMPT = "our internal repository is at github.com/acme/very-private"
 API_KEY = "sk-super-secret-key-material"
@@ -78,7 +78,7 @@ class TestRecordContents:
 
 class TestCostEstimation:
     async def test_cost_is_unknown_without_pricing(self) -> None:
-        """RepoLab never invents a price."""
+        """RepoLens never invents a price."""
         routed, _ = router()
         completion = await routed.nano(purpose=Purpose.FILE_SUMMARY, schema=Answer, prompt="go")
         assert completion.record.estimated_cost_usd is None

@@ -10,8 +10,8 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.db import Base, Ingestion, Repository, load_latest_ingestion, save_ingestion
-from repolab.ingest import ingest_clone
+from repolens.db import Base, Ingestion, Repository, load_latest_ingestion, save_ingestion
+from repolens.ingest import ingest_clone
 from tests.test_detectors import SPARK_REPO, WEB_REPO
 
 
@@ -49,7 +49,7 @@ class TestSavingAnIngestion:
     async def test_the_manifest_round_trips_through_the_database(
         self, session: Session, result
     ) -> None:
-        from repolab.manifest.models import RepoManifest
+        from repolens.manifest.models import RepoManifest
 
         ingestion = save_ingestion(session, result)
         session.commit()
@@ -58,7 +58,7 @@ class TestSavingAnIngestion:
         assert restored == result.manifest
 
     async def test_the_architecture_round_trips(self, session: Session, result) -> None:
-        from repolab.architecture import load_graph
+        from repolens.architecture import load_graph
 
         ingestion = save_ingestion(session, result)
         session.commit()
@@ -68,7 +68,7 @@ class TestSavingAnIngestion:
         assert all(node.is_supported for node in restored.nodes)
 
     async def test_the_evidence_round_trips(self, session: Session, result) -> None:
-        from repolab.evidence.models import EvidenceBundle
+        from repolens.evidence.models import EvidenceBundle
 
         ingestion = save_ingestion(session, result)
         session.commit()
@@ -135,7 +135,7 @@ class TestReIngestion:
     async def test_a_second_repository_is_separate(
         self, session: Session, result, make_repo, local_clone
     ) -> None:
-        from repolab.ingest.url import RepoUrl
+        from repolens.ingest.url import RepoUrl
 
         save_ingestion(session, result)
         root, sha = make_repo(WEB_REPO)

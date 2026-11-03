@@ -11,9 +11,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from repolab.builds.plan import BuildPlan
-from repolab.evidence.models import CodeReference
-from repolab.manifest.models import (
+from repolens.builds.plan import BuildPlan
+from repolens.evidence.models import CodeReference
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Fidelity,
@@ -21,7 +21,7 @@ from repolab.manifest.models import (
     RepoManifest,
     SurfaceType,
 )
-from repolab.sandbox import FakeSandboxProvider, ScriptedCommand
+from repolens.sandbox import FakeSandboxProvider, ScriptedCommand
 
 CASSANDRA_REPO = "https://github.com/apache/cassandra"
 SHA = "c" * 40

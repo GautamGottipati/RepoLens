@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.events import (
+from repolens.events import (
     PHASE_COUNT,
     PHASES,
     ActivityReporter,

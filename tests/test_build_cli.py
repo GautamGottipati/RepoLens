@@ -128,7 +128,7 @@ class TestTheReadyPath:
         assert artifact["smoke"]["passed"] is True
 
     def test_an_unsupported_repository_is_reported_cleanly(self) -> None:
-        """A shape RepoLab cannot build yet is a message, not a traceback."""
+        """A shape RepoLens cannot build yet is a message, not a traceback."""
         result = run_cli(
             "https://github.com/psf/requests",
             "--provider",

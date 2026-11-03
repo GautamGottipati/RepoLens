@@ -9,13 +9,13 @@ from __future__ import annotations
 
 import json
 
-from repolab.classify import classify
-from repolab.classify.llm import break_tie
-from repolab.evidence.models import CodeReference
-from repolab.ingest.detectors.base import DetectorRun
-from repolab.llm import ModelRouter, ModelTier
-from repolab.manifest.models import ClassificationSource, SurfaceType
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.classify import classify
+from repolens.classify.llm import break_tie
+from repolens.evidence.models import CodeReference
+from repolens.ingest.detectors.base import DetectorRun
+from repolens.llm import ModelRouter, ModelTier
+from repolens.manifest.models import ClassificationSource, SurfaceType
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 #: Two weak, evenly-matched signals: exactly the case the gate opens for.
 AMBIGUOUS_SIGNALS = (("sys_argv", "cli.py"), ("spark_config", "conf.json"))

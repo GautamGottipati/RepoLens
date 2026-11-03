@@ -8,26 +8,26 @@ from __future__ import annotations
 
 import json
 
-from repolab.evidence.models import CodeReference
-from repolab.ingest import IngestLimits, ingest_clone
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import DetectionContext, detect_all
-from repolab.ingest.enrich import (
+from repolens.evidence.models import CodeReference
+from repolens.ingest import IngestLimits, ingest_clone
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import DetectionContext, detect_all
+from repolens.ingest.enrich import (
     ArchitectureEnrichment,
     NodeLabel,
     ProposedEdge,
     apply_enrichment,
     select_files_for_summary,
 )
-from repolab.ingest.tree import build_file_tree
-from repolab.llm import ModelRouter, ModelTier
-from repolab.manifest.architecture import (
+from repolens.ingest.tree import build_file_tree
+from repolens.llm import ModelRouter, ModelTier
+from repolens.manifest.architecture import (
     ArchitectureGraph,
     ArchitectureNode,
     GraphSource,
     NodeKind,
 )
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 from tests.test_detectors import SPARK_REPO
 
 SUMMARY = json.dumps({"purpose": "Runs the ETL job.", "key_elements": ["main"]})

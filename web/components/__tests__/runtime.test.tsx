@@ -122,14 +122,14 @@ describe("the runtime architecture", () => {
     expect(labels).toContain("task sets");
   });
 
-  it("opens a component with its responsibilities, sources and why RepoLab thinks so", () => {
+  it("opens a component with its responsibilities, sources and why RepoLens thinks so", () => {
     renderRuntime();
     fireEvent.click(within(screen.getByTestId("core-ideas")).getAllByRole("button")[0]);
     const panel = screen.getByTestId("runtime-inspector");
     expect(within(panel).getByTestId("inspector-title").textContent).toBe("Driver");
     expect(panel.textContent).toContain("Submits jobs");
     expect(within(panel).getByTestId("runtime-sources").textContent).toContain("L3–8");
-    const why = within(panel).getByTestId("why-repolab-thinks");
+    const why = within(panel).getByTestId("why-repolens-thinks");
     expect(why.textContent).toContain("EngineContext");
     expect(why.textContent).toContain("used in 40 other files");
     expect(within(panel).getByTestId("ask-why").getAttribute("href")).toContain("Driver");
@@ -197,7 +197,7 @@ describe("the source viewer", () => {
     expect(screen.getByTestId("viewer-commit").textContent).toContain("different from the investigated");
   });
 
-  it("says when RepoLab kept no copy, instead of showing another version", async () => {
+  it("says when RepoLens kept no copy, instead of showing another version", async () => {
     calls.source.mockResolvedValue(file([], { captured: false }));
     render(
       <SourceViewerProvider jobId="job-1" repoUrl={REPO} commitSha={COMMIT}>

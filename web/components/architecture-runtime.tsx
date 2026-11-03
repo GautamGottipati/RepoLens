@@ -3,7 +3,7 @@
  *
  *   CoreIdeas         the few components a newcomer needs, numbered
  *   RuntimeDiagram    those components and what passes between them
- *   RuntimeInspector  one component: what it does, where, why RepoLab thinks so
+ *   RuntimeInspector  one component: what it does, where, why RepoLens thinks so
  *   FlowsView         end-to-end paths, as steps and -- only when the order is
  *                     verified -- as a sequence diagram
  *   ModulesView       the repository's parts and their build dependencies
@@ -278,7 +278,7 @@ export function RuntimeInspector({
 
       <section className="flex flex-wrap gap-2">
         <ActionLink kind="ask" href={ask(`What does ${component.name} do, and who uses it?`)} data-testid="ask-why">
-          Ask RepoLab about {component.name}
+          Ask RepoLens about {component.name}
         </ActionLink>
         {experiment && (
           <ActionLink kind="experiment" href={ask(experiment.experiment.question!)}>
@@ -300,8 +300,8 @@ export function RuntimeInspector({
         )}
       </div>
 
-      <details className="rounded-lg border border-line p-3" data-testid="why-repolab-thinks">
-        <summary className="cursor-pointer text-sm font-medium text-fg">Why RepoLab thinks this</summary>
+      <details className="rounded-lg border border-line p-3" data-testid="why-repolens-thinks">
+        <summary className="cursor-pointer text-sm font-medium text-fg">Why RepoLens thinks this</summary>
         <div className="mt-3 flex flex-col gap-3 text-sm">
           <p className="text-fg-secondary">
             {component.name} is made of {component.members.length === 1 ? "this definition" : "these definitions"},
@@ -342,7 +342,7 @@ export function RuntimeInspector({
           )}
           {inferred && (
             <p className="text-xs text-ai-fg">
-              The name, description and responsibilities are Muse&apos;s wording; RepoLab kept them only where they
+              The name, description and responsibilities are Muse&apos;s wording; RepoLens kept them only where they
               point at these verified lines.
             </p>
           )}
@@ -399,7 +399,7 @@ export function FlowsView({
   if (flows.length === 0) {
     return (
       <EmptyState title="No end-to-end flow could be verified" data-testid="no-flows">
-        RepoLab draws a flow only along calls and constructions it found in the code. None connected enough of the
+        RepoLens draws a flow only along calls and constructions it found in the code. None connected enough of the
         runtime components to follow one here.
       </EmptyState>
     );

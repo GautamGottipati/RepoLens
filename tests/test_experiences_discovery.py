@@ -5,7 +5,7 @@ Offline, across conceptual repository types. The properties that matter:
 * a sensible primary experience, and at most four runnable ones;
 * the four states kept apart (detected / supported / runnable / running);
 * real repository, official runtime and simulation never confused;
-* nothing runnable -> reasons, what RepoLab runs, and a Mini Lab, not a dead end;
+* nothing runnable -> reasons, what RepoLens runs, and a Mini Lab, not a dead end;
 * facts are read from the tree with their lines, never invented.
 """
 
@@ -15,11 +15,11 @@ from pathlib import Path
 
 import pytest
 
-from repolab.evidence.models import CodeReference
-from repolab.experiences.adapters import DiscoveryContext
-from repolab.experiences.catalog import experiences_for
-from repolab.experiences.discovery import MAX_EXPERIENCES, discover
-from repolab.experiences.facts import (
+from repolens.evidence.models import CodeReference
+from repolens.experiences.adapters import DiscoveryContext
+from repolens.experiences.catalog import experiences_for
+from repolens.experiences.discovery import MAX_EXPERIENCES, discover
+from repolens.experiences.facts import (
     PythonPackageFacts,
     RepositoryFacts,
     Snippet,
@@ -27,10 +27,10 @@ from repolab.experiences.facts import (
     gather_facts,
     python_image,
 )
-from repolab.experiences.model import ExperienceState, Reality, Strategy
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.models import (
+from repolens.experiences.model import ExperienceState, Reality, Strategy
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Fidelity,
@@ -38,7 +38,7 @@ from repolab.manifest.models import (
     RepoManifest,
     SurfaceType,
 )
-from repolab.runtime.models import RouteRef, RuntimePlan, ServicePlan
+from repolens.runtime.models import RouteRef, RuntimePlan, ServicePlan
 from tests.support.builds import cassandra_manifest
 from tests.support.manifests import airflow_manifest, spark_manifest
 
@@ -118,7 +118,7 @@ class TestADistributedFramework:
         assert found.experiences[0].primary
         assert [e.primary for e in found.experiences].count(True) == 1
         assert found.fallback is None
-        # The CLI is detected, not offered: RepoLab has no build of it to drive.
+        # The CLI is detected, not offered: RepoLens has no build of it to drive.
         assert [e.title for e in found.also] == ["Try the CLI"]
         assert found.also[0].state is ExperienceState.SUPPORTED
         assert "no build strategy" in (found.also[0].why_not or "")
@@ -140,7 +140,7 @@ class TestADistributedFramework:
     def test_starters_say_whose_they_are(self) -> None:
         primary = self.spark().experiences[0]
         sources = {a.id: a.source for a in primary.starter_actions}
-        assert sources == {"transform": "repolab", "readme": "readme"}
+        assert sources == {"transform": "repolens", "readme": "readme"}
         readme = next(a for a in primary.starter_actions if a.source == "readme")
         assert readme.code == "result = spark.range(1000 * 1000).count()"  # sized down, visibly
         assert readme.evidence[0].start_line == 149
@@ -239,7 +239,7 @@ class TestOtherShapes:
         assert lib.options[0].reality is Reality.REAL_REPOSITORY
         assert "python:3.10-slim" in lib.options[0].label
         assert [a.source for a in lib.starter_actions] == ["readme", "examples"]
-        assert 'runpy.run_path("/opt/repolab/repo/examples/demo.py"' in (
+        assert 'runpy.run_path("/opt/repolens/repo/examples/demo.py"' in (
             lib.starter_actions[1].code or ""
         )
 

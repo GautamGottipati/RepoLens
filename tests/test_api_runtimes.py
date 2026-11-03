@@ -18,9 +18,9 @@ from fastapi.responses import JSONResponse, Response
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.db.runtimes import create_runtime, save_runtime
-from repolab.manifest.models import InteractionSurface, SurfaceType
-from repolab.runtime.models import (
+from repolens.db.runtimes import create_runtime, save_runtime
+from repolens.manifest.models import InteractionSurface, SurfaceType
+from repolens.runtime.models import (
     RuntimePlan,
     RuntimeState,
     RuntimeStatus,
@@ -37,7 +37,7 @@ def db(monkeypatch: pytest.MonkeyPatch) -> Iterator[sessionmaker[Session]]:
     from sqlalchemy.pool import StaticPool
 
     from api import deps
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -224,7 +224,7 @@ class TestTheProxy:
         running(db, upstream, status=RuntimeStatus.STOPPED)
         assert client.get("/", headers=HOST).status_code == 404
 
-    def test_repolabs_own_routes_are_not_reachable_on_a_live_host(
+    def test_repolens_own_routes_are_not_reachable_on_a_live_host(
         self, client, db, upstream
     ) -> None:
         running(db, upstream)
@@ -257,7 +257,7 @@ class TestTheExplorer:
 
 def test_a_timeout_names_only_the_blocker_the_plan_evidenced() -> None:
     from api.routes.runtimes import _timeout_detail
-    from repolab.runtime.models import DependencyKind, DependencyState, RuntimeDependency
+    from repolens.runtime.models import DependencyKind, DependencyState, RuntimeDependency
 
     plan = planned_manifest().runtime
     assert "expected" not in _timeout_detail(plan.model_dump(mode="json"), "backend")
@@ -270,5 +270,5 @@ def test_a_timeout_names_only_the_blocker_the_plan_evidenced() -> None:
         )
     ]
     detail = _timeout_detail(plan.model_dump(mode="json"), "backend")
-    assert "RepoLab's plan expected this" in detail and "app.js:19" in detail
+    assert "RepoLens's plan expected this" in detail and "app.js:19" in detail
     assert "expected" not in _timeout_detail(plan.model_dump(mode="json"), "frontend")

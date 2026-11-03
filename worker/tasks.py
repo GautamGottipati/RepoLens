@@ -14,26 +14,26 @@ from contextlib import AbstractContextManager
 import structlog
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.agents.models import AgentRun
-from repolab.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
-from repolab.config import Settings, get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.events import ActivityReporter, DbEventEmitter, EventType, JobStatus
-from repolab.events.liveness import ActivitySink, job_key, liveness_for
-from repolab.evidence.models import DocumentationReference
-from repolab.failures import describe, explain
-from repolab.ingest.url import validate_repo_url
-from repolab.interfaces import ResearchProvider
-from repolab.llm import ModelRouter
-from repolab.manifest.models import RepoManifest, SurfaceType
-from repolab.sandbox.docker import docker_available, ensure_image
+from repolens.agents.models import AgentRun
+from repolens.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
+from repolens.config import Settings, get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.events import ActivityReporter, DbEventEmitter, EventType, JobStatus
+from repolens.events.liveness import ActivitySink, job_key, liveness_for
+from repolens.evidence.models import DocumentationReference
+from repolens.failures import describe, explain
+from repolens.ingest.url import validate_repo_url
+from repolens.interfaces import ResearchProvider
+from repolens.llm import ModelRouter
+from repolens.manifest.models import RepoManifest, SurfaceType
+from repolens.sandbox.docker import docker_available, ensure_image
 
 log = structlog.get_logger(__name__)
 
 #: The image the Spark playground runs in. Pulled during investigation so the
 #: first run in the browser is not an unexplained wait.
-SPARK_IMAGE = os.environ.get("REPOLAB_SPARK_IMAGE", "apache/spark:3.5.1-python3")
+SPARK_IMAGE = os.environ.get("REPOLENS_SPARK_IMAGE", "apache/spark:3.5.1-python3")
 
 
 def ping() -> str:
@@ -154,7 +154,7 @@ def prepare_environment(
     """Make the execution environment ready, and say what that took.
 
     Only for a repository whose primary surface is the Spark data playground:
-    there is nothing to prepare for a surface RepoLab cannot yet run.
+    there is nothing to prepare for a surface RepoLens cannot yet run.
 
     **Failure is reported, not fatal.** The manifest is the investigation's
     result and it is already saved; a machine without Docker should still get a
@@ -230,11 +230,11 @@ def _providers(
     research = None
 
     if settings.muse_api_key is not None and any(settings.configured_models.values()):
-        from repolab.llm import build_router
+        from repolens.llm import build_router
 
         router = build_router(settings, telemetry=_telemetry(session_factory))
     if settings.muse_api_key is not None:
-        from repolab.research.muse import MuseResearchProvider
+        from repolens.research.muse import MuseResearchProvider
 
         research = MuseResearchProvider(api_key=settings.muse_api_key.get_secret_value())
     return router, research
@@ -242,6 +242,6 @@ def _providers(
 
 def _telemetry(session_factory: object | None) -> object | None:
     """The sink model-call records are written to, when there is a database."""
-    from repolab.analytics.model_telemetry import db_model_telemetry
+    from repolens.analytics.model_telemetry import db_model_telemetry
 
     return db_model_telemetry(session_factory)  # type: ignore[arg-type]

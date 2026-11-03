@@ -1,5 +1,5 @@
 /**
- * Types mirroring the RepoLab API.
+ * Types mirroring the RepoLens API.
  *
  * Hand-written rather than generated, so each one carries why a field exists.
  * They are the browser's contract with the backend; `npm run build` type-checks
@@ -105,7 +105,7 @@ export type CodeReference = {
   /** The definition the range covers, when there is one. */
   symbol?: string | null;
   strength?: EvidenceStrength | null;
-  /** Set only by RepoLab's resolver, which computed and re-read the range. */
+  /** Set only by RepoLens's resolver, which computed and re-read the range. */
   verified?: boolean;
   /** Why it is (un)verified, or what was corrected ("corrected from line 12"). */
   verification?: string | null;
@@ -568,7 +568,7 @@ export type ArtifactError = {
   timestamp?: string;
 };
 
-/** One piece of what RepoLab knows about a commit. The backend owns every status. */
+/** One piece of what RepoLens knows about a commit. The backend owns every status. */
 export type ArtifactState = {
   type: ArtifactType;
   status: ArtifactStatus;
@@ -611,7 +611,7 @@ export type RuntimeOverlay = {
   notes: string[];
 };
 
-/** The component a question is asked about, sent with it to Ask RepoLab. */
+/** The component a question is asked about, sent with it to Ask RepoLens. */
 export type ArchitectureFocus = {
   node_id: string;
   label: string;
@@ -870,7 +870,7 @@ export type ReproducibilityRecord = {
   finished_at: string | null;
 };
 
-// -- Ask RepoLab: triage and answers ----------------------------------------
+// -- Ask RepoLens: triage and answers ----------------------------------------
 
 export type QuestionKind = "conceptual" | "repository" | "testable";
 
@@ -1246,7 +1246,7 @@ export type Lesson = {
   title: string;
   summary: string;
   steps: LessonStep[];
-  /** `super` when a model wrote it, `deterministic` when RepoLab did. */
+  /** `super` when a model wrote it, `deterministic` when RepoLens did. */
   generated_by: string;
   fidelity: string;
   simulated: boolean;
@@ -1285,7 +1285,7 @@ export type SimulatedLesson = {
 
 export type LessonView = {
   lesson: Lesson;
-  /** False when this is RepoLab's own lesson, served because none was generated. */
+  /** False when this is RepoLens's own lesson, served because none was generated. */
   stored: boolean;
   explainable_steps: number[];
   /** Present instead of a terminal when a Mini Lab is all that could be built. */
@@ -1357,7 +1357,7 @@ export type LessonGenerating = {
 
 export type ExperienceStatus = "runnable" | "detected_only";
 
-/** One interaction surface, and what RepoLab can do about it. */
+/** One interaction surface, and what RepoLens can do about it. */
 export type AvailableExperience = {
   surface: string;
   /** AGENTS.md's own vocabulary: 🌐 >_ 🔌 📓 ⚡ ⌨ */
@@ -1437,7 +1437,7 @@ export type DatasetProvenance = {
   first_event: string | null;
   last_event: string | null;
   days: number;
-  /** Whose activity these numbers describe, in RepoLab's own words. */
+  /** Whose activity these numbers describe, in RepoLens's own words. */
   summary: string;
 };
 
@@ -1602,7 +1602,7 @@ export type StarterAction = {
   title: string;
   description: string;
   code: string | null;
-  source: "readme" | "examples" | "routes" | "repolab";
+  source: "readme" | "examples" | "routes" | "repolens";
   evidence: CodeReference[];
 };
 

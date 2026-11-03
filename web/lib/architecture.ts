@@ -248,7 +248,7 @@ export function relationships(graph: ArchitectureGraph, nodeId: string): string[
     .map((e) => `${label(e.source)} ${e.type.replace(/_/g, " ")} ${label(e.target)}`);
 }
 
-/** What Ask RepoLab is told about what a question came from: a component, concept or subsystem. */
+/** What Ask RepoLens is told about what a question came from: a component, concept or subsystem. */
 export function focusFor(graph: ArchitectureGraph, id: string): ArchitectureFocus | null {
   const node = graph.nodes.find((n) => n.id === id);
   if (node) {

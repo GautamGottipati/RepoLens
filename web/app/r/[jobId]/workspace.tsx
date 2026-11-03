@@ -7,7 +7,7 @@
  * here rather than in each screen.
  *
  * The chrome is a repository header (the name dominates; commit and status are
- * secondary), four tabs — Overview, Experiences, Architecture, Ask RepoLab —
+ * secondary), four tabs — Overview, Experiences, Architecture, Ask RepoLens —
  * and an activity chip that opens the agent's activity in a drawer, so the
  * page's own content gets the width.
  *
@@ -39,6 +39,7 @@ import {
   ChevronDownIcon,
   Drawer,
   ErrorNote,
+  LensIcon,
   StatusBadge,
   type Status,
 } from "@/components/ui";
@@ -64,7 +65,7 @@ type Workspace = {
   /**
    * Every surface this repository offers and which of them this build can open.
    * Screens that link to the Playground or Learn gate on it, so a screen is
-   * never offered for a surface RepoLab would refuse to run.
+   * never offered for a surface RepoLens would refuse to run.
    */
   experiences: ExperienceCatalog | null;
   events: JobEvent[];
@@ -77,7 +78,7 @@ type Workspace = {
   environmentReady: boolean | null;
   error: string | null;
   /**
-   * A right-hand column a page can fill with context of its own (Ask RepoLab's
+   * A right-hand column a page can fill with context of its own (Ask RepoLens's
    * repository context). It only takes space while something is in it.
    */
   asideSlot: HTMLElement | null;
@@ -133,7 +134,7 @@ export const TABS: {
       "architecture.runtime_naming",
     ],
   },
-  { href: "/ask", label: "Ask RepoLab", needsManifest: true, artifacts: [] },
+  { href: "/ask", label: "Ask RepoLens", needsManifest: true, artifacts: [] },
 ];
 
 /** Which screen data an artifact feeds, so only that is fetched again. */
@@ -373,8 +374,9 @@ export function WorkspaceShell({ jobId, children }: { jobId: string; children: R
             <div className="mx-auto flex max-w-[1400px] flex-wrap items-start justify-between gap-x-6 gap-y-2 px-4 pt-3 sm:px-6">
               <div className="min-w-0">
                 <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-fg-muted">
-                  <Link href="/" className="font-semibold text-fg hover:text-brand-fg">
-                    RepoLab
+                  <Link href="/" className="inline-flex items-center gap-1 font-semibold text-fg hover:text-brand-fg">
+                    <LensIcon size={14} />
+                    RepoLens
                   </Link>
                   <span aria-hidden>/</span>
                   <span className="truncate font-mono" data-testid="repo-slug">
@@ -468,7 +470,7 @@ export function WorkspaceShell({ jobId, children }: { jobId: string; children: R
           open={activityOpen}
           onClose={() => setActivityOpen(false)}
           title="Agent activity"
-          description="What RepoLab did to understand this repository. Status updates only — never the model's private reasoning."
+          description="What RepoLens did to understand this repository. Status updates only — never the model's private reasoning."
           width="lg"
           data-testid="activity-drawer"
         >
@@ -524,7 +526,7 @@ function Tab({
       <li>
         <span
           aria-disabled
-          title="Available once RepoLab has finished reading the repository"
+          title="Available once RepoLens has finished reading the repository"
           className="block cursor-not-allowed border-b-2 border-transparent px-3 py-2.5 text-sm text-fg-muted opacity-60"
         >
           {label}
@@ -549,7 +551,7 @@ function Tab({
         {working && (
           <span
             aria-label="still being analysed"
-            title="RepoLab is still working on this"
+            title="RepoLens is still working on this"
             data-testid={`tab-${label}-working`}
             className="ml-1.5 inline-block size-1.5 rounded-full bg-exp align-middle motion-safe:animate-pulse"
           />
@@ -649,7 +651,7 @@ function ArtifactChecklist({ artifacts }: { artifacts: ArtifactsValue["states"] 
   const listed = (Object.keys(ARTIFACT_COPY) as ArtifactType[]).filter((type) => artifacts[type]);
   if (listed.length === 0) return null;
   return (
-    <ul className="grid gap-1 text-sm sm:grid-cols-2" data-testid="artifact-checklist" aria-label="What RepoLab has worked out">
+    <ul className="grid gap-1 text-sm sm:grid-cols-2" data-testid="artifact-checklist" aria-label="What RepoLens has worked out">
       {listed.map((type) => {
         const state = artifacts[type]!;
         return (

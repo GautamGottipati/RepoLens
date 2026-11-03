@@ -11,13 +11,13 @@ from __future__ import annotations
 
 import asyncio
 
-from repolab.classify import classify
-from repolab.experiences.catalog import experiences_for, readable_signals
-from repolab.ingest.detectors.surfaces import is_generated_bundle
-from repolab.ingest.languages import detect_languages
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.builder import build_manifest
-from repolab.manifest.models import EntryPointKind, SurfaceType
+from repolens.classify import classify
+from repolens.experiences.catalog import experiences_for, readable_signals
+from repolens.ingest.detectors.surfaces import is_generated_bundle
+from repolens.ingest.languages import detect_languages
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.builder import build_manifest
+from repolens.manifest.models import EntryPointKind, SurfaceType
 from tests.test_detectors import run_detection
 
 FULL_STACK: dict[str, str] = {

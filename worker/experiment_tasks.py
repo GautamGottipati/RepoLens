@@ -1,4 +1,4 @@
-"""Background tasks for Ask RepoLab and the experiment loop.
+"""Background tasks for Ask RepoLens and the experiment loop.
 
 Two tasks, one per side of the approval gate:
 
@@ -28,11 +28,11 @@ from pathlib import Path
 import structlog
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
-from repolab.config import Settings, get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.builds import load_builds
-from repolab.db.experiments import (
+from repolens.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
+from repolens.config import Settings, get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.builds import load_builds
+from repolens.db.experiments import (
     KIND_CLI,
     get_experiment,
     load_cli_experiment,
@@ -43,35 +43,35 @@ from repolab.db.experiments import (
     save_experiment,
     save_triage,
 )
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.db.store import (
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.db.store import (
     load_architecture,
     load_latest_ingestion,
     load_manifest,
     load_runtime_overlay,
 )
-from repolab.events import DbEventEmitter, EventType, JobStatus
-from repolab.experiences.spark.driver import DEFAULT_SHUFFLE_PARTITIONS, SparkRunConfig
-from repolab.experiments import ExperimentAgent, ExperimentBudget
-from repolab.experiments.cli.agent import CliExperimentAgent
-from repolab.experiments.cli.models import CliExperiment
-from repolab.experiments.experiment import Experiment
-from repolab.failures import describe, explain
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.url import validate_repo_url
-from repolab.questions import ExperimentBackend, Route, Triage, triage
-from repolab.questions.answer import AnswerAgent
-from repolab.questions.triage import cli_artifact
-from repolab.sources import CloneSnapshot
-from repolab.sources import capture as capture_sources
+from repolens.events import DbEventEmitter, EventType, JobStatus
+from repolens.experiences.spark.driver import DEFAULT_SHUFFLE_PARTITIONS, SparkRunConfig
+from repolens.experiments import ExperimentAgent, ExperimentBudget
+from repolens.experiments.cli.agent import CliExperimentAgent
+from repolens.experiments.cli.models import CliExperiment
+from repolens.experiments.experiment import Experiment
+from repolens.failures import describe, explain
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.url import validate_repo_url
+from repolens.questions import ExperimentBackend, Route, Triage, triage
+from repolens.questions.answer import AnswerAgent
+from repolens.questions.triage import cli_artifact
+from repolens.sources import CloneSnapshot
+from repolens.sources import capture as capture_sources
 
 log = structlog.get_logger(__name__)
 
 STEP_LABEL = "experiment"
 
 #: Pinned: the event-log field names were verified against this Spark version.
-DEFAULT_IMAGE = os.environ.get("REPOLAB_SPARK_IMAGE", "apache/spark:3.5.1-python3")
+DEFAULT_IMAGE = os.environ.get("REPOLENS_SPARK_IMAGE", "apache/spark:3.5.1-python3")
 
 
 class CommitMovedError(RuntimeError):
@@ -178,15 +178,15 @@ def _providers(settings: Settings, session_factory: object | None = None):
     router = None
     research = None
     if settings.muse_api_key is not None and any(settings.configured_models.values()):
-        from repolab.analytics.model_telemetry import db_model_telemetry
-        from repolab.llm import build_router
+        from repolens.analytics.model_telemetry import db_model_telemetry
+        from repolens.llm import build_router
 
         router = build_router(
             settings,
             telemetry=db_model_telemetry(session_factory),  # type: ignore[arg-type]
         )
     if settings.muse_api_key is not None:
-        from repolab.research.muse import MuseResearchProvider
+        from repolens.research.muse import MuseResearchProvider
 
         research = MuseResearchProvider(api_key=settings.muse_api_key.get_secret_value())
     return router, research
@@ -379,7 +379,7 @@ class _ExperienceTarget:
         self.baseline = baseline
 
     def runner(self, repo_url: str, commit_sha: str) -> object:
-        from repolab.experiences.spark.variants import SnippetVariantRunner
+        from repolens.experiences.spark.variants import SnippetVariantRunner
 
         return SnippetVariantRunner(
             repo_url=repo_url,
@@ -392,8 +392,8 @@ class _ExperienceTarget:
 
 def _experience_target(session: object, experiment_id: str) -> _ExperienceTarget | None:
     """The ready Spark session the question was asked from, with its last good run."""
-    from repolab.db.models import ExperimentRecord
-    from repolab.experiences import sessions as store
+    from repolens.db.models import ExperimentRecord
+    from repolens.experiences import sessions as store
 
     record = session.get(ExperimentRecord, experiment_id)  # type: ignore[attr-defined]
     session_id = (record.triage or {}).get("experience_session") if record else None
@@ -595,7 +595,7 @@ async def _run_cli(context: _TaskContext, experiment_id: str) -> CliExperiment:
     context.analytics.record(AnalyticsEventType.EXPERIMENT_APPROVED, experiment_id=experiment.id)
     context.analytics.record(AnalyticsEventType.EXPERIMENT_STARTED, experiment_id=experiment.id)
 
-    from repolab.sandbox.docker_provider import DockerSandboxProvider
+    from repolens.sandbox.docker_provider import DockerSandboxProvider
 
     agent = CliExperimentAgent(
         repo_url=experiment.repo_url,

@@ -1,10 +1,10 @@
-"""A line an answer cites counts only where RepoLab itself read that line."""
+"""A line an answer cites counts only where RepoLens itself read that line."""
 
 from __future__ import annotations
 
-from repolab.evidence.models import CodeReference, EvidenceBundle
-from repolab.questions.answer import pin_cited_lines
-from repolab.questions.models import AnswerClaim, AnswerClaimKind, AnswerStep, GroundedAnswer
+from repolens.evidence.models import CodeReference, EvidenceBundle
+from repolens.questions.answer import pin_cited_lines
+from repolens.questions.models import AnswerClaim, AnswerClaimKind, AnswerStep, GroundedAnswer
 
 
 def answer(*supports: str, steps: list[str] | None = None) -> GroundedAnswer:
@@ -24,7 +24,7 @@ EVIDENCE = EvidenceBundle(
 )
 
 
-def test_a_line_inside_what_repolab_read_is_kept() -> None:
+def test_a_line_inside_what_repolens_read_is_kept() -> None:
     result = answer("core/Scheduler.scala:150", "core/Scheduler.scala:186")
     pin_cited_lines(result, EVIDENCE)
     assert [c.support for c in result.claims] == [

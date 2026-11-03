@@ -1,22 +1,22 @@
 """Build plans.
 
 A plan is deterministic and inspectable: it can be shown to a user before anything
-executes, and it contains only commands RepoLab chose -- never repository code.
+executes, and it contains only commands RepoLens chose -- never repository code.
 """
 
 from __future__ import annotations
 
 import pytest
 
-from repolab.builds import BuildPlan, UnsupportedRepositoryError, plan_for, spark_plan
-from repolab.builds.spark import SMOKE_MARKER, SUBSTITUTE_PYSPARK
-from repolab.classify import classify_deterministic
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import DetectionContext, detect_all
-from repolab.ingest.languages import detect_languages
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.builder import build_manifest
-from repolab.manifest.models import RepoManifest
+from repolens.builds import BuildPlan, UnsupportedRepositoryError, plan_for, spark_plan
+from repolens.builds.spark import SMOKE_MARKER, SUBSTITUTE_PYSPARK
+from repolens.classify import classify_deterministic
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import DetectionContext, detect_all
+from repolens.ingest.languages import detect_languages
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.builder import build_manifest
+from repolens.manifest.models import RepoManifest
 from tests.test_detectors import CLI_REPO, SPARK_REPO
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
@@ -46,7 +46,7 @@ class TestPlanSelection:
         assert "spark" in plan.base_image.lower()
 
     def test_an_unsupported_repository_says_so(self, make_repo) -> None:
-        """Only the Spark shape is supported so far, and RepoLab admits it."""
+        """Only the Spark shape is supported so far, and RepoLens admits it."""
         root, _ = make_repo(CLI_REPO)
         with pytest.raises(UnsupportedRepositoryError, match="no build plan"):
             plan_for(manifest_for(root))
@@ -75,7 +75,7 @@ class TestSparkPlan:
         assert any(step.name == "record versions" for step in plan.steps)
 
     def test_the_smoke_test_runs_a_real_spark_job(self, plan: BuildPlan) -> None:
-        assert "repolab_smoke.py" in plan.smoke.command
+        assert "repolens_smoke.py" in plan.smoke.command
         assert plan.smoke.expect_stdout_contains == SMOKE_MARKER
 
     def test_the_smoke_test_checks_more_than_the_exit_code(self, plan: BuildPlan) -> None:

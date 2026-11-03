@@ -20,15 +20,15 @@ from pathlib import Path
 
 import pytest
 
-from repolab.events import CollectingEmitter, EventType
-from repolab.experiences.spark.driver import SparkRunConfig
-from repolab.experiments import ExperimentAgent, ExperimentBudget
-from repolab.experiments.models import ExperimentStatus, ProposedPlan
-from repolab.experiments.validation import validate_plan
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.url import validate_repo_url
-from repolab.sandbox.docker import DockerEnvironment, docker_available
+from repolens.events import CollectingEmitter, EventType
+from repolens.experiences.spark.driver import SparkRunConfig
+from repolens.experiments import ExperimentAgent, ExperimentBudget
+from repolens.experiments.models import ExperimentStatus, ProposedPlan
+from repolens.experiments.validation import validate_plan
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.url import validate_repo_url
+from repolens.sandbox.docker import DockerEnvironment, docker_available
 
 pytestmark = pytest.mark.docker
 
@@ -275,4 +275,4 @@ class TestEvidenceAndReproducibility:
         assert record.application_version is not None
         assert record.application_version.startswith("3.5")
         assert record.dataset_hash
-        assert record.added_steps, "RepoLab's additions must be disclosed"
+        assert record.added_steps, "RepoLens's additions must be disclosed"

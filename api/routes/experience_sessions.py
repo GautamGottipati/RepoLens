@@ -24,16 +24,16 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from api.deps import get_session
-from repolab.db.jobs import create_job, get_job
-from repolab.db.runtimes import latest_runtime
-from repolab.db.store import load_architecture, load_manifest
-from repolab.events import liveness, read_liveness, session_key, task_health
-from repolab.events.liveness import Activity, Health
-from repolab.experiences import sessions as store
-from repolab.experiences.adapters import DiscoveryContext
-from repolab.experiences.catalog import experiences_for
-from repolab.experiences.discovery import discover
-from repolab.experiences.model import ExperienceDefinition, ExperienceList, Strategy
+from repolens.db.jobs import create_job, get_job
+from repolens.db.runtimes import latest_runtime
+from repolens.db.store import load_architecture, load_manifest
+from repolens.events import liveness, read_liveness, session_key, task_health
+from repolens.events.liveness import Activity, Health
+from repolens.experiences import sessions as store
+from repolens.experiences.adapters import DiscoveryContext
+from repolens.experiences.catalog import experiences_for
+from repolens.experiences.discovery import discover
+from repolens.experiences.model import ExperienceDefinition, ExperienceList, Strategy
 
 log = structlog.get_logger(__name__)
 
@@ -291,7 +291,7 @@ class MiniLabCommand(BaseModel):
 def minilab(
     session_id: str, payload: MiniLabCommand, session: Annotated[Session, Depends(get_session)]
 ) -> dict[str, Any]:
-    from repolab.builds.minilab import MiniLab
+    from repolens.builds.minilab import MiniLab
 
     record, state = _load(session, session_id)
     if record.adapter != "minilab" or state.minilab is None:

@@ -24,26 +24,26 @@ from pathlib import Path
 import structlog
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.config import Settings, get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job, mark_finished, mark_running
-from repolab.db.models import Ingestion
-from repolab.db.runs import save_spark_run
-from repolab.events import DbEventEmitter, EventType, JobStatus
-from repolab.experiences.spark import SparkDemoRunner, SparkRunConfig
-from repolab.failures import describe, explain
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.url import validate_repo_url
-from repolab.sandbox.docker import DockerEnvironment, docker_available, ensure_image
-from repolab.sandbox.models import SandboxError
+from repolens.config import Settings, get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job, mark_finished, mark_running
+from repolens.db.models import Ingestion
+from repolens.db.runs import save_spark_run
+from repolens.events import DbEventEmitter, EventType, JobStatus
+from repolens.experiences.spark import SparkDemoRunner, SparkRunConfig
+from repolens.failures import describe, explain
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.url import validate_repo_url
+from repolens.sandbox.docker import DockerEnvironment, docker_available, ensure_image
+from repolens.sandbox.models import SandboxError
 
 log = structlog.get_logger(__name__)
 
 STEP_LABEL = "pipeline"
 
 #: Pinned: the event-log field names were verified against this Spark version.
-DEFAULT_IMAGE = os.environ.get("REPOLAB_SPARK_IMAGE", "apache/spark:3.5.1-python3")
+DEFAULT_IMAGE = os.environ.get("REPOLENS_SPARK_IMAGE", "apache/spark:3.5.1-python3")
 
 
 class CommitMovedError(RuntimeError):
@@ -102,7 +102,7 @@ def expected_commit(factory: sessionmaker[Session], repo_url: str) -> str | None
     ``None`` when it has never been investigated, in which case there is nothing
     to check against and the run proceeds on whatever HEAD is.
     """
-    from repolab.db.store import load_latest_ingestion
+    from repolens.db.store import load_latest_ingestion
 
     with factory() as session:
         ingestion: Ingestion | None = load_latest_ingestion(session, repo_url)

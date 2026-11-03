@@ -134,7 +134,7 @@ function NamingNote({ status, onRetry }: { status: ArtifactStatus | null; onRetr
   if (status === "failed") {
     return (
       <p role="status" data-testid="runtime-naming" data-status={status} className="flex flex-wrap items-center gap-3 text-sm text-fg-secondary">
-        Components keep their type names: RepoLab couldn&apos;t name them.
+        Components keep their type names: RepoLens couldn&apos;t name them.
         {onRetry && (
           <Button size="sm" onClick={onRetry} data-testid="runtime-naming-retry">
             Retry
@@ -423,12 +423,12 @@ function GuidedArchitecture({
       )}
       {!available.source && (
         <EmptyState title="No starting points yet">
-          RepoLab found no files it could recommend reading first. Ask RepoLab where something is implemented.
+          RepoLens found no files it could recommend reading first. Ask RepoLens where something is implemented.
         </EmptyState>
       )}
     </>
   ) : (
-    <Panel title="Related experiments" subtitle="Questions RepoLab can test against the real software">
+    <Panel title="Related experiments" subtitle="Questions RepoLens can test against the real software">
       {experiments.length > 0 ? (
         <ul className="flex flex-col gap-3" data-testid="related-experiments">
           {experiments.map(([nodeId, action]) => (
@@ -455,7 +455,7 @@ function GuidedArchitecture({
             </ActionLink>
           }
         >
-          Experiments need something RepoLab can run. Start an experience, then ask a question about it.
+          Experiments need something RepoLens can run. Start an experience, then ask a question about it.
         </EmptyState>
       )}
     </Panel>
@@ -623,7 +623,7 @@ function SystemModelPanel({
     >
       {concepts.nodes.length === 0 ? (
         <Empty title="No high-level model yet">
-          RepoLab could not tie the repository&apos;s major ideas to its files, so it shows none rather than guess.
+          RepoLens could not tie the repository&apos;s major ideas to its files, so it shows none rather than guess.
         </Empty>
       ) : (
         <div data-testid="system-model">
@@ -710,14 +710,14 @@ function SubsystemView({
       <ComponentPanel
         graph={sub}
         title="Components"
-        subtitle="Runtime components RepoLab found in this part. Dashed arrows are inferred, solid ones read from code."
+        subtitle="Runtime components RepoLens found in this part. Dashed arrows are inferred, solid ones read from code."
         selected={selected}
         measured={measured}
         onSelect={onSelect}
         frameSelected={frameSelected}
         selectedEdge={selectedEdge}
         onEdgeSelect={onEdgeSelect}
-        emptyText="RepoLab found no runtime components in this part's code. The starting points above are the place to read; Ask RepoLab can explain it."
+        emptyText="RepoLens found no runtime components in this part's code. The starting points above are the place to read; Ask RepoLens can explain it."
       />
       {walks.length > 0 && <Walkthroughs walkthroughs={walks} onSelect={onSelect} onTourSelect={onTourSelect} onTourActiveChange={onTourActiveChange} />}
       {groupMeasured.length > 0 && (
@@ -854,7 +854,7 @@ function LegacyArchitecture({ jobId, view, overlay, initialSelection = null }: P
   return (
     <div className="flex flex-col gap-6">
       <Note>
-        This investigation was mapped by an earlier version of RepoLab, so the guided overview is not available.
+        This investigation was mapped by an earlier version of RepoLens, so the guided overview is not available.
         Investigate the repository again to see what it is, its major parts and where to start.
       </Note>
       {graph.summary && (
@@ -871,7 +871,7 @@ function LegacyArchitecture({ jobId, view, overlay, initialSelection = null }: P
             selected={selected}
             measured={measured}
             onSelect={setSelected}
-            emptyText="RepoLab will not draw an architecture it cannot tie to the repository's files."
+            emptyText="RepoLens will not draw an architecture it cannot tie to the repository's files."
           />
           <AnalysisDetails graph={graph} overlay={overlay} />
         </div>

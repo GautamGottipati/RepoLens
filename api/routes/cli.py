@@ -42,27 +42,27 @@ from sqlalchemy.orm import Session
 
 import api.deps as deps
 from api.deps import get_session, session_factory
-from repolab.builds.models import BuildArtifact
-from repolab.builds.session import SessionBusy, UpgradeRefused
-from repolab.db.builds import load_builds
-from repolab.db.jobs import create_job
-from repolab.db.store import load_latest_ingestion, load_manifest
-from repolab.events import DbEventEmitter, JobStatus
-from repolab.experiences.cli.experience import (
+from repolens.builds.models import BuildArtifact
+from repolens.builds.session import SessionBusy, UpgradeRefused
+from repolens.db.builds import load_builds
+from repolens.db.jobs import create_job
+from repolens.db.store import load_latest_ingestion, load_manifest
+from repolens.events import DbEventEmitter, JobStatus
+from repolens.experiences.cli.experience import (
     CLIExperience,
     NoCliSurfaceError,
     build_cli_experience,
 )
-from repolab.experiences.cli.session import (
+from repolens.experiences.cli.session import (
     CliSession,
     CliSessionManager,
     CommandRecord,
     SessionNotReady,
     SessionStatus,
 )
-from repolab.failures import explain
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url
-from repolab.sandbox.models import CheckpointMissingError, SandboxError
+from repolens.failures import explain
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url
+from repolens.sandbox.models import CheckpointMissingError, SandboxError
 
 log = structlog.get_logger(__name__)
 
@@ -99,8 +99,8 @@ def manager() -> CliSessionManager:
     """
     global _manager
     if _manager is None:
-        from repolab.analytics import Analytics, DbAnalyticsWriter
-        from repolab.sandbox.docker_provider import DockerSandboxProvider
+        from repolens.analytics import Analytics, DbAnalyticsWriter
+        from repolens.sandbox.docker_provider import DockerSandboxProvider
 
         _manager = CliSessionManager(
             DockerSandboxProvider(),
@@ -326,8 +326,8 @@ def _checkpoint_is_gone(session: CliSession) -> bool:
 
 
 def _forget(artifact: BuildArtifact) -> None:
-    from repolab.builds.cache import DbBuildCache
-    from repolab.db import session_scope
+    from repolens.builds.cache import DbBuildCache
+    from repolens.db import session_scope
 
     dropped = DbBuildCache(lambda: session_scope(deps.engine())).forget(
         artifact.repo_url, artifact.commit_sha, artifact.kind.value
@@ -399,7 +399,7 @@ def resolve_environment(
 
     Asked for explicitly, and that is deliberate. Resolving Cassandra compiles
     source, pulls a release and starts a 4 GB node -- AGENTS.md requires explicit
-    approval before starting expensive services, so RepoLab does not do it
+    approval before starting expensive services, so RepoLens does not do it
     behind a learner's back when they open a screen.
 
     Returns 202: the ladder takes minutes and runs in a worker. Progress arrives
@@ -414,7 +414,7 @@ def resolve_environment(
     if load_latest_ingestion(session, url.normalized) is None:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            "this repository has not been investigated yet, so RepoLab does not know "
+            "this repository has not been investigated yet, so RepoLens does not know "
             "how to build it",
         )
 
@@ -629,8 +629,8 @@ def _emitter(job_id: str | None, session: Session) -> DbEventEmitter | None:
     if job_id is None:
         return None
 
-    from repolab.db import session_scope
-    from repolab.db.jobs import get_job
+    from repolens.db import session_scope
+    from repolens.db.jobs import get_job
 
     job = get_job(session, job_id)
     start_seq = job.last_seq if job is not None else 0

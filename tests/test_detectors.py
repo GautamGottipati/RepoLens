@@ -1,7 +1,7 @@
 """Deterministic detection.
 
 The central property here is that **every finding cites a file**: a manifest
-claim without evidence is exactly what RepoLab is meant not to produce.
+claim without evidence is exactly what RepoLens is meant not to produce.
 """
 
 from __future__ import annotations
@@ -10,9 +10,9 @@ from pathlib import Path
 
 import pytest
 
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import DetectionContext, detect_all
-from repolab.ingest.tree import build_file_tree
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import DetectionContext, detect_all
+from repolens.ingest.tree import build_file_tree
 
 SPARK_REPO: dict[str, str] = {
     "jobs/etl_job.py": """

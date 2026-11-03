@@ -3,7 +3,7 @@
  *
  * Interaction over reading (AGENTS.md): each step is a statement the learner
  * runs, and the panel's job is to say why it matters, what to look for, and —
- * once they have run it — what RepoLab's check concluded and *who concluded it*.
+ * once they have run it — what RepoLens's check concluded and *who concluded it*.
  * A pass decided by a model is labelled as such; a learner should never have to
  * guess whether they were checked or judged.
  *
@@ -161,7 +161,7 @@ export function LessonStepCard({
           </div>
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">
-              How RepoLab checks it
+              How RepoLens checks it
             </h3>
             <p className="mt-1 text-sm text-fg">
               {step.validation.describe || CHECK_LABEL[step.validation.kind] || "deterministically"}
@@ -287,7 +287,7 @@ export function LessonHeader({ lesson }: { lesson: Lesson }) {
       <h1 className="text-lg font-semibold tracking-tight" data-testid="lesson-title">
         {lesson.title}
       </h1>
-      <Badge>{lesson.generated_by === "super" ? "written by Muse Super" : "by RepoLab"}</Badge>
+      <Badge>{lesson.generated_by === "super" ? "written by Muse Super" : "by RepoLens"}</Badge>
       <Badge tone={lesson.simulated ? "bad" : "good"}>{lesson.fidelity} fidelity</Badge>
       <p className="w-full text-sm text-fg-secondary">{lesson.summary}</p>
     </div>
@@ -338,7 +338,7 @@ export function UngroundedNote({ lesson }: { lesson: Lesson }) {
 
   return (
     <Note>
-      {ungrounded} of {lesson.step_count} steps cite no repository file. RepoLab drops a citation
+      {ungrounded} of {lesson.step_count} steps cite no repository file. RepoLens drops a citation
       it could not resolve against this commit rather than showing one you cannot check.
     </Note>
   );

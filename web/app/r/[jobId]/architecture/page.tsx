@@ -66,7 +66,7 @@ function Architecture() {
       <Panel title="Architecture">
         <Skeleton rows={4} />
         <p className="mt-3 text-sm text-fg-secondary">
-          The architecture appears here once RepoLab has finished reading the repository.
+          The architecture appears here once RepoLens has finished reading the repository.
         </p>
       </Panel>
     );

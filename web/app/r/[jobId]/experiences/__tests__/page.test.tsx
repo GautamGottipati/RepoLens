@@ -1,6 +1,6 @@
 /**
  * The Experiences screen: things to do, best first, honestly labelled -- and,
- * when nothing real can run, why, what RepoLab can run, and a Mini Lab that says
+ * when nothing real can run, why, what RepoLens can run, and a Mini Lab that says
  * it is a simulation. The detected surfaces stay, underneath, as evidence.
  */
 
@@ -15,7 +15,7 @@ import type {
   RuntimeOption,
 } from "@/lib/types";
 
-const NOT_RUNNABLE = "Detected, but not yet runnable in this RepoLab build.";
+const NOT_RUNNABLE = "Detected, but not yet runnable in this RepoLens build.";
 const COMMIT = "c".repeat(40);
 
 const calls = vi.hoisted(() => ({
@@ -63,7 +63,7 @@ function surface(name: string): AvailableExperience {
     status: "detected_only",
     route: null,
     adapter: null,
-    unavailable_reason: `${NOT_RUNNABLE} RepoLab has no build strategy for this repository yet.`,
+    unavailable_reason: `${NOT_RUNNABLE} RepoLens has no build strategy for this repository yet.`,
     runnable: false,
     weak: false,
     supported: true,
@@ -211,7 +211,7 @@ describe("experiences, not surfaces", () => {
 });
 
 describe("when nothing real can run", () => {
-  it("says why, what RepoLab runs, and offers a Mini Lab marked as a simulation", async () => {
+  it("says why, what RepoLens runs, and offers a Mini Lab marked as a simulation", async () => {
     const lab = experience("minilab:lab", "Guided Mini Lab", {
       adapter: "minilab",
       experience_type: "mini_lab",
@@ -220,10 +220,10 @@ describe("when nothing real can run", () => {
     calls.experienceList.mockResolvedValue({
       ...sparkListing(),
       name: "airflow",
-      headline: "airflow cannot run in RepoLab yet.",
+      headline: "airflow cannot run in RepoLens yet.",
       experiences: [],
       fallback: lab,
-      nothing_runs_because: ["Try the CLI: RepoLab has no build strategy for this repository yet."],
+      nothing_runs_because: ["Try the CLI: RepoLens has no build strategy for this repository yet."],
       supported_kinds: ["Spark data playgrounds", "Node.js web applications and HTTP APIs"],
     });
     render(<ExperiencesPage />);

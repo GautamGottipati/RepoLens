@@ -17,8 +17,8 @@ from pathlib import Path
 
 import pytest
 
-from repolab.analytics import Analytics, AnalyticsEventType, CollectingAnalyticsWriter
-from repolab.builds import (
+from repolens.analytics import Analytics, AnalyticsEventType, CollectingAnalyticsWriter
+from repolens.builds import (
     BuildCandidate,
     BuildLadder,
     BuildLimits,
@@ -29,9 +29,9 @@ from repolab.builds import (
     cassandra_partial_plan,
     cassandra_source_plan,
 )
-from repolab.builds.cassandra import SMOKE_MARKER
-from repolab.events import CollectingEmitter, EventType
-from repolab.manifest.models import BuildKind, Fidelity
+from repolens.builds.cassandra import SMOKE_MARKER
+from repolens.events import CollectingEmitter, EventType
+from repolens.manifest.models import BuildKind, Fidelity
 from tests.support.builds import (
     CASSANDRA_REPO,
     SHA,
@@ -361,7 +361,7 @@ class TestReadyCallback:
 
 class TestRetryingWithinLimits:
     async def test_it_does_not_retry_without_a_diagnosis_saying_to(self, manifest, root) -> None:
-        """RepoLab does not spend minutes on a guess; without a model, once is it."""
+        """RepoLens does not spend minutes on a guess; without a model, once is it."""
         plans = candidates(manifest)[:1]
         sandbox = provider(failing_step(plans[0].plan, "build the jars"))
 
@@ -376,8 +376,8 @@ class TestRetryingWithinLimits:
     async def test_a_diagnosis_recommending_a_retry_produces_one(self, manifest, root) -> None:
         import json
 
-        from repolab.llm import ModelRouter, ModelTier
-        from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+        from repolens.llm import ModelRouter, ModelTier
+        from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
         plans = candidates(manifest)[:1]
         sandbox = provider(failing_step(plans[0].plan, "build the jars"))
@@ -425,7 +425,7 @@ class TestRetryingWithinLimits:
 class TestTheMiniLabRung:
     async def test_it_serves_when_nothing_can_be_built(self, manifest, root) -> None:
         """The final fallback, doing its job."""
-        from repolab.builds import BuildCandidate as Candidate
+        from repolens.builds import BuildCandidate as Candidate
 
         plans = [
             *(Candidate(kind=c.kind, plan=c.plan, why=c.why) for c in candidates(manifest)),
@@ -441,7 +441,7 @@ class TestTheMiniLabRung:
         assert result.served.simulated is True
 
     async def test_it_is_never_preferred_over_something_real(self, manifest, root) -> None:
-        from repolab.builds import BuildCandidate as Candidate
+        from repolens.builds import BuildCandidate as Candidate
 
         plans = [
             *(Candidate(kind=c.kind, plan=c.plan, why=c.why) for c in candidates(manifest)),
@@ -473,7 +473,7 @@ class TestServiceBasedBuilds:
 
     def test_the_spark_plan_declares_none(self, make_repo) -> None:
         """Nothing P0 depends on acquired a service it does not need."""
-        from repolab.builds import spark_plan
+        from repolens.builds import spark_plan
         from tests.test_build_resolver import manifest_for
         from tests.test_detectors import SPARK_REPO
 

@@ -1,4 +1,4 @@
-# HTTP only: used until a certificate exists for ${REPOLAB_DOMAIN}.
+# HTTP only: used until a certificate exists for ${REPOLENS_DOMAIN}.
 # Serves the whole site, and the ACME challenge certbot needs to get one.
 
 map $http_upgrade $connection_upgrade {
@@ -13,11 +13,11 @@ server {
     location = /nginx-health { access_log off; return 200 "ok\n"; }
     location /.well-known/acme-challenge/ { root /var/www/acme; }
 
-    include /etc/repolab/nginx/common.inc;
+    include /etc/repolens/nginx/common.inc;
 }
 
 server {
     listen 80;
-    server_name "~^rt-[a-f0-9]{12}-[a-z0-9-]+\.${REPOLAB_DOMAIN}$";
-    include /etc/repolab/nginx/runtime.inc;
+    server_name "~^rt-[a-f0-9]{12}-[a-z0-9-]+\.${REPOLENS_DOMAIN}$";
+    include /etc/repolens/nginx/runtime.inc;
 }

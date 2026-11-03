@@ -7,7 +7,7 @@ build and whether anything had to be substituted.
 
 from __future__ import annotations
 
-from repolab.builds import (
+from repolens.builds import (
     BuildArtifact,
     BuildAttempt,
     BuildCapabilities,
@@ -18,7 +18,7 @@ from repolab.builds import (
     StepOutcome,
     fidelity_for,
 )
-from repolab.manifest.models import BuildKind, Fidelity
+from repolens.manifest.models import BuildKind, Fidelity
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 SHA = "eeee0c2b9af7" + "0" * 28
@@ -27,10 +27,10 @@ SHA = "eeee0c2b9af7" + "0" * 28
 def passing_smoke() -> SmokeTestResult:
     return SmokeTestResult(
         name="a tiny Spark job completes",
-        command="python3 /work/repolab_smoke.py",
+        command="python3 /work/repolens_smoke.py",
         passed=True,
         exit_code=0,
-        stdout="REPOLAB_SPARK_OK 3.5.1\n",
+        stdout="REPOLENS_SPARK_OK 3.5.1\n",
     )
 
 
@@ -113,7 +113,7 @@ class TestCacheAndSource:
 
     def test_source_cannot_contradict_the_kind(self) -> None:
         """`source` is derived, so "official release built from source" is unrepresentable."""
-        from repolab.manifest.models import BuildKind
+        from repolens.manifest.models import BuildKind
 
         assert artifact(kind=BuildKind.OFFICIAL_RELEASE).source is BuildSource.OFFICIAL_RELEASE
         assert artifact(kind=BuildKind.MINI_LAB).source is BuildSource.MINI_LAB
@@ -159,7 +159,7 @@ class TestAttempts:
         assert attempt.duration_seconds is not None
 
     def test_a_long_log_tail_is_bounded(self) -> None:
-        from repolab.builds.models import MAX_LOG_TAIL
+        from repolens.builds.models import MAX_LOG_TAIL
 
         step = StepOutcome(name="noisy", command="x", output_tail="y" * 50_000)
         assert len(step.output_tail) == MAX_LOG_TAIL
@@ -174,7 +174,7 @@ class TestBuildRequest:
         request = BuildRequest(repo_url=REPO, commit_sha=SHA)
         tag = request.checkpoint_tag
 
-        assert tag.startswith("repolab/")
+        assert tag.startswith("repolens/")
         assert SHA[:12] in tag
 
     def test_the_tag_differs_per_commit(self) -> None:

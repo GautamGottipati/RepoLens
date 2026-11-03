@@ -11,18 +11,18 @@ import json
 from pathlib import Path
 from typing import Any
 
-from repolab.architecture.build import build_static_architecture
-from repolab.architecture.models import ArchitectureGraph
-from repolab.architecture.source import SourceIndex
-from repolab.architecture.understanding import orient
-from repolab.classify import classify
-from repolab.evidence.models import DocumentationReference
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import DetectionContext, detect_all
-from repolab.ingest.languages import detect_languages
-from repolab.ingest.tree import build_file_tree
-from repolab.manifest.builder import build_manifest
-from repolab.manifest.models import RepoManifest
+from repolens.architecture.build import build_static_architecture
+from repolens.architecture.models import ArchitectureGraph
+from repolens.architecture.source import SourceIndex
+from repolens.architecture.understanding import orient
+from repolens.classify import classify
+from repolens.evidence.models import DocumentationReference
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import DetectionContext, detect_all
+from repolens.ingest.languages import detect_languages
+from repolens.ingest.tree import build_file_tree
+from repolens.manifest.builder import build_manifest
+from repolens.manifest.models import RepoManifest
 
 SHA = "f" * 40
 

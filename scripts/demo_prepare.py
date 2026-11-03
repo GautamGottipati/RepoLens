@@ -44,7 +44,7 @@ def say(step: str, detail: str = "") -> None:
 
 
 def pull_images(force: bool) -> None:
-    from repolab.sandbox.docker import ensure_image, image_present
+    from repolens.sandbox.docker import ensure_image, image_present
 
     print("images")
     for image in DEMO_IMAGES:
@@ -59,11 +59,11 @@ def pull_images(force: bool) -> None:
 
 
 async def ingest_repositories(force: bool) -> None:
-    from repolab.config import get_settings
-    from repolab.db import build_engine, session_scope
-    from repolab.db.store import load_latest_ingestion, save_ingestion
-    from repolab.ingest import ingest_repository
-    from repolab.ingest.limits import IngestLimits
+    from repolens.config import get_settings
+    from repolens.db import build_engine, session_scope
+    from repolens.db.store import load_latest_ingestion, save_ingestion
+    from repolens.ingest import ingest_repository
+    from repolens.ingest.limits import IngestLimits
 
     print("demo repositories")
     engine = build_engine(get_settings())
@@ -97,7 +97,7 @@ async def ingest_repositories(force: bool) -> None:
 
 async def resolve_cassandra(force: bool) -> None:
     """Build the Cassandra ladder into the cache. The slow one."""
-    from repolab.builds import (
+    from repolens.builds import (
         BuildLadder,
         BuildLimits,
         BuildRequest,
@@ -106,14 +106,14 @@ async def resolve_cassandra(force: bool) -> None:
         candidates_for,
         needs_submodules,
     )
-    from repolab.config import get_settings
-    from repolab.db import build_engine, session_scope
-    from repolab.db.builds import load_builds
-    from repolab.db.store import load_latest_ingestion, load_manifest
-    from repolab.ingest.clone import TemporaryClone
-    from repolab.ingest.limits import DEFAULT_LIMITS
-    from repolab.ingest.url import validate_repo_url
-    from repolab.sandbox.docker_provider import DockerSandboxProvider
+    from repolens.config import get_settings
+    from repolens.db import build_engine, session_scope
+    from repolens.db.builds import load_builds
+    from repolens.db.store import load_latest_ingestion, load_manifest
+    from repolens.ingest.clone import TemporaryClone
+    from repolens.ingest.limits import DEFAULT_LIMITS
+    from repolens.ingest.url import validate_repo_url
+    from repolens.sandbox.docker_provider import DockerSandboxProvider
 
     print("cassandra environment")
     engine = build_engine(get_settings())
@@ -174,16 +174,16 @@ async def resolve_cassandra(force: bool) -> None:
 
 
 async def generate_lesson(force: bool) -> None:
-    from repolab.analytics.model_telemetry import db_model_telemetry
-    from repolab.config import get_settings
-    from repolab.db import build_engine, session_scope
-    from repolab.db.builds import load_builds
-    from repolab.db.lessons import load_lesson, save_lesson
-    from repolab.db.store import load_latest_ingestion, load_manifest
-    from repolab.ingest.clone import TemporaryClone
-    from repolab.ingest.limits import DEFAULT_LIMITS
-    from repolab.ingest.url import validate_repo_url
-    from repolab.lessons.agent import LearningAgent
+    from repolens.analytics.model_telemetry import db_model_telemetry
+    from repolens.config import get_settings
+    from repolens.db import build_engine, session_scope
+    from repolens.db.builds import load_builds
+    from repolens.db.lessons import load_lesson, save_lesson
+    from repolens.db.store import load_latest_ingestion, load_manifest
+    from repolens.ingest.clone import TemporaryClone
+    from repolens.ingest.limits import DEFAULT_LIMITS
+    from repolens.ingest.url import validate_repo_url
+    from repolens.lessons.agent import LearningAgent
 
     print("cassandra lesson")
     settings = get_settings()
@@ -216,14 +216,14 @@ async def generate_lesson(force: bool) -> None:
         router = None
         research = None
         if settings.muse_api_key is not None and any(settings.configured_models.values()):
-            from repolab.llm import build_router
+            from repolens.llm import build_router
 
             router = build_router(
                 settings,
                 telemetry=db_model_telemetry(lambda: session_scope(engine)),
             )
         if settings.muse_api_key is not None:
-            from repolab.research.muse import MuseResearchProvider
+            from repolens.research.muse import MuseResearchProvider
 
             research = MuseResearchProvider(api_key=settings.muse_api_key.get_secret_value())
 
@@ -246,9 +246,9 @@ async def generate_lesson(force: bool) -> None:
 
 
 async def run(args: argparse.Namespace) -> int:
-    from repolab.sandbox.docker import docker_available
+    from repolens.sandbox.docker import docker_available
 
-    print("RepoLab demo preparation\n")
+    print("RepoLens demo preparation\n")
 
     if not docker_available():
         print("Docker is not available. Start Docker Desktop and try again.")

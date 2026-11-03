@@ -5,15 +5,15 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel
 
-from repolab.llm import ModelRouter, ModelTier, Purpose, SchemaValidationError
-from repolab.llm.parsing import extract_json_object, strip_code_fences
-from repolab.llm.schema import (
+from repolens.llm import ModelRouter, ModelTier, Purpose, SchemaValidationError
+from repolens.llm.parsing import extract_json_object, strip_code_fences
+from repolens.llm.schema import (
     JSON_OBJECT_RESPONSE_FORMAT,
     describe_schema_for_prompt,
     response_format_for,
     to_strict_json_schema,
 )
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 
 class Nested(BaseModel):

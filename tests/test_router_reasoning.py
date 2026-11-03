@@ -10,8 +10,8 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel
 
-from repolab.llm import EmptyResponseError, ModelRouter, ModelTier, Purpose
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.llm import EmptyResponseError, ModelRouter, ModelTier, Purpose
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 SECRET_COT = "Let me think step by step about what the user really wants here."
 

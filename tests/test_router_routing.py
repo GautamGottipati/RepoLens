@@ -12,8 +12,8 @@ import inspect
 import pytest
 from pydantic import BaseModel
 
-from repolab.llm import ModelNotConfiguredError, ModelRouter, ModelTier, Purpose
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.llm import ModelNotConfiguredError, ModelRouter, ModelTier, Purpose
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
 CONFIGURED = {
     ModelTier.NANO: "vendor/nano-model",

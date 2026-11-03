@@ -1,5 +1,5 @@
 /**
- * Analysis artifacts on screen: what RepoLab knows so far, piece by piece.
+ * Analysis artifacts on screen: what RepoLens knows so far, piece by piece.
  *
  * The backend owns every status. The workspace loads them with
  * `GET /jobs/{id}/artifacts` (on mount and after each reconnect) and reloads
@@ -122,7 +122,7 @@ export function ArtifactSection({
         className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-surface-subtle p-4 text-sm"
       >
         <span className="text-fg-secondary">
-          RepoLab couldn&apos;t finish this part{state?.error?.message ? `: ${state.error.message}` : "."}
+          RepoLens couldn&apos;t finish this part{state?.error?.message ? `: ${state.error.message}` : "."}
         </span>
         {state?.error?.retryable !== false && (
           <Button size="sm" onClick={retry} data-testid={`${id}-retry`}>

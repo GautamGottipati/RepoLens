@@ -4,21 +4,21 @@ The specification is unusually direct about this one:
 
 > Each surface must include evidence explaining why it was detected.
 > Unsupported experiences should clearly say: Detected, but not yet runnable in
-> this RepoLab build.
+> this RepoLens build.
 > **Never pretend an unsupported experience works.**
 
 So most of this file is about the second and third sentences. The fixtures are
 recorded from real ingestions (`tests/support/manifests.py`), including the
 awkward case the demonstration actually produces: Airflow's *primary* surface is
-one RepoLab cannot run.
+one RepoLens cannot run.
 """
 
 from __future__ import annotations
 
 import pytest
 
-from repolab.classify.signals import HYBRID_CONFIDENCE
-from repolab.experiences.catalog import (
+from repolens.classify.signals import HYBRID_CONFIDENCE
+from repolens.experiences.catalog import (
     ADAPTERS,
     NO_ADAPTER,
     NO_LADDER,
@@ -30,7 +30,7 @@ from repolab.experiences.catalog import (
     ExperienceStatus,
     experiences_for,
 )
-from repolab.manifest.models import RepoManifest, SurfaceType
+from repolens.manifest.models import RepoManifest, SurfaceType
 from tests.support.builds import cassandra_manifest
 from tests.support.manifests import airflow_manifest, spark_manifest
 
@@ -141,7 +141,7 @@ class TestNothingPretendsToWork:
     def test_the_primary_surface_is_not_runnable_just_for_being_primary(
         self, airflow: RepoManifest
     ) -> None:
-        """Airflow's CLI is its strongest surface and RepoLab still cannot build it."""
+        """Airflow's CLI is its strongest surface and RepoLens still cannot build it."""
         cli = experiences_for(airflow).of(SurfaceType.CLI)
 
         assert cli is not None

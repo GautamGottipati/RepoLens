@@ -33,31 +33,31 @@ from sqlalchemy.orm import Session
 
 from api.deps import get_session, session_factory
 from api.routes.cli import manager
-from repolab.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
-from repolab.config import get_settings
-from repolab.db.builds import load_builds
-from repolab.db.jobs import create_job
-from repolab.db.lessons import (
+from repolens.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
+from repolens.config import get_settings
+from repolens.db.builds import load_builds
+from repolens.db.jobs import create_job
+from repolens.db.lessons import (
     load_lesson,
     load_lesson_by_id,
     load_progress,
     save_lesson,
     save_progress,
 )
-from repolab.db.store import load_latest_ingestion, load_manifest
-from repolab.events import JobStatus
-from repolab.experiences.cli.session import CommandRecord
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url
-from repolab.lessons.cassandra import cassandra_lesson, teaches_cassandra
-from repolab.lessons.explain import (
+from repolens.db.store import load_latest_ingestion, load_manifest
+from repolens.events import JobStatus
+from repolens.experiences.cli.session import CommandRecord
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url
+from repolens.lessons.cassandra import cassandra_lesson, teaches_cassandra
+from repolens.lessons.explain import (
     VerifiedWhatHappened,
     build_explain_input,
     explain_command,
     explainable,
 )
-from repolab.lessons.minilab_lesson import SimulatedLesson, simulated_lesson
-from repolab.lessons.models import Lesson, LessonProgress, LessonStep
-from repolab.lessons.validation import check_step, resolve_with_model
+from repolens.lessons.minilab_lesson import SimulatedLesson, simulated_lesson
+from repolens.lessons.models import Lesson, LessonProgress, LessonStep
+from repolens.lessons.validation import check_step, resolve_with_model
 
 log = structlog.get_logger(__name__)
 
@@ -69,7 +69,7 @@ class LessonView(BaseModel):
 
     lesson: Lesson
     stored: bool
-    """False when this is RepoLab's own lesson, served because none was generated."""
+    """False when this is RepoLens's own lesson, served because none was generated."""
 
     explainable_steps: list[int] = Field(default_factory=list)
     """Steps with a "What Just Happened?" worth asking for."""
@@ -139,7 +139,7 @@ class ExplanationView(BaseModel):
 
 
 def _lesson_for(session: Session, repo_url: str) -> tuple[Lesson, bool]:
-    """The stored lesson, or RepoLab's own -- stored on the way out.
+    """The stored lesson, or RepoLens's own -- stored on the way out.
 
     A learner arriving before the generator has finished gets the deterministic
     eight-step lesson, which is a complete lesson rather than a placeholder. It
@@ -147,7 +147,7 @@ def _lesson_for(session: Session, repo_url: str) -> tuple[Lesson, bool]:
     lesson nothing can look up, and progress cannot be recorded against one.
 
     This is a write from a GET, which is worth being explicit about. It is one
-    insert of a lesson RepoLab generated in memory -- no model, no clone,
+    insert of a lesson RepoLens generated in memory -- no model, no clone,
     nothing slow -- and it is idempotent, because the next call finds the row.
     The returned flag says whether the lesson *predated* this call.
     """
@@ -158,14 +158,14 @@ def _lesson_for(session: Session, repo_url: str) -> tuple[Lesson, bool]:
     if stored is not None:
         return stored, True
 
-    # RepoLab's own lesson teaches CQL through cqlsh, so it is only served for a
+    # RepoLens's own lesson teaches CQL through cqlsh, so it is only served for a
     # repository whose evidence says that is what it has. Handing it to another
     # command-line repository would not be a thin lesson but a false one.
     manifest = load_manifest(session, repo_url)
     if manifest is None or not teaches_cassandra(manifest):
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
-            "no lesson has been generated for this repository yet, and RepoLab has no "
+            "no lesson has been generated for this repository yet, and RepoLens has no "
             "built-in lesson for it; request one with POST /lessons",
         )
 
@@ -333,7 +333,7 @@ async def explain(
         return ExplanationView(
             available=False,
             reason=(
-                "No model is configured, so RepoLab will not explain this. "
+                "No model is configured, so RepoLens will not explain this. "
                 "The step's own context describes what the statement does."
             ),
         )
@@ -413,8 +413,8 @@ def _router() -> object | None:
     if settings.muse_api_key is None or not any(settings.configured_models.values()):
         return None
 
-    from repolab.analytics.model_telemetry import db_model_telemetry
-    from repolab.llm import build_router
+    from repolens.analytics.model_telemetry import db_model_telemetry
+    from repolens.llm import build_router
 
     # The API records its own model calls too: a "What Just Happened?" is as much
     # a cost as an investigation, and a dashboard that counted only the worker's

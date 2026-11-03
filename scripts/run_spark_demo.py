@@ -28,17 +28,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.experiences.spark import (  # noqa: E402
+from repolens.experiences.spark import (  # noqa: E402
     ADDED_STEPS,
     SparkDemoRunner,
     SparkRunConfig,
     SparkRunFailed,
     SparkRunResult,
 )
-from repolab.ingest.clone import TemporaryClone  # noqa: E402
-from repolab.ingest.limits import DEFAULT_LIMITS  # noqa: E402
-from repolab.ingest.url import validate_repo_url  # noqa: E402
-from repolab.sandbox.docker import DockerEnvironment, docker_available  # noqa: E402
+from repolens.ingest.clone import TemporaryClone  # noqa: E402
+from repolens.ingest.limits import DEFAULT_LIMITS  # noqa: E402
+from repolens.ingest.url import validate_repo_url  # noqa: E402
+from repolens.sandbox.docker import DockerEnvironment, docker_available  # noqa: E402
 
 DEMO_REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 
@@ -127,7 +127,7 @@ def print_summary(result: SparkRunResult) -> None:
         f" (skipped {measurements.event_log_skipped_lines})"
     )
     print()
-    print("added by RepoLab, not present in the repository")
+    print("added by RepoLens, not present in the repository")
     for item in ADDED_STEPS:
         print(f"  - {item}")
 
@@ -171,9 +171,9 @@ async def run(args: argparse.Namespace) -> int:
         print(f"\nfull result written to {args.json}")
 
     if args.persist:
-        from repolab.config import get_settings
-        from repolab.db import build_engine, session_scope
-        from repolab.db.runs import save_spark_run
+        from repolens.config import get_settings
+        from repolens.db import build_engine, session_scope
+        from repolens.db.runs import save_spark_run
 
         engine = build_engine(get_settings())
         try:

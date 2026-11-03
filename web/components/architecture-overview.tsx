@@ -91,7 +91,7 @@ export function Orientation({
           </p>
         ) : (
           <p className="mt-1 text-sm text-fg-secondary">
-            The repository does not describe itself in a README or package metadata RepoLab could read.
+            The repository does not describe itself in a README or package metadata RepoLens could read.
           </p>
         )}
         <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
@@ -281,7 +281,7 @@ export function Walkthroughs({
   return (
     <Panel
       title={walk.name}
-      subtitle={walk.description ?? "One concrete path through the code, along relationships RepoLab could evidence"}
+      subtitle={walk.description ?? "One concrete path through the code, along relationships RepoLens could evidence"}
       action={
         <div className="flex items-center gap-1">
           {walkthroughs.length > 1 && (
@@ -361,7 +361,7 @@ export function LearningPath({
 }: {
   jobId: string;
   steps: LearningStep[];
-  /** A question RepoLab can really test, when an experiment is available. */
+  /** A question RepoLens can really test, when an experiment is available. */
   experiment: { id: string; question: string } | null;
   onOpen: (step: LearningStep) => void;
 }) {
@@ -547,8 +547,8 @@ export function AnalysisDetails({
       <div className="mt-3 flex flex-col gap-3 text-xs">
         <p>
           {graph.generated_by === "deterministic"
-            ? "Built by RepoLab's deterministic analysis; no model output was used."
-            : "Built by RepoLab's analysis, with names, explanations and concepts from Muse — each kept only where it cites evidence."}
+            ? "Built by RepoLens's deterministic analysis; no model output was used."
+            : "Built by RepoLens's analysis, with names, explanations and concepts from Muse — each kept only where it cites evidence."}
         </p>
         {graph.completeness === "partial" && (
           <section

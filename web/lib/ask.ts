@@ -1,5 +1,5 @@
 /**
- * Ask RepoLab helpers: how an answer is laid out, what it cites, and what the
+ * Ask RepoLens helpers: how an answer is laid out, what it cites, and what the
  * page around it shows. Pure functions, so the screen can be tested without a
  * browser.
  *

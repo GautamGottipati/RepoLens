@@ -11,11 +11,11 @@ import asyncio
 
 import pytest
 
-from repolab.interfaces import CommandResult
-from repolab.runtime.backend import Listener, parse_proc_net
-from repolab.runtime.fake import FakeRuntimeBackend, ServiceScript
-from repolab.runtime.launcher import Launcher, cache_tag, stop
-from repolab.runtime.models import (
+from repolens.interfaces import CommandResult
+from repolens.runtime.backend import Listener, parse_proc_net
+from repolens.runtime.fake import FakeRuntimeBackend, ServiceScript
+from repolens.runtime.launcher import Launcher, cache_tag, stop
+from repolens.runtime.models import (
     DependencyKind,
     DependencyState,
     EnvKind,
@@ -95,8 +95,8 @@ class TestGoingLive:
         # It ran on the runtime's own network, from the installed image, as the
         # unprivileged user, in its own directory.
         (spec,) = backend.started
-        assert spec.network == "repolab-rt-abcdef123456"
-        assert spec.image.startswith("repolab/runtime-app:") and spec.user == "node"
+        assert spec.network == "repolens-rt-abcdef123456"
+        assert spec.image.startswith("repolens/runtime-app:") and spec.user == "node"
         assert spec.cwd == "/work/repo/api"
         assert backend.sidecars[api.sidecar] == ("api", 3000)
         assert any("api is running" in message for _, message, _ in events)
@@ -191,7 +191,7 @@ class TestDependencies:
         backend = FakeRuntimeBackend(
             commands={"redis-cli ping": CommandResult(exit_code=1, stdout="", stderr="refused")},
         )
-        import repolab.runtime.launcher as launcher_module
+        import repolens.runtime.launcher as launcher_module
 
         original = launcher_module.DEPENDENCY_TIMEOUT
         launcher_module.DEPENDENCY_TIMEOUT = 0.01

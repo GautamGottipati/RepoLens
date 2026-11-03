@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from repolab.ingest import CloneError, IngestLimits, RepoUrl, shallow_clone
-from repolab.ingest.clone import TemporaryClone, build_clone_command
+from repolens.ingest import CloneError, IngestLimits, RepoUrl, shallow_clone
+from repolens.ingest.clone import TemporaryClone, build_clone_command
 
 
 def file_url(path: Path) -> RepoUrl:
@@ -170,7 +170,7 @@ class TestPinnedToACommit:
             [
                 "git",
                 "-c",
-                "user.email=t@repolab.invalid",
+                "user.email=t@repolens.invalid",
                 "-c",
                 "user.name=T",
                 "commit",
@@ -192,7 +192,7 @@ class TestPinnedToACommit:
     def test_the_investigated_commit_is_checked_out_even_after_the_branch_moved(
         self, make_repo, tmp_path: Path
     ) -> None:
-        from repolab.ingest.clone import fetch_commit
+        from repolens.ingest.clone import fetch_commit
 
         root, first, _ = self.two_commits(make_repo)
         result = fetch_commit(file_url(root), tmp_path / "pinned", first, allow_local_source=True)
@@ -207,7 +207,7 @@ class TestPinnedToACommit:
             assert clone.requested_commit == missing  # the caller can see it was not honoured
 
     def test_only_a_sha_is_accepted(self, make_repo, tmp_path: Path) -> None:
-        from repolab.ingest.clone import fetch_commit
+        from repolens.ingest.clone import fetch_commit
 
         root, _, _ = self.two_commits(make_repo)
         with pytest.raises(CloneError):

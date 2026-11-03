@@ -11,9 +11,9 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.db.base import Base
-from repolab.db.store import save_ingestion
-from repolab.ingest import ingest_clone
+from repolens.db.base import Base
+from repolens.db.store import save_ingestion
+from repolens.ingest import ingest_clone
 from tests.test_detectors import SPARK_REPO
 from worker.spark_tasks import DEFAULT_IMAGE, CommitMovedError, expected_commit
 

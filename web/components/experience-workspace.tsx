@@ -234,7 +234,7 @@ function Preparing({
       <div>
         <p className="text-card font-semibold text-fg">Preparing {view.experience?.title ?? "the experience"}</p>
         <p className="mt-1 text-sm text-fg-secondary">
-          RepoLab is setting up an isolated environment. Each step below is reported as it happens.
+          RepoLens is setting up an isolated environment. Each step below is reported as it happens.
         </p>
       </div>
       <WorkingStatus
@@ -289,7 +289,7 @@ function PreparationFailed({ view, jobId }: { view: ExperienceSessionView; jobId
           kind="ask"
           href={`/r/${jobId}/ask?q=${encodeURIComponent(`Why might this fail: ${view.state.failure ?? "the build"}`)}`}
         >
-          Ask RepoLab about this error
+          Ask RepoLens about this error
         </ActionLink>
         <ActionLink kind="arch" href={`/r/${jobId}/architecture`}>
           Explore architecture instead
@@ -482,8 +482,8 @@ function CodeExperience({
           )}
           {starter && (
             <p className="text-sm text-fg-secondary" data-testid="starter-source">
-              {starter.source === "repolab"
-                ? "RepoLab's starter — edit it freely."
+              {starter.source === "repolens"
+                ? "RepoLens's starter — edit it freely."
                 : starter.source === "readme"
                   ? "From the repository's README."
                   : "The repository's own example."}{" "}
@@ -589,7 +589,7 @@ function NextSteps({ jobId }: { jobId: string }) {
           Explore architecture
         </ActionLink>
         <ActionLink kind="ask" href={`/r/${jobId}/ask`}>
-          Ask RepoLab
+          Ask RepoLens
         </ActionLink>
       </div>
     </div>

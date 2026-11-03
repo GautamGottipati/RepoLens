@@ -1,4 +1,4 @@
-# Deploying RepoLab to Google Compute Engine
+# Deploying RepoLens to Google Compute Engine
 
 One Compute Engine VM running the production Docker Compose stack.
 nginx sits in front, Let's Encrypt provides HTTPS, and GitHub
@@ -24,7 +24,7 @@ updates, CI, backup, troubleshooting and the isolation model.
 ## 0. What you are building
 
 ```
-Internet ── 80/443 ──► static IP repolab-ip ──► Compute Engine VM (Ubuntu 24.04)
+Internet ── 80/443 ──► static IP repolens-ip ──► Compute Engine VM (Ubuntu 24.04)
                                                  │
    nginx (only public listener) ── /      → web     127.0.0.1:3000
                                  └─ /api/* → api     127.0.0.1:8000  (SSE, WebSocket)
@@ -43,7 +43,7 @@ give you, is covered in
 
 In the [Google Cloud Console](https://console.cloud.google.com), use the
 project picker at the top: select a project, or create one with **New project**.
-Note its ID as `<PROJECT_ID>`. A dedicated project for RepoLab keeps its IAM and
+Note its ID as `<PROJECT_ID>`. A dedicated project for RepoLens keeps its IAM and
 network separate from your other work, which is recommended.
 
 ```bash
@@ -65,7 +65,7 @@ Go to **VPC network → IP addresses → Reserve external static IP address**:
 
 | Field | Value |
 |---|---|
-| Name | `repolab-ip` |
+| Name | `repolens-ip` |
 | Network service tier | Premium |
 | IP version | IPv4 |
 | Type | **Regional**, in the region the VM will use (`<REGION>`, e.g. `europe-west4`) |
@@ -74,8 +74,8 @@ Click **Reserve** and note the address as `<GCP_STATIC_IP>`. An address that is
 reserved but not attached to a VM is billed at a higher rate.
 
 ```bash
-gcloud compute addresses create repolab-ip --region=<REGION>
-gcloud compute addresses describe repolab-ip --region=<REGION> --format='value(address)'
+gcloud compute addresses create repolens-ip --region=<REGION>
+gcloud compute addresses describe repolens-ip --region=<REGION> --format='value(address)'
 ```
 
 ## 4. Create the VM
@@ -84,19 +84,19 @@ Go to **Compute Engine → VM instances → Create instance**:
 
 | Setting | Value | Why |
 |---|---|---|
-| Name | `repolab` | |
-| Region / zone | `<REGION>` / `<ZONE>` | Same region as `repolab-ip`. |
+| Name | `repolens` | |
+| Region / zone | `<REGION>` / `<ZONE>` | Same region as `repolens-ip`. |
 | Machine type | **`e2-standard-8`** (8 vCPU, 32 GB) | Memory is the constraint: two Cassandra terminals at 4 GB each, a 6 GB build ladder, four 4 GB Spark variants, and ~5 GB of services. `n2-standard-8` is the same size and faster. |
 | Boot disk | **Ubuntu 24.04 LTS, x86/64**, **Balanced persistent disk, 200 GB** | Base images (~9 GB) plus build checkpoints, which are kept. |
-| Networking → network tags | `repolab-web` | Section 5's firewall rule targets this tag. |
-| Networking → external IPv4 | `repolab-ip` | The reserved address. |
+| Networking → network tags | `repolens-web` | Section 5's firewall rule targets this tag. |
+| Networking → external IPv4 | `repolens-ip` | The reserved address. |
 | **Service account** | **none** | Read the note below. |
 
-**Service account.** RepoLab uses no Google Cloud APIs. Its credentials are
+**Service account.** RepoLens uses no Google Cloud APIs. Its credentials are
 plain environment variables. The Compute Engine default service account may be
 granted the **Editor** role on the project, and any process on the VM can fetch
 its token from the metadata server. The repository containers are blocked from
-the metadata server (section 10). RepoLab's own services and anyone with a shell
+the metadata server (section 10). RepoLens's own services and anyone with a shell
 on the VM are not. So:
 
 - In the **Security** section (*Identity and API access*), choose not to attach
@@ -109,13 +109,13 @@ on the VM are not. So:
 The same VM as one command (`--no-service-account --no-scopes` attaches none):
 
 ```bash
-gcloud compute instances create repolab \
+gcloud compute instances create repolens \
   --zone=<ZONE> \
   --machine-type=e2-standard-8 \
   --image-family=ubuntu-2404-lts-amd64 --image-project=ubuntu-os-cloud \
   --boot-disk-size=200GB --boot-disk-type=pd-balanced \
-  --address=repolab-ip \
-  --tags=repolab-web \
+  --address=repolens-ip \
+  --tags=repolens-web \
   --no-service-account --no-scopes
 ```
 
@@ -131,22 +131,22 @@ Go to **VPC network → Firewall**. The `default` network comes with these rules
 | `default-allow-ssh` | tcp:22 from `0.0.0.0/0` | **Keep.** The CI deploy needs SSH from GitHub's runners, which have no fixed IP. Login is key-only. |
 | `default-allow-rdp` | tcp:3389 from `0.0.0.0/0` | **Delete.** Not a Windows VM. |
 | `default-allow-icmp` | icmp | Keep. Path-MTU discovery needs it. |
-| `default-allow-internal` | everything from `10.128.0.0/9` | Keep, or tighten. RepoLab's services listen on `127.0.0.1` only, and repository containers can't reach VPC hosts (section 10). |
+| `default-allow-internal` | everything from `10.128.0.0/9` | Keep, or tighten. RepoLens's services listen on `127.0.0.1` only, and repository containers can't reach VPC hosts (section 10). |
 
 Create one rule for the web with **Create firewall rule**:
 
 | Field | Value |
 |---|---|
-| Name | `repolab-web` |
+| Name | `repolens-web` |
 | Direction / action | Ingress / Allow |
-| Targets | Specified target tags: `repolab-web` |
+| Targets | Specified target tags: `repolens-web` |
 | Source IPv4 ranges | `0.0.0.0/0` |
 | Protocols and ports | TCP `80`, `443` |
 
 ```bash
-gcloud compute firewall-rules create repolab-web \
+gcloud compute firewall-rules create repolens-web \
   --network=default --direction=INGRESS --action=ALLOW \
-  --rules=tcp:80,tcp:443 --source-ranges=0.0.0.0/0 --target-tags=repolab-web
+  --rules=tcp:80,tcp:443 --source-ranges=0.0.0.0/0 --target-tags=repolens-web
 gcloud compute firewall-rules delete default-allow-rdp
 ```
 
@@ -164,8 +164,8 @@ range. Then connect through the browser SSH button or
 
 Use any one of:
 
-- **Browser.** On the VM instances page, click **SSH** next to `repolab`.
-- **gcloud.** `gcloud compute ssh repolab --zone=<ZONE>`
+- **Browser.** On the VM instances page, click **SSH** next to `repolens`.
+- **gcloud.** `gcloud compute ssh repolens --zone=<ZONE>`
 - **Plain ssh.** Add your public key to the VM (or project) SSH keys, then run
   `ssh <USER>@<GCP_STATIC_IP>`.
 
@@ -179,13 +179,13 @@ sudo apt-get update && sudo apt-get install -y git
 
 ## 8. Create a read-only GitHub deploy key
 
-This key is how **the VM clones the private RepoLab repository**. It has
-nothing to do with RepoLab's product behaviour: the workers clone *public*
+This key is how **the VM clones the private RepoLens repository**. It has
+nothing to do with RepoLens's product behaviour: the workers clone *public*
 repositories that users submit, over HTTPS, with no credentials.
 
 ```bash
-ssh-keygen -t ed25519 -N "" -f ~/.ssh/repolab_deploy -C "repolab-gcp"
-cat ~/.ssh/repolab_deploy.pub
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/repolens_deploy -C "repolens-gcp"
+cat ~/.ssh/repolens_deploy.pub
 ```
 
 On GitHub, go to **Repository → Settings → Deploy keys → Add deploy key**,
@@ -194,19 +194,19 @@ paste the key, and leave **Allow write access off**.
 ```bash
 cat >> ~/.ssh/config <<'EOF'
 Host github.com
-  IdentityFile ~/.ssh/repolab_deploy
+  IdentityFile ~/.ssh/repolens_deploy
   IdentitiesOnly yes
 EOF
 ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
 ssh -T git@github.com    # "You've successfully authenticated" (read-only)
 ```
 
-## 9. Clone RepoLab
+## 9. Clone RepoLens
 
 ```bash
-sudo install -d -o "$USER" -g "$USER" /opt/repolab
-git clone git@github.com:GautamGottipati/RepoLab.git /opt/repolab
-cd /opt/repolab
+sudo install -d -o "$USER" -g "$USER" /opt/repolens
+git clone git@github.com:GautamGottipati/RepoLens.git /opt/repolens
+cd /opt/repolens
 ```
 
 ## 10. Run the GCP bootstrap
@@ -224,13 +224,13 @@ reads no secrets.
 - A Docker network MTU equal to the VM's NIC MTU. Google's VPC default is
   1460; Docker's default of 1500 makes large downloads inside containers stall.
 - Adds `<USER>` to the `docker` group.
-- `/var/lib/repolab`, the state directory. The worker bind-mounts directories
+- `/var/lib/repolens`, the state directory. The worker bind-mounts directories
   under it into Spark containers, so the path must be identical inside and
   outside the containers. Do not move it.
 - Timers for certificate renewal and a daily Postgres backup.
 
 **GCP-specific** (`scripts/deploy/bootstrap_gcp.sh`):
-- **The container firewall** (`REPOLAB-CONTAINERS` iptables chain), rebuilt at
+- **The container firewall** (`REPOLENS-CONTAINERS` iptables chain), rebuilt at
   every boot. Google's metadata server, `169.254.169.254`, hands out
   service-account tokens. It is *also* the VM's DNS resolver, so blocking
   all link-local addresses would break DNS inside every container. On GCP:
@@ -240,7 +240,7 @@ reads no secrets.
   - Other hosts in your VPC (10/8, 172.16/12, 192.168/16, 100.64/10) are dropped
     for traffic leaving through the NIC.
 
-  This applies only to containers on Docker bridges. RepoLab's own services use
+  This applies only to containers on Docker bridges. RepoLens's own services use
   the host network and are unaffected.
 - A check that this is Compute Engine, and a **warning if a service account is
   attached**.
@@ -260,7 +260,7 @@ Then reconnect as in section 6.
 ```bash
 docker version
 docker compose version
-sudo iptables -S REPOLAB-CONTAINERS    # the container firewall
+sudo iptables -S REPOLENS-CONTAINERS    # the container firewall
 ```
 
 Both docker commands should work without `sudo`.
@@ -268,7 +268,7 @@ Both docker commands should work without `sudo`.
 ## 13. Configure `.env`
 
 ```bash
-cd /opt/repolab
+cd /opt/repolens
 cp .env.example .env
 chmod 600 .env
 openssl rand -hex 32    # run twice: once for each password below
@@ -280,7 +280,7 @@ nano .env
 | `MUSE_API_KEY` (or `MODEL_API_KEY`) | your Meta Model API key | Models stay on Meta. |
 | `MUSE_BASE_URL` | keep the default | |
 | `MODEL_NANO`, `MODEL_SUPER`, `MODEL_ULTRA` | Muse model IDs | |
-| `REPOLAB_DOMAIN` | `<GCP_STATIC_IP>` | |
+| `REPOLENS_DOMAIN` | `<GCP_STATIC_IP>` | |
 | `PUBLIC_URL` | `http://<GCP_STATIC_IP>` | The only value the browser sees. It is built into the web app as `NEXT_PUBLIC_API_URL=PUBLIC_URL/api`. |
 | `POSTGRES_PASSWORD` | generated | |
 | `REDIS_PASSWORD` | generated | |
@@ -312,9 +312,9 @@ docker compose -f docker-compose.prod.yml ps
 Expect `postgres`, `redis`, `api`, `web` and `nginx` **healthy**, two `worker`
 containers **running**, and `migrate` **exited (0)**.
 
-## 16. Open RepoLab
+## 16. Open RepoLens
 
-Browse to `http://<GCP_STATIC_IP>`. If it doesn't load, check the `repolab-web`
+Browse to `http://<GCP_STATIC_IP>`. If it doesn't load, check the `repolens-web`
 firewall rule and the VM's network tag (section 5).
 
 ## 17. Configure DNS
@@ -340,7 +340,7 @@ This step is the same on every cloud: Let's Encrypt over port 80.
 1. Edit `.env` and set:
 
    ```
-   REPOLAB_DOMAIN=<DOMAIN>
+   REPOLENS_DOMAIN=<DOMAIN>
    LETSENCRYPT_EMAIL=<EMAIL>
    ```
 
@@ -366,7 +366,7 @@ This step is the same on every cloud: Let's Encrypt over port 80.
    docker compose -f docker-compose.prod.yml up -d --build
    ```
 
-Renewal is automatic: `systemctl list-timers repolab-certbot-renew.timer`.
+Renewal is automatic: `systemctl list-timers repolens-certbot-renew.timer`.
 Live web-app previews (`rt-*.<DOMAIN>`) also need a wildcard certificate (see
 [Known limitations](DEPLOY_OPERATIONS.md#known-limitations)).
 
@@ -378,7 +378,7 @@ bash scripts/check_deployment.sh
 
 It never prints secrets. On GCP it also checks:
 
-- that the `REPOLAB-CONTAINERS` chain is installed;
+- that the `REPOLENS-CONTAINERS` chain is installed;
 - that a repository container can't reach `169.254.169.254:80` or
   `metadata.google.internal`;
 - that containers can still resolve DNS and reach the internet over HTTPS;
@@ -404,7 +404,7 @@ Follow
 2. Refresh mid-analysis. The same job is restored and history replays.
 3. Run the playground in a container and check its measurements come from
    Spark's event log.
-4. Ask RepoLab why the job uses 200 partitions, approve the experiment, and
+4. Ask RepoLens why the job uses 200 partitions, approve the experiment, and
    check the explanation is grounded.
 
 ## 21. Logs and troubleshooting
@@ -415,10 +415,10 @@ The commands are in
 
 | Symptom | Likely cause | Check | Fix |
 |---|---|---|---|
-| The site times out from the internet, though it works from the VM (`curl -I http://127.0.0.1`) | No 80/443 rule, or the VM lacks the `repolab-web` tag | VPC network → Firewall; the VM's network tags | Section 5. |
+| The site times out from the internet, though it works from the VM (`curl -I http://127.0.0.1`) | No 80/443 rule, or the VM lacks the `repolens-web` tag | VPC network → Firewall; the VM's network tags | Section 5. |
 | Downloads inside containers (pip, npm, git) hang partway through | MTU mismatch | `ip link show ens4` (1460) against `docker network inspect bridge -f '{{index .Options "com.docker.network.driver.mtu"}}'` | Re-run `sudo bash scripts/deploy/bootstrap_gcp.sh "$USER"`, then `docker compose -f docker-compose.prod.yml up -d`. |
-| Builds inside containers fail with name-resolution errors | The container firewall lost its DNS exception, or a stale rule remains | `sudo iptables -S REPOLAB-CONTAINERS` should show `--dport 53 -j RETURN` for `169.254.169.254` before the `169.254.0.0/16` DROP | `sudo systemctl restart repolab-container-firewall`. |
-| `check_deployment.sh` says the metadata server is reachable | The firewall isn't installed (fresh boot before Docker, or the bootstrap was never run) | `systemctl status repolab-container-firewall` | `sudo systemctl restart repolab-container-firewall`, then re-run the check. |
+| Builds inside containers fail with name-resolution errors | The container firewall lost its DNS exception, or a stale rule remains | `sudo iptables -S REPOLENS-CONTAINERS` should show `--dport 53 -j RETURN` for `169.254.169.254` before the `169.254.0.0/16` DROP | `sudo systemctl restart repolens-container-firewall`. |
+| `check_deployment.sh` says the metadata server is reachable | The firewall isn't installed (fresh boot before Docker, or the bootstrap was never run) | `systemctl status repolens-container-firewall` | `sudo systemctl restart repolens-container-firewall`, then re-run the check. |
 | The bootstrap warns that a service account is attached | The VM was created with the default service account | The VM's details page → API and identity management | Stop the VM, remove the service account (or switch to one with no roles), then start it. |
 | GitHub Actions deploy fails at SSH | `default-allow-ssh` was removed or narrowed, or the CI key was overwritten | The workflow log; `~/.ssh/authorized_keys` on the VM | Section 5. If you use metadata-managed SSH keys or OS Login, add the CI key through them instead of editing `authorized_keys`. |
 | Meta Model API is unreachable from the API container | Egress blocked, or DNS failing | `docker compose -f docker-compose.prod.yml exec api python -c "import urllib.request; urllib.request.urlopen('https://api.meta.ai/v1/models', timeout=10)"`. A `401` error means it is reachable. | Check the VPC's egress firewall rules; the default allows all egress. |
@@ -428,7 +428,7 @@ The commands are in
 By hand on the VM:
 
 ```bash
-cd /opt/repolab
+cd /opt/repolens
 git pull --ff-only
 docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
 bash scripts/check_deployment.sh
@@ -445,7 +445,7 @@ Migrations run automatically on every `up`, through the `migrate` service.
 ## 23. Backup
 
 A daily `pg_dump` runs at 02:30 UTC and keeps the last 7 dumps in
-`/var/lib/repolab/backups`. To take one now:
+`/var/lib/repolens/backups`. To take one now:
 
 ```bash
 bash scripts/deploy/backup_postgres.sh
@@ -454,9 +454,9 @@ bash scripts/deploy/backup_postgres.sh
 **Those dumps are on the VM's own disk and don't survive losing it.** For that:
 
 - Copy them off the VM:
-  `gcloud compute scp repolab:/var/lib/repolab/backups/<FILE>.dump . --zone=<ZONE>`
+  `gcloud compute scp repolens:/var/lib/repolens/backups/<FILE>.dump . --zone=<ZONE>`
 - Or snapshot the boot disk:
-  `gcloud compute snapshots create repolab-$(date +%Y%m%d) --source-disk=repolab --source-disk-zone=<ZONE>`
+  `gcloud compute snapshots create repolens-$(date +%Y%m%d) --source-disk=repolens --source-disk-zone=<ZONE>`
 
 Restore steps:
 [DEPLOY_OPERATIONS.md → Backup and restore](DEPLOY_OPERATIONS.md#backup-and-restore).
@@ -467,14 +467,14 @@ Restore steps:
 
 ```
 Compute Engine VM (one Linux kernel)
- ├── RepoLab control plane        nginx · web · api · workers · postgres · redis
+ ├── RepoLens control plane        nginx · web · api · workers · postgres · redis
  │     api, worker hold /var/run/docker.sock  → root-equivalent on this VM
  └── repository runtime containers   Spark · Cassandra · live apps · experiences
-       no Docker socket · no metadata server · no VPC hosts · no RepoLab ports
+       no Docker socket · no metadata server · no VPC hosts · no RepoLens ports
 ```
 
 - **A shared kernel.** A container escape or kernel exploit in repository code
-  reaches the whole VM, including RepoLab's secrets in `.env`. Docker
+  reaches the whole VM, including RepoLens's secrets in `.env`. Docker
   isolation is not a VM boundary.
 - **Some repository containers have fewer restrictions.** Spark playground and
   experiment containers have internet egress and run as root inside the

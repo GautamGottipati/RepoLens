@@ -13,7 +13,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel
 
-from repolab.agents import (
+from repolens.agents import (
     AgentLimits,
     AgentRuntime,
     AgentStatus,
@@ -21,7 +21,7 @@ from repolab.agents import (
     ToolRequest,
     ToolResult,
 )
-from repolab.events import CollectingEmitter, EventType
+from repolens.events import CollectingEmitter, EventType
 
 SECRET_COT = "Let me think about which tool would be cleverest here."
 
@@ -359,13 +359,13 @@ class TestRefusals:
 
 class TestNoChainOfThoughtIsPersisted:
     async def test_a_long_reason_is_truncated(self) -> None:
-        from repolab.agents.models import MAX_REASON_LENGTH
+        from repolens.agents.models import MAX_REASON_LENGTH
 
         request = ToolRequest(tool="echo", reason=SECRET_COT * 50)
         assert len(request.reason) == MAX_REASON_LENGTH
 
     async def test_step_status_is_bounded(self) -> None:
-        from repolab.agents.models import MAX_STATUS_LENGTH
+        from repolens.agents.models import MAX_STATUS_LENGTH
 
         class VerboseTool:
             name = "verbose"

@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-"""Scan everything RepoLab has written for a configured credential.
+"""Scan everything RepoLens has written for a configured credential.
 
     make check-secrets
 
 The test suite proves no *code path* leaks a secret. This proves no secret is
-sitting in data RepoLab has already produced: job errors, event messages and
+sitting in data RepoLens has already produced: job errors, event messages and
 payloads, analytics properties, stored lessons and experiments, and the browser
 artifacts Playwright leaves behind.
 
@@ -41,7 +41,7 @@ MIN_TOKEN = 20
 
 def configured_secrets() -> list[str]:
     """The secret values currently configured, read once and never printed."""
-    from repolab.config import get_settings
+    from repolens.config import get_settings
 
     settings = get_settings()
     found: list[str] = []
@@ -67,11 +67,11 @@ def _hits(text: str, secrets: list[str]) -> list[str]:
 
 
 def scan_database(secrets: list[str]) -> list[str]:
-    """Every column RepoLab writes free text or arbitrary payloads into."""
+    """Every column RepoLens writes free text or arbitrary payloads into."""
     from sqlalchemy import text as sql
 
-    from repolab.config import get_settings
-    from repolab.db import build_engine
+    from repolens.config import get_settings
+    from repolens.db import build_engine
 
     problems: list[str] = []
     queries = {

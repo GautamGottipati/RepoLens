@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pytest
 
-from repolab.ingest import ingest_clone
-from repolab.ingest.clone import CLONE_FLAGS, SAFETY_CONFIG, build_clone_command
-from repolab.ingest.content import ReadBudget, read_text
-from repolab.ingest.limits import IngestLimits
+from repolens.ingest import ingest_clone
+from repolens.ingest.clone import CLONE_FLAGS, SAFETY_CONFIG, build_clone_command
+from repolens.ingest.content import ReadBudget, read_text
+from repolens.ingest.limits import IngestLimits
 
 SENTINEL = "EXECUTED"
 

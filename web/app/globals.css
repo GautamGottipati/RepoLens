@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 /*
- * RepoLab design tokens.
+ * RepoLens design tokens.
  *
  * Every colour has one meaning, everywhere:
  *   brand (indigo)       primary actions, selected navigation, focus
- *   ai (violet)          Ask RepoLab, explanations, AI-written guidance
+ *   ai (violet)          Ask RepoLens, explanations, AI-written guidance
  *   arch (cyan)          architecture, components, relationships
  *   run (emerald)        experiences, live environments, success
  *   exp (amber)          experiments, parameter changes, attention

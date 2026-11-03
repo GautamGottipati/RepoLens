@@ -9,7 +9,7 @@
 .ruff_cache
 **/__pycache__
 **/*.pyc
-.repolab
+.repolens
 
 # The web app has its own image and context.
 web

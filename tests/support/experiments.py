@@ -11,17 +11,17 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from repolab.experiences.spark.dataset import DatasetSpec
-from repolab.experiences.spark.driver import SparkRunConfig
-from repolab.experiences.spark.measurements import (
+from repolens.experiences.spark.dataset import DatasetSpec
+from repolens.experiences.spark.driver import SparkRunConfig
+from repolens.experiences.spark.measurements import (
     PartitionDistribution,
     SparkRunMeasurements,
     StageMeasurement,
     TaskStats,
 )
-from repolab.experiences.spark.runner import RunEnvironmentInfo, SparkRunResult
-from repolab.experiments.models import ProposedPlan, VariantRun
-from repolab.experiments.validation import validate_plan
+from repolens.experiences.spark.runner import RunEnvironmentInfo, SparkRunResult
+from repolens.experiments.models import ProposedPlan, VariantRun
+from repolens.experiments.validation import validate_plan
 
 DATASET_HASH = "a" * 64
 IMAGE = "apache/spark:3.5.1-python3"
@@ -62,7 +62,7 @@ def measurements(
         stages=[
             StageMeasurement(
                 stage_id=2,
-                name="groupBy at repolab_driver.py",
+                name="groupBy at repolens_driver.py",
                 num_tasks=partitions,
                 duration_ms=total_runtime_ms // 2,
                 shuffle_bytes_read=shuffle_read,
@@ -100,7 +100,7 @@ def variant_run(
     contended: bool = False,
     dataset_hash: str = DATASET_HASH,
     image: str = IMAGE,
-    event_log_path: str = "/tmp/repolab-test/does-not-exist.jsonl",
+    event_log_path: str = "/tmp/repolens-test/does-not-exist.jsonl",
     **measurement_kwargs: Any,
 ) -> VariantRun:
     """One variant run, with its measurements stated by the caller."""
@@ -141,10 +141,10 @@ def spark_run_result(
         ),
         measurements=measured,
         evidence=measured.to_measurements()
-        and __import__("repolab.evidence.models", fromlist=["EvidenceBundle"]).EvidenceBundle(
+        and __import__("repolens.evidence.models", fromlist=["EvidenceBundle"]).EvidenceBundle(
             measurements=measured.to_measurements()
         ),
-        event_log_path="/tmp/repolab-test/does-not-exist.jsonl",
+        event_log_path="/tmp/repolens-test/does-not-exist.jsonl",
         event_log_sha256=hashlib.sha256(f"{value}-{repeat}".encode()).hexdigest(),
         event_log_bytes=1024,
         wall_clock_seconds=12.5,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi.testclient import TestClient
 
 from api.main import app
-from repolab import __version__
+from repolens import __version__
 
 
 def test_health_returns_ok() -> None:

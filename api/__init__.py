@@ -1,1 +1,1 @@
-"""RepoLab HTTP API."""
+"""RepoLens HTTP API."""

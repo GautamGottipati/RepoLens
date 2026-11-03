@@ -13,14 +13,14 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildArtifact,
     EnvironmentSession,
     SmokeTestResult,
     UpgradeRefused,
 )
-from repolab.events import CollectingEmitter, EventType
-from repolab.manifest.models import BuildKind
+from repolens.events import CollectingEmitter, EventType
+from repolens.manifest.models import BuildKind
 
 REPO = "https://github.com/apache/cassandra"
 

@@ -25,25 +25,25 @@ from sqlalchemy.orm import Session
 
 from api import deps
 from api.deps import get_session
-from repolab.architecture import load_graph
-from repolab.architecture.actions import NodeActions, concept_actions, node_actions
-from repolab.architecture.runtime import RuntimeOverlay
-from repolab.artifacts.overlay import architecture_sections, with_refinements
-from repolab.db.builds import load_builds
-from repolab.db.jobs import (
+from repolens.architecture import load_graph
+from repolens.architecture.actions import NodeActions, concept_actions, node_actions
+from repolens.architecture.runtime import RuntimeOverlay
+from repolens.artifacts.overlay import architecture_sections, with_refinements
+from repolens.db.builds import load_builds
+from repolens.db.jobs import (
     count_events,
     create_job,
     get_job,
     last_event_at,
     read_events_after,
 )
-from repolab.db.models import (
+from repolens.db.models import (
     ArchitectureRecord,
     Job,
     RepoManifestRecord,
 )
-from repolab.db.store import load_runtime_overlay
-from repolab.events import (
+from repolens.db.store import load_runtime_overlay
+from repolens.events import (
     EventType,
     JobEvent,
     JobStatus,
@@ -53,10 +53,10 @@ from repolab.events import (
     read_liveness,
     task_health,
 )
-from repolab.events.liveness import Activity, Health
-from repolab.experiences.catalog import ExperienceCatalog, experiences_for
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url
-from repolab.manifest.models import RepoManifest
+from repolens.events.liveness import Activity, Health
+from repolens.experiences.catalog import ExperienceCatalog, experiences_for
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url
+from repolens.manifest.models import RepoManifest
 
 log = structlog.get_logger(__name__)
 
@@ -173,8 +173,8 @@ def submit_repository(
     job = create_job(session, repo_url.normalized)
     session.commit()
 
-    from repolab.analytics import AnalyticsEventType, DbAnalyticsWriter
-    from repolab.analytics.events import AnalyticsEvent
+    from repolens.analytics import AnalyticsEventType, DbAnalyticsWriter
+    from repolens.analytics.events import AnalyticsEvent
 
     DbAnalyticsWriter(lambda: deps.session_factory()()).record(
         AnalyticsEvent(
@@ -311,7 +311,7 @@ class ArchitectureView(BaseModel):
     lets the screen show *why* a component is claimed to exist.
 
     ``node_actions`` is decided here, deterministically: Ask is always possible;
-    Experiment only where RepoLab can really run this repository and the
+    Experiment only where RepoLens can really run this repository and the
     component is one that run exercises.
     """
 
@@ -400,7 +400,7 @@ def job_experiences(
     """Every interaction surface this repository offers, and which can be opened.
 
     A repository is never reduced to one application type, so this is a list
-    rather than a single answer -- and each entry says plainly whether RepoLab
+    rather than a single answer -- and each entry says plainly whether RepoLens
     can run it. The runnability is decided by the code that would actually
     refuse, not by a list of supported repositories kept here.
 

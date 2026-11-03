@@ -1,5 +1,5 @@
 /**
- * Long waits: what RepoLab is doing, said calmly. Elapsed time changes only the
+ * Long waits: what RepoLens is doing, said calmly. Elapsed time changes only the
  * tone; only a stopped heartbeat produces a warning.
  */
 

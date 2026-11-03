@@ -2,7 +2,7 @@
  * Landing — the first screen.
  *
  * One dominant action: paste a repository URL and investigate it. The examples
- * are repositories RepoLab has been verified to handle end to end. Navy in both
+ * are repositories RepoLens has been verified to handle end to end. Navy in both
  * themes, so the product's front door reads differently from the workspace.
  *
  * Spec: docs/design/01-import.md
@@ -15,10 +15,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { LandingIllustration } from "@/components/landing-illustration";
-import { ArchIcon, ArrowRightIcon, AskIcon, ExperimentIcon, RunIcon } from "@/components/ui";
+import { ArchIcon, ArrowRightIcon, AskIcon, ExperimentIcon, LensIcon, RunIcon } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
 
-/** Repositories RepoLab has been verified to investigate and run. */
+/** Repositories RepoLens has been verified to investigate and run. */
 const EXAMPLES: { url: string; label: string; what: string }[] = [
   {
     url: "https://github.com/AlexIoannides/pyspark-example-project",
@@ -30,7 +30,7 @@ const EXAMPLES: { url: string; label: string; what: string }[] = [
   { url: "https://github.com/apache/cassandra", label: "apache/cassandra", what: "A database with a CLI" },
 ];
 
-/** The four things RepoLab does, each in the colour it keeps across the product. */
+/** The four things RepoLens does, each in the colour it keeps across the product. */
 const VALUE: { title: string; detail: string; icon: React.ReactNode; tile: string }[] = [
   {
     title: "Understand",
@@ -84,10 +84,10 @@ export default function LandingPage() {
     <div className="flex min-h-screen flex-col bg-landing text-slate-100 [color-scheme:dark]">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
         <span className="flex items-center gap-2 text-sm font-semibold tracking-tight">
-          <span aria-hidden className="flex size-6 items-center justify-center rounded-md bg-indigo-500 text-xs text-white">
-            R
+          <span aria-hidden className="flex size-6 items-center justify-center rounded-md bg-indigo-500 text-white">
+            <LensIcon size={15} />
           </span>
-          RepoLab
+          RepoLens
         </span>
         <Link href="/metrics" data-testid="metrics-link" className="text-sm text-slate-400 hover:text-white">
           Metrics
@@ -168,7 +168,7 @@ export default function LandingPage() {
         <LandingIllustration className="mx-auto hidden lg:block" />
         </div>
 
-        <section aria-label="What RepoLab does">
+        <section aria-label="What RepoLens does">
           <ul className="grid gap-8 border-t border-slate-800 pt-10 sm:grid-cols-2 lg:grid-cols-4">
             {VALUE.map((item) => (
               <li key={item.title} className="flex flex-col gap-3">

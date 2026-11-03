@@ -35,7 +35,7 @@ test.describe("P0 — the Spark experience, from the browser", () => {
   test("import, investigate, run, ask, approve, measure, explain", async ({ page }) => {
     // -- Import -------------------------------------------------------------
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "RepoLab" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "RepoLens" })).toBeVisible();
 
     await page.getByLabel("Repository URL").fill(DEMO_REPO);
     await page.getByRole("button", { name: "Investigate" }).click();
@@ -94,7 +94,7 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     await expect(page.getByTestId("system-model")).toBeVisible();
     await expect(page.getByTestId("analysis-details")).not.toHaveAttribute("open", "");
     // Drilling into a part reveals its components; selecting one opens its
-    // evidence, and Ask RepoLab carries it to Ask.
+    // evidence, and Ask RepoLens carries it to Ask.
     await page.getByTestId("subsystem-card").first().click();
     await expect(page.getByTestId("subsystem-view")).toBeVisible();
     await expect(page.getByTestId("breadcrumb")).toBeVisible();
@@ -104,7 +104,7 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     await expect(page.getByTestId("ask-why")).toHaveAttribute("href", /\/ask\?node=/);
     console.log("  architecture: orientation, system model, drill-down and inspector");
 
-    // Ask RepoLab opens with the component as one context chip, and the
+    // Ask RepoLens opens with the component as one context chip, and the
     // repository context beside the question.
     await page.getByTestId("ask-why").click();
     await expect(page.getByTestId("question-focus")).toContainText("Context:");
@@ -120,9 +120,9 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     await expect(page.getByText("Dataset sha256")).toBeVisible();
     await expect(page.getByTestId("dataset-sample")).toContainText("engineering");
 
-    // Pipeline: RepoLab's additions are disclosed, not hidden.
+    // Pipeline: RepoLens's additions are disclosed, not hidden.
     await expect(page.getByText("the repository's own step")).toBeVisible();
-    await expect(page.getByText("added by RepoLab").first()).toBeVisible();
+    await expect(page.getByText("added by RepoLens").first()).toBeVisible();
 
     // Configuration, then execution.
     await page.getByTestId("partitions-200").click();
@@ -137,8 +137,8 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     await expect(page.getByText("Structural · repeats exactly across identical runs")).toBeVisible();
     await expect(page.getByText("Timing · varies between runs")).toBeVisible();
 
-    // -- Ask RepoLab --------------------------------------------------------
-    await page.getByTestId("tab-Ask RepoLab").click();
+    // -- Ask RepoLens --------------------------------------------------------
+    await page.getByTestId("tab-Ask RepoLens").click();
     await expect(page).toHaveURL(/\/ask$/);
 
     await page.getByTestId("question").fill(QUESTION);
@@ -149,7 +149,7 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     console.log("  experiment proposed and awaiting approval");
 
     // The plan and its cost, before the decision.
-    await expect(approval).toContainText("RepoLab wants to run an experiment");
+    await expect(approval).toContainText("RepoLens wants to run an experiment");
     await expect(page.getByTestId("plan-values")).toContainText("baseline");
     await expect(page.getByTestId("plan-cost")).toContainText("Spark jobs");
     await expect(page.getByTestId("plan-cost")).toContainText("min");
@@ -196,7 +196,7 @@ test.describe("P0 — the Spark experience, from the browser", () => {
     console.log("  evidence panel shows measurements, code, logs and docs");
 
     // Reproducibility: the raw source every figure came from.
-    await expect(page.getByText("Added by RepoLab, not present in the repository")).toBeVisible();
+    await expect(page.getByText("Added by RepoLens, not present in the repository")).toBeVisible();
     await expect(page.getByText("Dataset hash")).toBeVisible();
   });
 });

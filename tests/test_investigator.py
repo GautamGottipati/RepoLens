@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.agents import AgentLimits, AgentStatus, RepositoryInvestigatorAgent
-from repolab.classify import classify_deterministic
-from repolab.events import CollectingEmitter, EventType
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import DetectionContext, detect_all
-from repolab.ingest.tree import build_file_tree
-from repolab.llm import ModelRouter, ModelTier
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
+from repolens.agents import AgentLimits, AgentStatus, RepositoryInvestigatorAgent
+from repolens.classify import classify_deterministic
+from repolens.events import CollectingEmitter, EventType
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import DetectionContext, detect_all
+from repolens.ingest.tree import build_file_tree
+from repolens.llm import ModelRouter, ModelTier
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
 from tests.test_detectors import CLI_REPO, SPARK_REPO, WEB_REPO
 
 

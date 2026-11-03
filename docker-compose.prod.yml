@@ -1,21 +1,21 @@
-# RepoLab production stack: one VM, Docker Compose, nginx in front.
+# RepoLens production stack: one VM, Docker Compose, nginx in front.
 #
 #   docker compose -f docker-compose.prod.yml up -d --build
 #
 # Read docs/DEPLOY_GCP.md first. Configuration comes from `.env` (chmod 600)
 # next to this file; see the production section of .env.example.
 #
-# Networking. api, worker, web and nginx use the host's network stack. RepoLab
+# Networking. api, worker, web and nginx use the host's network stack. RepoLens
 # reaches a live app's sidecar at 127.0.0.1:<port> on the host (both the API's
 # proxy and the worker's health probe), which a bridged container cannot do.
-# Every RepoLab service therefore binds 127.0.0.1 only -- including Postgres and
+# Every RepoLens service therefore binds 127.0.0.1 only -- including Postgres and
 # Redis, published on loopback -- so nothing but nginx (80/443) is reachable
 # from outside, and repository containers cannot reach the API, Postgres or
 # Redis through the docker0 gateway either.
 #
 # Execution. The api (cqlsh terminals) and the workers drive the host Docker
 # daemon through its socket; repository code runs in sibling containers that
-# never receive the socket. /var/lib/repolab is mounted at the same path inside
+# never receive the socket. /var/lib/repolens is mounted at the same path inside
 # as outside, because the worker bind-mounts work directories it creates there
 # into those containers, and the daemon resolves the path on the host.
 
@@ -23,18 +23,18 @@ x-backend: &backend
   build:
     context: .
     dockerfile: Dockerfile
-  image: repolab-backend:latest
+  image: repolens-backend:latest
   env_file: .env
   environment:
-    DATABASE_URL: postgresql://repolab:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@127.0.0.1:5432/repolab
+    DATABASE_URL: postgresql://repolens:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@127.0.0.1:5432/repolens
     REDIS_URL: redis://:${REDIS_PASSWORD:?set REDIS_PASSWORD in .env}@127.0.0.1:6379/0
-    HOME: /var/lib/repolab
+    HOME: /var/lib/repolens
   network_mode: host
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
-    - /var/lib/repolab:/var/lib/repolab
-    # Spark event logs and experience runs, kept as evidence (./.repolab/...).
-    - /var/lib/repolab/state:/app/.repolab
+    - /var/lib/repolens:/var/lib/repolens
+    # Spark event logs and experience runs, kept as evidence (./.repolens/...).
+    - /var/lib/repolens/state:/app/.repolens
   restart: unless-stopped
   logging: &logging
     driver: json-file
@@ -46,15 +46,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: repolab
+      POSTGRES_USER: repolens
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: repolab
+      POSTGRES_DB: repolens
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U repolab -d repolab"]
+      test: ["CMD-SHELL", "pg_isready -U repolens -d repolens"]
       interval: 5s
       timeout: 5s
       retries: 20
@@ -156,7 +156,7 @@ services:
         # The only value the browser sees. Same origin as the page: nginx
         # routes /api to the API.
         NEXT_PUBLIC_API_URL: ${PUBLIC_URL:?set PUBLIC_URL in .env}/api
-    image: repolab-web:latest
+    image: repolens-web:latest
     network_mode: host
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
@@ -172,14 +172,14 @@ services:
     image: nginx:1.27-alpine
     network_mode: host
     environment:
-      REPOLAB_DOMAIN: ${REPOLAB_DOMAIN:?set REPOLAB_DOMAIN in .env (the VM IP until DNS exists)}
+      REPOLENS_DOMAIN: ${REPOLENS_DOMAIN:?set REPOLENS_DOMAIN in .env (the VM IP until DNS exists)}
       # Only the domain is substituted; nginx's own $variables are left alone.
-      NGINX_ENVSUBST_FILTER: REPOLAB_
+      NGINX_ENVSUBST_FILTER: REPOLENS_
     volumes:
-      - ./nginx/templates:/etc/repolab/nginx:ro
-      - ./nginx/40-select-conf.sh:/docker-entrypoint.d/15-repolab-select-conf.sh:ro
-      - /var/lib/repolab/letsencrypt:/etc/letsencrypt:ro
-      - /var/lib/repolab/acme:/var/www/acme:ro
+      - ./nginx/templates:/etc/repolens/nginx:ro
+      - ./nginx/40-select-conf.sh:/docker-entrypoint.d/15-repolens-select-conf.sh:ro
+      - /var/lib/repolens/letsencrypt:/etc/letsencrypt:ro
+      - /var/lib/repolens/acme:/var/www/acme:ro
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/nginx-health"]
       interval: 10s
@@ -197,8 +197,8 @@ services:
     image: certbot/certbot:latest
     profiles: ["tls"]
     volumes:
-      - /var/lib/repolab/letsencrypt:/etc/letsencrypt
-      - /var/lib/repolab/acme:/var/www/acme
+      - /var/lib/repolens/letsencrypt:/etc/letsencrypt
+      - /var/lib/repolens/acme:/var/www/acme
 
 volumes:
   postgres_data:

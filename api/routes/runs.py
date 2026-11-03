@@ -18,13 +18,13 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from api.deps import get_session
-from repolab.db.jobs import create_job
-from repolab.db.models import SparkRun
-from repolab.db.runs import load_run_for_job, load_spark_run, load_spark_runs
-from repolab.events import JobStatus
-from repolab.experiences.spark.dataset import DEFAULT_ROWS, DEFAULT_SEED, generate_dataset
-from repolab.experiences.spark.driver import ADDED_STEPS, DEFAULT_SHUFFLE_PARTITIONS
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url
+from repolens.db.jobs import create_job
+from repolens.db.models import SparkRun
+from repolens.db.runs import load_run_for_job, load_spark_run, load_spark_runs
+from repolens.events import JobStatus
+from repolens.experiences.spark.dataset import DEFAULT_ROWS, DEFAULT_SEED, generate_dataset
+from repolens.experiences.spark.driver import ADDED_STEPS, DEFAULT_SHUFFLE_PARTITIONS
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url
 
 log = structlog.get_logger(__name__)
 
@@ -89,7 +89,7 @@ class RunView(BaseModel):
     event_log_sha256: str
     event_log_bytes: int
     added_steps: list[str] = Field(default_factory=lambda: list(ADDED_STEPS))
-    """What RepoLab adds to the repository's own job, disclosed with every run."""
+    """What RepoLens adds to the repository's own job, disclosed with every run."""
 
 
 class DatasetPreview(BaseModel):
@@ -222,7 +222,7 @@ def run(run_id: str, session: Annotated[Session, Depends(get_session)]) -> RunVi
 @router.get("/jobs/{job_id}/run", response_model=RunView)
 def run_for_job(job_id: str, session: Annotated[Session, Depends(get_session)]) -> RunView:
     """The run a job produced. 404 until it has finished measuring one."""
-    from repolab.db.jobs import get_job
+    from repolens.db.jobs import get_job
 
     if get_job(session, job_id) is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, f"no job {job_id}")

@@ -34,21 +34,21 @@ from typing import Any
 import structlog
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.agents import AgentStatus, RepositoryInvestigatorAgent
-from repolab.analytics import Analytics, AnalyticsEventType
-from repolab.architecture.build import build_static_architecture, runtime_architecture
-from repolab.architecture.code_model import (
+from repolens.agents import AgentStatus, RepositoryInvestigatorAgent
+from repolens.analytics import Analytics, AnalyticsEventType
+from repolens.architecture.build import build_static_architecture, runtime_architecture
+from repolens.architecture.code_model import (
     flows_from_components,
     reading_path,
     runtime_from_components,
 )
-from repolab.architecture.models import ArchitectureGraph
-from repolab.architecture.subsystems import rank
-from repolab.architecture.synthesis import synthesise
-from repolab.architecture.understanding import orient
-from repolab.architecture.validate import validate
-from repolab.architecture.verify import cited_paths, verify_graph
-from repolab.artifacts import (
+from repolens.architecture.models import ArchitectureGraph
+from repolens.architecture.subsystems import rank
+from repolens.architecture.synthesis import synthesise
+from repolens.architecture.understanding import orient
+from repolens.architecture.validate import validate
+from repolens.architecture.verify import cited_paths, verify_graph
+from repolens.artifacts import (
     ARCH_COMPONENTS,
     ARCH_RUNTIME,
     ARCH_SOURCE,
@@ -59,14 +59,14 @@ from repolab.artifacts import (
     REPO_MANIFEST,
     Status,
 )
-from repolab.artifacts import store as artifacts
-from repolab.artifacts.registry import dependants, spec
-from repolab.classify import classify
-from repolab.db import save_ingestion
-from repolab.db.jobs import get_job, link_ingestion, set_commit
-from repolab.db.store import find_ingestion, update_architecture, update_manifest
-from repolab.events import ActivityReporter, DbEventEmitter, EventType, liveness
-from repolab.events.liveness import (
+from repolens.artifacts import store as artifacts
+from repolens.artifacts.registry import dependants, spec
+from repolens.classify import classify
+from repolens.db import save_ingestion
+from repolens.db.jobs import get_job, link_ingestion, set_commit
+from repolens.db.store import find_ingestion, update_architecture, update_manifest
+from repolens.events import ActivityReporter, DbEventEmitter, EventType, liveness
+from repolens.events.liveness import (
     ActivitySink,
     Health,
     NoLiveness,
@@ -74,22 +74,22 @@ from repolab.events.liveness import (
     read_liveness,
     task_health,
 )
-from repolab.experiences.facts import gather_facts
-from repolab.ingest.clone import TemporaryClone, resolve_commit
-from repolab.ingest.content import ReadBudget
-from repolab.ingest.detectors import detect_all
-from repolab.ingest.detectors.base import DetectionContext
-from repolab.ingest.enrich import EnrichmentResult
-from repolab.ingest.languages import detect_languages
-from repolab.ingest.limits import DEFAULT_LIMITS, IngestLimits, LimitReport
-from repolab.ingest.pipeline import IngestionResult
-from repolab.ingest.tree import FileTree, build_file_tree
-from repolab.ingest.url import RepoUrl
-from repolab.manifest.builder import build_evidence, build_manifest
-from repolab.manifest.models import RepoManifest
-from repolab.runtime.plan import plan_runtime
-from repolab.sources import CloneSnapshot
-from repolab.sources import capture as capture_sources
+from repolens.experiences.facts import gather_facts
+from repolens.ingest.clone import TemporaryClone, resolve_commit
+from repolens.ingest.content import ReadBudget
+from repolens.ingest.detectors import detect_all
+from repolens.ingest.detectors.base import DetectionContext
+from repolens.ingest.enrich import EnrichmentResult
+from repolens.ingest.languages import detect_languages
+from repolens.ingest.limits import DEFAULT_LIMITS, IngestLimits, LimitReport
+from repolens.ingest.pipeline import IngestionResult
+from repolens.ingest.tree import FileTree, build_file_tree
+from repolens.ingest.url import RepoUrl
+from repolens.manifest.builder import build_evidence, build_manifest
+from repolens.manifest.models import RepoManifest
+from repolens.runtime.plan import plan_runtime
+from repolens.sources import CloneSnapshot
+from repolens.sources import capture as capture_sources
 
 log = structlog.get_logger(__name__)
 
@@ -210,7 +210,7 @@ class Progress:
             artifacts.announce(self.emitter, record, updated=True)
 
     def failed(self, artifact_type: str, exc: BaseException, *, stage: str) -> None:
-        from repolab.failures import explain
+        from repolens.failures import explain
 
         with self.factory() as session:
             record = artifacts.ensure(session, self.repo_url, self.commit_sha, artifact_type)
@@ -487,7 +487,7 @@ async def analyse(
             )
             if run is not None:
                 with factory() as session:
-                    from repolab.db.jobs import save_agent_run
+                    from repolens.db.jobs import save_agent_run
 
                     save_agent_run(session, job_id, run)
                     session.commit()

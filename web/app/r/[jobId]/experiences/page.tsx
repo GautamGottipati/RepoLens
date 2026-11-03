@@ -8,13 +8,13 @@
  * (``?session=``).
  *
  * Underneath, collapsed, the detected surfaces and their evidence: every way of
- * using the repository the investigation found, saying plainly whether RepoLab
+ * using the repository the investigation found, saying plainly whether RepoLens
  * can run it.
  *
  * The rule the screen exists to keep: **nothing unsupported is presented as
- * working.** A surface RepoLab cannot run has no link and no button -- it has
+ * working.** A surface RepoLens cannot run has no link and no button -- it has
  * the sentence the specification requires and its specific reason. What *is*
- * available for every investigated repository (the architecture, Ask RepoLab)
+ * available for every investigated repository (the architecture, Ask RepoLens)
  * is offered instead, so the screen is never a dead end.
  *
  * Spec: docs/design/08-experiences.md
@@ -188,7 +188,7 @@ function Experiences() {
             </p>
             <p className="flex flex-wrap gap-x-4 text-xs text-fg-secondary">
               <span>{catalog.surface_count} detected</span>
-              <span data-testid="runnable-count">{catalog.runnable_count} runnable in RepoLab</span>
+              <span data-testid="runnable-count">{catalog.runnable_count} runnable in RepoLens</span>
             </p>
           </header>
 
@@ -197,7 +197,7 @@ function Experiences() {
               className="rounded-lg border border-line bg-surface-subtle p-4"
               data-testid="nothing-runnable"
             >
-              <h2 className="text-sm font-semibold">RepoLab can&apos;t run this repository yet</h2>
+              <h2 className="text-sm font-semibold">RepoLens can&apos;t run this repository yet</h2>
               <p className="mt-1 text-sm text-fg-secondary">
                 There is no live experience for these surfaces in this build. You can still learn
                 how the code works: every component and relationship below the surface is mapped
@@ -216,7 +216,7 @@ function Experiences() {
                   }
                   data-testid="ask-instead"
                 >
-                  {firstQuestion ? `Ask: ${firstQuestion}` : "Ask RepoLab about it"}
+                  {firstQuestion ? `Ask: ${firstQuestion}` : "Ask RepoLens about it"}
                 </ActionLink>
               </div>
             </section>
@@ -247,7 +247,7 @@ function Experiences() {
 
           {catalog.rationale && (
             <details className="text-xs text-fg-secondary" data-testid="classification-details">
-              <summary className="cursor-pointer">How RepoLab decided</summary>
+              <summary className="cursor-pointer">How RepoLens decided</summary>
               <p className="mt-1 font-mono">{catalog.rationale}</p>
             </details>
           )}
@@ -258,15 +258,15 @@ function Experiences() {
   );
 }
 
-/** One sentence: what was found, and which one RepoLab would lead with. */
+/** One sentence: what was found, and which one RepoLens would lead with. */
 function summary(catalog: ExperienceCatalog): string {
   const names = catalog.experiences.map((e) => inSentence(e.name));
-  if (names.length === 0) return "RepoLab found no way to interact with this repository.";
+  if (names.length === 0) return "RepoLens found no way to interact with this repository.";
   const listed =
     names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
   const primary = catalog.experiences.find((e) => e.primary);
   const lead = primary && names.length > 1 ? ` The ${inSentence(primary.name)} is the main way in.` : "";
-  return `RepoLab found ${names.length === 1 ? "one way" : `${names.length} ways`} to use it: ${listed}.${lead}`;
+  return `RepoLens found ${names.length === 1 ? "one way" : `${names.length} ways`} to use it: ${listed}.${lead}`;
 }
 
 /** A name mid-sentence: "Web application" -> "web application", but "HTTP API" stays. */
@@ -326,13 +326,13 @@ function ExperienceCard({
       <div className="border-t border-line px-4 py-3">
         {experience.runnable && !experience.route ? (
           <p data-testid={`runnable-${experience.surface}`} className="text-sm text-run-fg">
-            Runnable: RepoLab has a plan to start it from the repository&apos;s own scripts. Start it
-            under &ldquo;Run it in RepoLab&rdquo;.
+            Runnable: RepoLens has a plan to start it from the repository&apos;s own scripts. Start it
+            under &ldquo;Run it in RepoLens&rdquo;.
           </p>
         ) : experience.runnable && experience.route ? (
           <div data-testid={`runnable-${experience.surface}`}>
             <p className="text-sm text-run-fg">
-              Runnable in this build, through RepoLab&apos;s {experience.adapter}.
+              Runnable in this build, through RepoLens&apos;s {experience.adapter}.
             </p>
             <ActionLink
               kind="run"
@@ -359,7 +359,7 @@ function ExperienceCard({
           className="flex w-full items-center gap-2 px-4 py-2 text-left text-xs text-fg-secondary hover:text-fg"
         >
           <span aria-hidden>{expanded ? "▾" : "▸"}</span>
-          Why RepoLab thinks so
+          Why RepoLens thinks so
         </button>
         {expanded && (
           <div data-testid={`evidence-${experience.surface}`} className="px-4 pb-3">

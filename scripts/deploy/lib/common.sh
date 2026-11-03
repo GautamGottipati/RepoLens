@@ -1,34 +1,34 @@
 # shellcheck shell=bash
-# Shared VM setup for RepoLab's production deployment, used by
+# Shared VM setup for RepoLens's production deployment, used by
 # scripts/deploy/bootstrap_gcp.sh. Sourced, never executed.
 #
 # container_firewall_rules takes the provider name and returns its rules.
 # Every function is idempotent.
 #
 # Test seams (environment overrides, so tests need no VM):
-#   REPOLAB_BOOTSTRAP_DRY_RUN=1   step() prints instead of running
-#   REPOLAB_RESOLV_CONF           upstream resolvers (default: systemd-resolved's)
-#   REPOLAB_EXTERNAL_IFACE        the host's default-route interface
-#   REPOLAB_EXTERNAL_MTU          that interface's MTU
+#   REPOLENS_BOOTSTRAP_DRY_RUN=1   step() prints instead of running
+#   REPOLENS_RESOLV_CONF           upstream resolvers (default: systemd-resolved's)
+#   REPOLENS_EXTERNAL_IFACE        the host's default-route interface
+#   REPOLENS_EXTERNAL_MTU          that interface's MTU
 #   DOCKER_DAEMON_JSON            default /etc/docker/daemon.json
 
-REPOLAB_STATE=/var/lib/repolab
-REPOLAB_LIB_INSTALL=/usr/local/lib/repolab/common.sh
-REPOLAB_PROVIDER_MARKER=/etc/repolab/provider
+REPOLENS_STATE=/var/lib/repolens
+REPOLENS_LIB_INSTALL=/usr/local/lib/repolens/common.sh
+REPOLENS_PROVIDER_MARKER=/etc/repolens/provider
 
 #: The chain all container rules live in; rebuilt on every apply.
-REPOLAB_CHAIN=REPOLAB-CONTAINERS
+REPOLENS_CHAIN=REPOLENS-CONTAINERS
 
 #: Address ranges a repository container never needs to reach through the VM's
 #: own network interface: other machines in the cloud network.
-REPOLAB_PRIVATE_RANGES="10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
+REPOLENS_PRIVATE_RANGES="10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 100.64.0.0/10"
 
 log() { printf '==> %s\n' "$*"; }
 warn() { printf 'WARNING: %s\n' "$*" >&2; }
 
 # Run a named step, or only announce it in dry-run mode.
 step() {
-    if [ "${REPOLAB_BOOTSTRAP_DRY_RUN:-0}" = 1 ]; then
+    if [ "${REPOLENS_BOOTSTRAP_DRY_RUN:-0}" = 1 ]; then
         printf 'step: %s\n' "$*"
         return 0
     fi
@@ -87,16 +87,16 @@ install_docker() {
 
 external_iface() {
     # Set, even to empty, wins: tests can simulate a host with no default route.
-    if [ -n "${REPOLAB_EXTERNAL_IFACE+set}" ]; then
-        printf '%s' "$REPOLAB_EXTERNAL_IFACE"
+    if [ -n "${REPOLENS_EXTERNAL_IFACE+set}" ]; then
+        printf '%s' "$REPOLENS_EXTERNAL_IFACE"
         return
     fi
     ip -4 route show default 2>/dev/null | awk '{for (i = 1; i < NF; i++) if ($i == "dev") {print $(i + 1); exit}}'
 }
 
 external_mtu() {
-    if [ -n "${REPOLAB_EXTERNAL_MTU:-}" ]; then
-        printf '%s' "$REPOLAB_EXTERNAL_MTU"
+    if [ -n "${REPOLENS_EXTERNAL_MTU:-}" ]; then
+        printf '%s' "$REPOLENS_EXTERNAL_MTU"
         return
     fi
     local iface
@@ -104,7 +104,7 @@ external_mtu() {
     [ -n "$iface" ] && cat "/sys/class/net/${iface}/mtu" 2>/dev/null
 }
 
-# Merge RepoLab's settings into daemon.json. Adds what is missing; never changes
+# Merge RepoLens's settings into daemon.json. Adds what is missing; never changes
 # a key the operator already set (a differing value is reported, not replaced).
 # Prints "changed" or "unchanged".
 #
@@ -163,19 +163,19 @@ add_docker_user() {
 }
 
 create_state_dirs() {
-    log "State directory ${REPOLAB_STATE}"
-    install -d -m 0755 "$REPOLAB_STATE" "$REPOLAB_STATE/state" "$REPOLAB_STATE/letsencrypt" "$REPOLAB_STATE/acme"
-    install -d -m 0700 "$REPOLAB_STATE/backups"
+    log "State directory ${REPOLENS_STATE}"
+    install -d -m 0755 "$REPOLENS_STATE" "$REPOLENS_STATE/state" "$REPOLENS_STATE/letsencrypt" "$REPOLENS_STATE/acme"
+    install -d -m 0700 "$REPOLENS_STATE/backups"
 }
 
 write_provider_marker() {
-    install -d -m 0755 "$(dirname "$REPOLAB_PROVIDER_MARKER")"
-    printf '%s\n' "$1" > "$REPOLAB_PROVIDER_MARKER"
+    install -d -m 0755 "$(dirname "$REPOLENS_PROVIDER_MARKER")"
+    printf '%s\n' "$1" > "$REPOLENS_PROVIDER_MARKER"
 }
 
 # IPv4 nameservers the host forwards to (never the 127.0.0.53 stub).
 upstream_resolvers() {
-    local conf="${REPOLAB_RESOLV_CONF:-}"
+    local conf="${REPOLENS_RESOLV_CONF:-}"
     if [ -z "$conf" ]; then
         conf=/run/systemd/resolve/resolv.conf
         [ -f "$conf" ] || conf=/etc/resolv.conf
@@ -221,7 +221,7 @@ container_firewall_rules() {
     # Other machines in the cloud network. Matched on the outgoing interface, so
     # traffic between containers on Docker's own bridges is untouched.
     if [ -n "$iface" ]; then
-        for range in $REPOLAB_PRIVATE_RANGES; do
+        for range in $REPOLENS_PRIVATE_RANGES; do
             echo "iptables -o ${iface} -d ${range} -j DROP"
         done
     else
@@ -229,7 +229,7 @@ container_firewall_rules() {
     fi
 }
 
-# Rebuild the RepoLab chain from container_firewall_rules. Called at boot by the
+# Rebuild the RepoLens chain from container_firewall_rules. Called at boot by the
 # systemd unit and whenever Docker restarts.
 apply_container_firewall() {
     local provider="$1" rules tool tools=iptables
@@ -238,8 +238,8 @@ apply_container_firewall() {
 
     for tool in $tools; do
         "$tool" -N DOCKER-USER 2>/dev/null || true
-        "$tool" -N "$REPOLAB_CHAIN" 2>/dev/null || "$tool" -F "$REPOLAB_CHAIN"
-        "$tool" -C DOCKER-USER -j "$REPOLAB_CHAIN" 2>/dev/null || "$tool" -I DOCKER-USER -j "$REPOLAB_CHAIN"
+        "$tool" -N "$REPOLENS_CHAIN" 2>/dev/null || "$tool" -F "$REPOLENS_CHAIN"
+        "$tool" -C DOCKER-USER -j "$REPOLENS_CHAIN" 2>/dev/null || "$tool" -I DOCKER-USER -j "$REPOLENS_CHAIN"
     done
     # Rules an earlier bootstrap put directly in DOCKER-USER; now in the chain.
     while iptables -D DOCKER-USER -d 169.254.0.0/16 -j DROP 2>/dev/null; do :; done
@@ -248,48 +248,48 @@ apply_container_firewall() {
         [ -n "$tool" ] || continue
         case " $tools " in *" $tool "*) ;; *) continue ;; esac
         # shellcheck disable=SC2086
-        "$tool" -A "$REPOLAB_CHAIN" $match
+        "$tool" -A "$REPOLENS_CHAIN" $match
     done <<<"$rules"
 }
 
 install_container_firewall() {
     local provider="$1" lib_source="$2"
     log "Container firewall (${provider}): no metadata, no cloud-internal hosts"
-    install -D -m 0644 "$lib_source" "$REPOLAB_LIB_INSTALL"
-    cat > /usr/local/sbin/repolab-container-firewall <<SH
+    install -D -m 0644 "$lib_source" "$REPOLENS_LIB_INSTALL"
+    cat > /usr/local/sbin/repolens-container-firewall <<SH
 #!/bin/bash
 # Installed by scripts/deploy/bootstrap_${provider}.sh. Rebuilds the
-# ${REPOLAB_CHAIN} iptables chain; see ${REPOLAB_LIB_INSTALL}.
+# ${REPOLENS_CHAIN} iptables chain; see ${REPOLENS_LIB_INSTALL}.
 set -euo pipefail
-. ${REPOLAB_LIB_INSTALL}
+. ${REPOLENS_LIB_INSTALL}
 apply_container_firewall ${provider}
 SH
-    chmod 0755 /usr/local/sbin/repolab-container-firewall
-    cat > /etc/systemd/system/repolab-container-firewall.service <<'UNIT'
+    chmod 0755 /usr/local/sbin/repolens-container-firewall
+    cat > /etc/systemd/system/repolens-container-firewall.service <<'UNIT'
 [Unit]
-Description=RepoLab: keep repository containers away from metadata and cloud-internal hosts
+Description=RepoLens: keep repository containers away from metadata and cloud-internal hosts
 After=docker.service
 PartOf=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/sbin/repolab-container-firewall
+ExecStart=/usr/local/sbin/repolens-container-firewall
 RemainAfterExit=yes
 
 [Install]
 WantedBy=docker.service multi-user.target
 UNIT
     systemctl daemon-reload
-    systemctl enable repolab-container-firewall.service
-    systemctl restart repolab-container-firewall.service
+    systemctl enable repolens-container-firewall.service
+    systemctl restart repolens-container-firewall.service
 }
 
 install_timers() {
     local repo_dir="$1"
     log "Certificate renewal and Postgres backup timers"
-    cat > /etc/systemd/system/repolab-certbot-renew.service <<UNIT
+    cat > /etc/systemd/system/repolens-certbot-renew.service <<UNIT
 [Unit]
-Description=RepoLab: renew Let's Encrypt certificates and reload nginx
+Description=RepoLens: renew Let's Encrypt certificates and reload nginx
 After=docker.service
 
 [Service]
@@ -298,9 +298,9 @@ WorkingDirectory=${repo_dir}
 ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --profile tls run --rm certbot renew --webroot -w /var/www/acme --quiet
 ExecStartPost=/usr/bin/docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload
 UNIT
-    cat > /etc/systemd/system/repolab-certbot-renew.timer <<'UNIT'
+    cat > /etc/systemd/system/repolens-certbot-renew.timer <<'UNIT'
 [Unit]
-Description=RepoLab: twice-daily certificate renewal check
+Description=RepoLens: twice-daily certificate renewal check
 
 [Timer]
 OnCalendar=*-*-* 03,15:17:00
@@ -310,9 +310,9 @@ Persistent=true
 [Install]
 WantedBy=timers.target
 UNIT
-    cat > /etc/systemd/system/repolab-backup.service <<UNIT
+    cat > /etc/systemd/system/repolens-backup.service <<UNIT
 [Unit]
-Description=RepoLab: Postgres backup
+Description=RepoLens: Postgres backup
 After=docker.service
 
 [Service]
@@ -320,9 +320,9 @@ Type=oneshot
 WorkingDirectory=${repo_dir}
 ExecStart=/bin/bash ${repo_dir}/scripts/deploy/backup_postgres.sh
 UNIT
-    cat > /etc/systemd/system/repolab-backup.timer <<'UNIT'
+    cat > /etc/systemd/system/repolens-backup.timer <<'UNIT'
 [Unit]
-Description=RepoLab: daily Postgres backup
+Description=RepoLens: daily Postgres backup
 
 [Timer]
 OnCalendar=*-*-* 02:30:00
@@ -332,7 +332,7 @@ Persistent=true
 WantedBy=timers.target
 UNIT
     systemctl daemon-reload
-    systemctl enable --now repolab-certbot-renew.timer repolab-backup.timer
+    systemctl enable --now repolens-certbot-renew.timer repolens-backup.timer
 }
 
 # The steps every provider shares, in order. Provider scripts add theirs around it.

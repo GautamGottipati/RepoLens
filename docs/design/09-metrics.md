@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Show what RepoLab has been used for, and how RepoLab performed doing it, from
+Show what RepoLens has been used for, and how RepoLens performed doing it, from
 recorded history only.
 
 Product-wide rather than per-repository: a KPI is about the product, not about
@@ -15,7 +15,7 @@ questions — *did developers learn anything?* and *did the agent behave well?*
   star. One aggregate read; nothing is queued and nothing is computed in the
   browser.
 
-Every figure is computed in `repolab/analytics/metrics.py` from the analytics
+Every figure is computed in `repolens/analytics/metrics.py` from the analytics
 events and the domain tables. The screen renders what it is given and derives
 nothing.
 
@@ -36,14 +36,14 @@ them is true. The Python model refuses to carry a value unless the status is
 `measured`, so the screen cannot show one by mistake.
 
 Each metric also shows **how it was computed** and **what it came from**, because
-several of these are RepoLab's own definitions rather than industry standards —
+several of these are RepoLens's own definitions rather than industry standards —
 "agent recovery rate" in particular — and a number whose definition is hidden
 invites being read as something stronger.
 
 ## Sections
 
 **Provenance**, first, before any figure: how many events, jobs and repositories
-over how many days, and that this is development traffic from building RepoLab
+over how many days, and that this is development traffic from building RepoLens
 rather than usage by learners. It changes how everything below should be read,
 so it is not a footnote.
 
@@ -53,14 +53,14 @@ lessons started, completed and their rate, steps passed, hints shown, commands
 executed; questions asked, experiments proposed, approved, declined, completed,
 and the completion rate.
 
-**RepoLab operational & agent performance** — agent runs, task success rate,
+**RepoLens operational & agent performance** — agent runs, task success rate,
 average steps overall and when it finished, recovery rate; tool calls, tool
 success rate and the worst offenders; model calls, success rate, latency median
 and p90, tokens, schema retries; container compute time and model cost.
 
 **Long-term north-star KPI** — *Time to First Meaningful Contribution*, named,
 defined, and never given a number. It needs longitudinal data from real teams,
-which RepoLab does not have.
+which RepoLens does not have.
 
 ## Must never show
 

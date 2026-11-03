@@ -13,7 +13,7 @@ here is that the output is real:
   true if both ran in the same live node;
 * step 7's error is Cassandra's own ``ALLOW FILTERING`` refusal, with its real
   message, from the real restriction check;
-* and RepoLab's deterministic validation passes all eight steps on that output
+* and RepoLens's deterministic validation passes all eight steps on that output
   without a model being involved anywhere.
 """
 
@@ -23,7 +23,7 @@ import asyncio
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     BuildCandidate,
     BuildLadder,
     BuildLimits,
@@ -31,14 +31,14 @@ from repolab.builds import (
     InMemoryBuildCache,
     cassandra_official_plan,
 )
-from repolab.builds.cassandra import OFFICIAL_IMAGE
-from repolab.experiences.cli.experience import build_cli_experience
-from repolab.experiences.cli.session import CliSessionManager, SessionStatus
-from repolab.lessons.cassandra import KEYSPACE, cassandra_lesson
-from repolab.lessons.validation import check_step
-from repolab.manifest.models import BuildKind
-from repolab.sandbox import DockerSandboxProvider
-from repolab.sandbox.docker import docker_available, ensure_image
+from repolens.builds.cassandra import OFFICIAL_IMAGE
+from repolens.experiences.cli.experience import build_cli_experience
+from repolens.experiences.cli.session import CliSessionManager, SessionStatus
+from repolens.lessons.cassandra import KEYSPACE, cassandra_lesson
+from repolens.lessons.validation import check_step
+from repolens.manifest.models import BuildKind
+from repolens.sandbox import DockerSandboxProvider
+from repolens.sandbox.docker import docker_available, ensure_image
 from tests.support.builds import CASSANDRA_REPO, SHA, cassandra_manifest, repository
 
 pytestmark = pytest.mark.docker
@@ -168,7 +168,7 @@ class TestTheProvokedError:
         assert "InvalidRequest" in record.output or "Invalid query" in record.output
 
     def test_the_message_is_the_servers_own(self, walkthrough) -> None:
-        """The wording comes from Cassandra's restriction check, not from RepoLab."""
+        """The wording comes from Cassandra's restriction check, not from RepoLens."""
         _, outcomes = walkthrough
         _, record, _ = outcomes[6]
 

@@ -22,9 +22,9 @@ A sticky header that leads with the repository's **name** (the slug and the
 commit are secondary), the job status as a dot and a word, and four tabs:
 
 ```text
-RepoLab / apache/spark                                   ● Ready
+RepoLens / apache/spark                                   ● Ready
 Apache Spark   commit 0aa4f91
-Overview   Experiences   Architecture   Ask RepoLab      ⌁ Analyzed · 51 evidence · 41 components  Details ›
+Overview   Experiences   Architecture   Ask RepoLens      ⌁ Analyzed · 51 evidence · 41 components  Details ›
 ```
 
 *Overview* is the investigation's screen under the name a newcomer understands
@@ -44,7 +44,7 @@ drawer. The drawer holds the two views, both from the same event stream:
 
 - **Phase tracker** — the phases, from `agent_status` events carrying
   `{phase, label, index, total}`. The labels come from the backend
-  (`repolab/events/activity.py`); the browser holds no copy of that vocabulary.
+  (`repolens/events/activity.py`); the browser holds no copy of that vocabulary.
 - **Activity feed** — a line per event: its type, its step, and its `message`.
 
 While an investigation runs, the Overview shows the same announced phases as
@@ -81,7 +81,7 @@ Components use the token names, never palette values.
 | colour | token | means |
 |---|---|---|
 | indigo | `brand` | primary action, selected navigation, focus |
-| violet | `ai` | Ask RepoLab, explanations, AI-written text |
+| violet | `ai` | Ask RepoLens, explanations, AI-written text |
 | cyan | `arch` | architecture, components, relationships |
 | emerald | `run` | experiences, live environments, success |
 | amber | `exp` | experiments, parameter changes, in progress |
@@ -123,7 +123,7 @@ This covers the analysis, a section still being made, and experience
 preparation.
 
 **What it shows:**
-- what RepoLab is doing, as a headline and a supporting line;
+- what RepoLens is doing, as a headline and a supporting line;
 - a quiet "Working for 1m 5s".
 
 **Where the words come from:**
@@ -141,7 +141,7 @@ preparation.
 **Heartbeat vs progress:**
 - **Progress** is a milestone event, persisted and replayed.
 - **Heartbeat** is the worker saying it is alive. It is ephemeral, in Redis
-  (`repolab/events/liveness.py`), and refreshed every 5 s by a thread.
+  (`repolens/events/liveness.py`), and refreshed every 5 s by a thread.
 - A model call can run for a minute with no milestone. **Silence is never
   called a stall.**
 
@@ -153,4 +153,4 @@ amber or rose.
 
 **Developer diagnostics:** heartbeat age, last event age, worker, activity key
 and stream status. They're hidden unless `?debug=1` (remembered; `?debug=0`
-turns it off) or `NEXT_PUBLIC_REPOLAB_DEBUG=1`.
+turns it off) or `NEXT_PUBLIC_REPOLENS_DEBUG=1`.

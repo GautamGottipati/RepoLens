@@ -21,5 +21,6 @@ web/next-env.d.ts
 .idea/
 .vscode/
 
-# RepoLab local artifacts
+# RepoLens local artifacts
+.repolens/
 .repolab/

@@ -15,8 +15,8 @@ It preserves the real run in full where it matters:
 
 To keep the file to a sensible size, each event was reduced to the fields the
 parser actually reads. Dropped: `Accumulables`, `RDD Info`, `Stage Infos`,
-`Properties`, `Task Executor Metrics`, and the shuffle/task metrics RepoLab does
+`Properties`, `Task Executor Metrics`, and the shuffle/task metrics RepoLens does
 not use. **Every value that remains is byte-identical to what Spark wrote.**
 
 Regenerate it by running `make run-spark-demo` and slimming the newest log under
-`.repolab/runs/`.
+`.repolens/runs/`.

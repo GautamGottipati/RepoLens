@@ -11,12 +11,12 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds.models import BuildArtifact, SmokeTestResult
-from repolab.llm import LLMError
-from repolab.manifest.models import BuildKind
-from repolab.questions import ExperimentBackend, QuestionKind, Route, triage
-from repolab.questions.models import TriageVerdict
-from repolab.questions.triage import (
+from repolens.builds.models import BuildArtifact, SmokeTestResult
+from repolens.llm import LLMError
+from repolens.manifest.models import BuildKind
+from repolens.questions import ExperimentBackend, QuestionKind, Route, triage
+from repolens.questions.models import TriageVerdict
+from repolens.questions.triage import (
     cli_artifact,
     explanation_shape,
     rule_kind,
@@ -37,7 +37,7 @@ def cassandra_build(
         kind=kind,
         version="5.0.9",
         checkpoint_id="ckpt",
-        checkpoint_tag="repolab/apache-cassandra:abc-official-release",
+        checkpoint_tag="repolens/apache-cassandra:abc-official-release",
         service_command="cassandra -f",
         cli_command=cli,
         memory="4g",

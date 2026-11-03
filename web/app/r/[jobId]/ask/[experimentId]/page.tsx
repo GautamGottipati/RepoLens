@@ -361,7 +361,7 @@ function SparkResults({
             <>
               <Empty title="The explanation could not be produced">
                 The measurements above are real and complete. Only the narrative is
-                missing — RepoLab reports that rather than inventing one.
+                missing — RepoLens reports that rather than inventing one.
               </Empty>
               <p className="mt-3 font-mono text-xs text-fg-secondary">
                 {experiment.explanation_error}
@@ -369,7 +369,7 @@ function SparkResults({
             </>
           ) : (
             <Empty title="The measurements stand alone">
-              No model is configured, so RepoLab reports the measurements without a
+              No model is configured, so RepoLens reports the measurements without a
               narrative rather than inventing one.
             </Empty>
           )}
@@ -416,7 +416,7 @@ function SparkResults({
 
           <div className="mt-4 border-t border-line pt-3">
             <h4 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">
-              Added by RepoLab, not present in the repository
+              Added by RepoLens, not present in the repository
             </h4>
             <ul className="mt-2 list-disc pl-5 text-xs text-fg-secondary">
               {experiment.reproducibility.added_steps.map((step) => (

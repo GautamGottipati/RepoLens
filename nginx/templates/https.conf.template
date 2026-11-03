@@ -1,4 +1,4 @@
-# HTTPS: chosen automatically once /etc/letsencrypt/live/${REPOLAB_DOMAIN} exists.
+# HTTPS: chosen automatically once /etc/letsencrypt/live/${REPOLENS_DOMAIN} exists.
 
 map $http_upgrade $connection_upgrade {
     default upgrade;
@@ -17,25 +17,25 @@ server {
 server {
     listen 443 ssl default_server;
     http2 on;
-    server_name ${REPOLAB_DOMAIN};
+    server_name ${REPOLENS_DOMAIN};
 
-    ssl_certificate     /etc/letsencrypt/live/${REPOLAB_DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${REPOLAB_DOMAIN}/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/${REPOLENS_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${REPOLENS_DOMAIN}/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_session_cache shared:SSL:10m;
     add_header Strict-Transport-Security "max-age=31536000" always;
 
-    include /etc/repolab/nginx/common.inc;
+    include /etc/repolens/nginx/common.inc;
 }
 
 server {
     listen 443 ssl;
     http2 on;
-    server_name "~^rt-[a-f0-9]{12}-[a-z0-9-]+\.${REPOLAB_DOMAIN}$";
+    server_name "~^rt-[a-f0-9]{12}-[a-z0-9-]+\.${REPOLENS_DOMAIN}$";
 
-    ssl_certificate     /etc/letsencrypt/live/${REPOLAB_DOMAIN}/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/${REPOLAB_DOMAIN}/privkey.pem;
+    ssl_certificate     /etc/letsencrypt/live/${REPOLENS_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${REPOLENS_DOMAIN}/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
 
-    include /etc/repolab/nginx/runtime.inc;
+    include /etc/repolens/nginx/runtime.inc;
 }

@@ -13,8 +13,8 @@ from typing import Any
 import pytest
 import structlog
 
-from repolab.ingest.clone import CloneResult
-from repolab.ingest.url import RepoUrl
+from repolens.ingest.clone import CloneResult
+from repolens.ingest.url import RepoUrl
 
 
 @pytest.fixture(autouse=True)
@@ -40,10 +40,10 @@ def liveness_store(monkeypatch: pytest.MonkeyPatch):
     Shared by the worker side and the API side of one test, so a test can beat
     as a worker and read the health the API reports.
     """
-    from repolab.events.liveness import MemoryLivenessStore
+    from repolens.events.liveness import MemoryLivenessStore
 
     store = MemoryLivenessStore()
-    monkeypatch.setattr("repolab.events.liveness.default_store", lambda: store)
+    monkeypatch.setattr("repolens.events.liveness.default_store", lambda: store)
     return store
 
 
@@ -78,9 +78,9 @@ def git_init(path: Path, *, branch: str = "main") -> str:
         [
             "git",
             "-c",
-            "user.email=test@repolab.invalid",
+            "user.email=test@repolens.invalid",
             "-c",
-            "user.name=RepoLab Test",
+            "user.name=RepoLens Test",
             "commit",
             "-qm",
             "initial",

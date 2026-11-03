@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from repolab.capability import (
+from repolens.capability import (
     CapabilityReport,
     ProbeResult,
     ProbeStatus,
@@ -53,7 +53,7 @@ class TestExitCode:
         assert [r.capability for r in report.blocking_failures()] == ["a"]
 
     def test_optional_failure_does_not_fail_the_run(self) -> None:
-        """Native tool calling is optional; its absence must never block RepoLab."""
+        """Native tool calling is optional; its absence must never block RepoLens."""
         report = CapabilityReport(results=[row("tools", ProbeStatus.FAIL, required=False)])
         assert report.exit_code() == 0
         assert report.blocking_failures() == []

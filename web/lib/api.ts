@@ -1,5 +1,5 @@
 /**
- * The RepoLab API client.
+ * The RepoLens API client.
  *
  * The only place `NEXT_PUBLIC_API_URL` appears, and the only place a URL is
  * built, so a screen never assembles one by hand. Every call returns typed data
@@ -72,7 +72,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     // is worth saying plainly rather than surfacing "Failed to fetch".
     throw new ApiError(
       0,
-      `cannot reach the RepoLab API at ${API} — is it running? (${
+      `cannot reach the RepoLens API at ${API} — is it running? (${
         cause instanceof Error ? cause.message : "network error"
       })`,
     );
@@ -140,14 +140,14 @@ export const api = {
   experiences: (jobId: string) => request<ExperienceCatalog>(`/jobs/${jobId}/experiences`),
 
   // -- live experiences -----------------------------------------------------
-  /** The plan RepoLab would run, and the latest launch for this repository. */
+  /** The plan RepoLens would run, and the latest launch for this repository. */
   runtime: (jobId: string) => request<RuntimeView>(`/jobs/${jobId}/runtime`),
   /** Start the planned services. A person asks for this; nothing starts on its own. */
   startRuntime: (jobId: string) => post<RuntimeView>(`/jobs/${jobId}/runtime`, {}),
   runtimeById: (runtimeId: string) => request<RuntimeView>(`/runtimes/${runtimeId}`),
   stopRuntime: (runtimeId: string) =>
     request<{ runtime_id: string; status: string }>(`/runtimes/${runtimeId}`, { method: "DELETE" }),
-  /** One request to a running API, sent by RepoLab through its sidecar. */
+  /** One request to a running API, sent by RepoLens through its sidecar. */
   runtimeRequest: (
     runtimeId: string,
     payload: { service: string; method: string; path: string; body?: string | null },
@@ -209,7 +209,7 @@ export const api = {
     post<ExperienceSessionView["state"]["transcript"][number]>(`/experience-sessions/${sessionId}/minilab`, { command }),
   stopExperience: (sessionId: string) =>
     request<{ id: string; status: string }>(`/experience-sessions/${sessionId}`, { method: "DELETE" }),
-  /** A file at the commit this job investigated, from RepoLab's own copy. */
+  /** A file at the commit this job investigated, from RepoLens's own copy. */
   source: (jobId: string, path: string, around?: number | null) =>
     request<SourceFile>(
       `/jobs/${jobId}/source?${new URLSearchParams({ path, ...(around ? { around: String(around) } : {}) })}`,

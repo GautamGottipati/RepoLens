@@ -20,21 +20,21 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from repolab.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
-from repolab.architecture.code_model import reading_path
-from repolab.architecture.models import Provenance, load_graph
-from repolab.architecture.runtime_synthesis import MIN_COMPONENTS, name_runtime
-from repolab.architecture.verify import verify_graph
-from repolab.artifacts import ARCH_RUNTIME_NAMING, Status
-from repolab.artifacts import store as artifacts
-from repolab.config import get_settings
-from repolab.db import build_engine, build_session_factory, session_scope
-from repolab.db.jobs import get_job
-from repolab.db.models import ArchitectureRecord, Ingestion
-from repolab.events import DbEventEmitter
-from repolab.events.liveness import ActivitySink, NoLiveness, job_key, liveness_for
-from repolab.failures import explain
-from repolab.sources import StoredSnapshot
+from repolens.analytics import Analytics, AnalyticsEventType, DbAnalyticsWriter
+from repolens.architecture.code_model import reading_path
+from repolens.architecture.models import Provenance, load_graph
+from repolens.architecture.runtime_synthesis import MIN_COMPONENTS, name_runtime
+from repolens.architecture.verify import verify_graph
+from repolens.artifacts import ARCH_RUNTIME_NAMING, Status
+from repolens.artifacts import store as artifacts
+from repolens.config import get_settings
+from repolens.db import build_engine, build_session_factory, session_scope
+from repolens.db.jobs import get_job
+from repolens.db.models import ArchitectureRecord, Ingestion
+from repolens.events import DbEventEmitter
+from repolens.events.liveness import ActivitySink, NoLiveness, job_key, liveness_for
+from repolens.failures import explain
+from repolens.sources import StoredSnapshot
 
 log = structlog.get_logger(__name__)
 

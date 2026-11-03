@@ -13,7 +13,7 @@
 #   VM_KNOWN_HOSTS   output of `ssh-keyscan -t ed25519 <VM_HOST>`, so the
 #                    runner never trusts an unverified host key
 # Repository variable (optional):
-#   VM_APP_DIR       where the repository is cloned on the VM (default /opt/repolab)
+#   VM_APP_DIR       where the repository is cloned on the VM (default /opt/repolens)
 
 name: deploy
 
@@ -94,7 +94,7 @@ jobs:
         env:
           VM_HOST: ${{ secrets.VM_HOST }}
           VM_USER: ${{ secrets.VM_USER }}
-          APP_DIR: ${{ vars.VM_APP_DIR || '/opt/repolab' }}
+          APP_DIR: ${{ vars.VM_APP_DIR || '/opt/repolens' }}
           SHA: ${{ github.sha }}
         run: |
           ssh -i ~/.ssh/id_deploy -o StrictHostKeyChecking=yes "$VM_USER@$VM_HOST" \

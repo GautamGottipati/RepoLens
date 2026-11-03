@@ -13,14 +13,14 @@ import structlog
 from redis import Redis
 from rq import Queue, Worker
 
-from repolab.config import Settings, get_settings
+from repolens.config import Settings, get_settings
 from worker.jobs import QUEUE_ORDER
 
 
 class WorkerRestarted(RuntimeError):
     """A job was interrupted by the worker stopping.
 
-    Raised nowhere: it exists so :func:`repolab.failures.explain` has something
+    Raised nowhere: it exists so :func:`repolens.failures.explain` has something
     to recognise, and so the sentence a user reads lives with every other one.
     """
 
@@ -28,7 +28,7 @@ class WorkerRestarted(RuntimeError):
 #: macOS refuses to ``fork()`` a process that has initialised Objective-C state
 #: unless this is set.
 #:
-#: RQ forks a work-horse per job, and every RepoLab job then forks again -- `git
+#: RQ forks a work-horse per job, and every RepoLens job then forks again -- `git
 #: clone` does, through subprocess. Without this the work-horse dies with signal
 #: 6 ("+[NSCharacterSet initialize] may have been in progress in another thread
 #: when fork() was called") and RQ reports only "Work-horse terminated
@@ -66,9 +66,9 @@ def resolve_abandoned_jobs(settings: Settings) -> list[str]:
     someone to notice. Best-effort -- a worker that cannot reach Postgres should
     still start and do its job.
     """
-    from repolab.db import build_engine, session_scope
-    from repolab.db.jobs import fail_abandoned_jobs
-    from repolab.failures import explain
+    from repolens.db import build_engine, session_scope
+    from repolens.db.jobs import fail_abandoned_jobs
+    from repolens.failures import explain
 
     reason = explain(WorkerRestarted()).summary
     engine = None

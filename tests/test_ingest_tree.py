@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from repolab.ingest import IngestLimits, build_file_tree
-from repolab.ingest.languages import detect_languages
-from repolab.ingest.limits import LimitReport
+from repolens.ingest import IngestLimits, build_file_tree
+from repolens.ingest.languages import detect_languages
+from repolens.ingest.limits import LimitReport
 
 
 def write(root: Path, paths: dict[str, str]) -> None:

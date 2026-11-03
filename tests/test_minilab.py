@@ -20,7 +20,7 @@ import json
 
 import pytest
 
-from repolab.builds.minilab import (
+from repolens.builds.minilab import (
     NEEDS_REAL_ENVIRONMENT,
     SIMULATED_LABEL,
     MiniLab,
@@ -28,11 +28,11 @@ from repolab.builds.minilab import (
     generate,
     validate,
 )
-from repolab.builds.minilab_build import build_mini_lab
-from repolab.evidence.models import CodeReference, Measurement, MeasurementSource
-from repolab.llm import ModelRouter, ModelTier
-from repolab.manifest.models import BuildKind, Fidelity
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+from repolens.builds.minilab_build import build_mini_lab
+from repolens.evidence.models import CodeReference, Measurement, MeasurementSource
+from repolens.llm import ModelRouter, ModelTier
+from repolens.manifest.models import BuildKind, Fidelity
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 from tests.support.builds import cassandra_manifest
 
 
@@ -121,7 +121,7 @@ class TestNoMeasurements:
 
     def test_the_evidence_bundle_cannot_carry_one(self) -> None:
         """Enforced by the type: simulated evidence with a measurement will not construct."""
-        from repolab.evidence.models import EvidenceBundle
+        from repolens.evidence.models import EvidenceBundle
 
         with pytest.raises(ValueError, match="simulated evidence cannot contain measurements"):
             EvidenceBundle(
@@ -177,7 +177,7 @@ class TestTheArtifact:
         A Mini Lab has no environment to smoke-test, so what it checks is that
         the simulation obeys its rules.
         """
-        from repolab.builds import minilab_build
+        from repolens.builds import minilab_build
 
         async def ungrounded(manifest, *, router=None):
             return lab(entries=[entry(code_references=[])])
@@ -249,7 +249,7 @@ class TestGeneration:
         assert subject.generated_by == "deterministic"
 
     async def test_the_prompt_forbids_output_and_measurements(self) -> None:
-        from repolab.builds.minilab import SYSTEM_PROMPT
+        from repolens.builds.minilab import SYSTEM_PROMPT
 
         assert "Never write example output" in SYSTEM_PROMPT
         assert "Never state a duration" in SYSTEM_PROMPT

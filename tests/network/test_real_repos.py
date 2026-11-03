@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from repolab.ingest import IngestionResult, IngestLimits, ingest_repository, summarize
-from repolab.manifest.models import ClassificationSource, SurfaceType
+from repolens.ingest import IngestionResult, IngestLimits, ingest_repository, summarize
+from repolens.manifest.models import ClassificationSource, SurfaceType
 
 pytestmark = pytest.mark.network
 
@@ -101,7 +101,7 @@ class TestSparkEtlRepository:
     def test_the_clone_does_not_outlive_the_ingestion(self, spark_etl: IngestionResult) -> None:
         """The result is self-contained; nothing points into a live clone."""
         assert spark_etl.evidence.code_references[0].path
-        assert not list(Path("/tmp").glob("repolab-ingest-*/repo"))
+        assert not list(Path("/tmp").glob("repolens-ingest-*/repo"))
 
 
 class TestCassandraRepository:

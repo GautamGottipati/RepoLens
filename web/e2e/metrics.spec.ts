@@ -2,7 +2,7 @@
  * The Phase 12 done-when criterion, mechanically.
  *
  * > Done when the demo can show both:
- * > Developer learning activity + RepoLab operational/agent performance
+ * > Developer learning activity + RepoLens operational/agent performance
  *
  * And the prohibition that goes with it: do not invent enterprise outcome
  * metrics. So the strongest assertions here are negative — the north-star KPI
@@ -40,10 +40,10 @@ test.describe("P4 — the KPI dashboard", () => {
 
     // Case-insensitive: the section titles are rendered uppercase by CSS.
     await expect(learning).toContainText(/developer learning activity/i);
-    await expect(operations).toContainText(/RepoLab operational & agent performance/i);
+    await expect(operations).toContainText(/RepoLens operational & agent performance/i);
 
     // `exact` matters here. Playwright matches accessible names as substrings,
-    // so "Agent performance" also matches the section's own heading, "RepoLab
+    // so "Agent performance" also matches the section's own heading, "RepoLens
     // operational & agent performance" — two matches, and a strict-mode failure.
     for (const group of ["Repositories", "Time to value", "Lessons", "Experiments"]) {
       await expect(learning.getByRole("heading", { name: group, exact: true })).toBeVisible();
@@ -107,7 +107,7 @@ test.describe("P4 — the KPI dashboard", () => {
       console.log(`  ${key}: stated, not numbered`);
     }
 
-    // Challenges do not exist in RepoLab, and the screen says so.
+    // Challenges do not exist in RepoLens, and the screen says so.
     await expect(page.getByTestId("metric-challenge_success_rate")).toHaveAttribute(
       "data-status",
       "not_instrumented",

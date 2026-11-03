@@ -14,10 +14,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.experiences import sessions as store
-from repolab.manifest.models import SurfaceType
-from repolab.questions.models import ExperimentBackend, Route
-from repolab.questions.triage import triage
+from repolens.experiences import sessions as store
+from repolens.manifest.models import SurfaceType
+from repolens.questions.models import ExperimentBackend, Route
+from repolens.questions.triage import triage
 from tests.support.manifests import airflow_manifest
 from tests.test_api_experiences import investigated
 from tests.test_experiences_discovery import SPARK_FACTS, manifest
@@ -26,7 +26,7 @@ from tests.test_experiences_discovery import SPARK_FACTS, manifest
 @pytest.fixture
 def db(monkeypatch: pytest.MonkeyPatch) -> Iterator[sessionmaker[Session]]:
     from api import deps
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -161,8 +161,8 @@ class TestRunning:
 
 class TestTheMiniLab:
     def test_it_answers_from_its_table_and_says_it_is_simulated(self, client, db) -> None:
-        from repolab.builds.minilab import MiniLab, MiniLabEntry
-        from repolab.evidence.models import CodeReference
+        from repolens.builds.minilab import MiniLab, MiniLabEntry
+        from repolens.evidence.models import CodeReference
 
         job = investigated(db, airflow_manifest())
         listing = client.get(f"/jobs/{job}/experience-list").json()
@@ -208,7 +208,7 @@ class TestAnExperimentOnTheSession:
         assert decision.experience_session == "s1"
 
     def test_the_experiment_targets_the_learners_last_good_run(self, client, db) -> None:
-        from repolab.db.models import ExperimentRecord
+        from repolens.db.models import ExperimentRecord
         from worker.experiment_tasks import _experience_target
 
         job = spark_job(db)

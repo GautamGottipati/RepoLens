@@ -10,8 +10,8 @@
  * a real error, and the one that explains it.
  *
  * Nothing it asserts is simulated: the terminal is a WebSocket to a container
- * running the build RepoLab resolved, every statement is executed by that
- * container's own cqlsh, and a step is only marked complete after RepoLab has
+ * running the build RepoLens resolved, every statement is executed by that
+ * container's own cqlsh, and a step is only marked complete after RepoLens has
  * checked the real output of the real command.
  *
  * Requires: `make up`, the API on :8000, the worker running, the web app on

@@ -1,1 +1,1 @@
-"""RepoLab background workers."""
+"""RepoLens background workers."""

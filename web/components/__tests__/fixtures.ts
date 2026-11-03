@@ -120,7 +120,7 @@ export function pipelineView(overrides: Partial<ArchitectureView["graph"]> = {})
         experiment: {
           available: true,
           backend: "spark",
-          reason: "RepoLab can run this Spark job",
+          reason: "RepoLens can run this Spark job",
           question: "Why does this use spark.sql.shuffle.partitions=200?",
         },
         suggested_questions: ["Why does this use spark.sql.shuffle.partitions=200?"],

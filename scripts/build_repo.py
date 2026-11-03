@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.builds import (  # noqa: E402
+from repolens.builds import (  # noqa: E402
     BuildRequest,
     BuildResolver,
     BuildUnavailableError,
@@ -35,45 +35,47 @@ from repolab.builds import (  # noqa: E402
     UnsupportedRepositoryError,
     plan_for,
 )
-from repolab.classify import classify  # noqa: E402
-from repolab.config import get_settings  # noqa: E402
-from repolab.ingest.clone import TemporaryClone  # noqa: E402
-from repolab.ingest.content import ReadBudget  # noqa: E402
-from repolab.ingest.detectors import DetectionContext, detect_all  # noqa: E402
-from repolab.ingest.languages import detect_languages  # noqa: E402
-from repolab.ingest.limits import DEFAULT_LIMITS, LimitReport  # noqa: E402
-from repolab.ingest.tree import build_file_tree  # noqa: E402
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url  # noqa: E402
-from repolab.manifest.builder import build_manifest  # noqa: E402
-from repolab.manifest.models import RepoManifest  # noqa: E402
+from repolens.classify import classify  # noqa: E402
+from repolens.config import get_settings  # noqa: E402
+from repolens.ingest.clone import TemporaryClone  # noqa: E402
+from repolens.ingest.content import ReadBudget  # noqa: E402
+from repolens.ingest.detectors import DetectionContext, detect_all  # noqa: E402
+from repolens.ingest.languages import detect_languages  # noqa: E402
+from repolens.ingest.limits import DEFAULT_LIMITS, LimitReport  # noqa: E402
+from repolens.ingest.tree import build_file_tree  # noqa: E402
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url  # noqa: E402
+from repolens.manifest.builder import build_manifest  # noqa: E402
+from repolens.manifest.models import RepoManifest  # noqa: E402
 
 #: Scripted responses that let the fake provider model a plausible Spark build.
-FAKE_SCRIPT_MARKER = "REPOLAB_SPARK_OK"
+FAKE_SCRIPT_MARKER = "REPOLENS_SPARK_OK"
 
 
 def build_provider(choice: str) -> tuple[object, str]:
     """Pick a provider, returning it and why it was chosen."""
-    from repolab.sandbox import FakeSandboxProvider, ScriptedCommand
+    from repolens.sandbox import FakeSandboxProvider, ScriptedCommand
 
     def fake(reason: str) -> tuple[object, str]:
-        from repolab.builds.spark import SMOKE_MARKER
+        from repolens.builds.spark import SMOKE_MARKER
 
         provider = FakeSandboxProvider(
             scripted={
-                "python3 /work/repolab_smoke.py": ScriptedCommand(stdout=f"{SMOKE_MARKER} 3.5.1\n"),
+                "python3 /work/repolens_smoke.py": ScriptedCommand(
+                    stdout=f"{SMOKE_MARKER} 3.5.1\n"
+                ),
             }
         )
         return provider, reason
 
     def docker(reason: str) -> tuple[object, str]:
-        from repolab.sandbox import DockerSandboxProvider
+        from repolens.sandbox import DockerSandboxProvider
 
         return DockerSandboxProvider(), reason
 
     if choice == "fake":
         return fake("requested with --provider fake")
 
-    from repolab.sandbox.docker import docker_available
+    from repolens.sandbox.docker import docker_available
 
     if choice == "docker":
         if not docker_available():
@@ -133,7 +135,7 @@ async def run(args: argparse.Namespace) -> int:
         cache = InMemoryBuildCache()
         cache_label = "in-memory" + (" (fake provider)" if is_fake else "")
     else:
-        from repolab.db import build_engine, session_scope
+        from repolens.db import build_engine, session_scope
 
         engine = build_engine(settings)
         cache = DbBuildCache(lambda: session_scope(engine))
@@ -151,7 +153,7 @@ async def run(args: argparse.Namespace) -> int:
         try:
             plan = plan_for(manifest)
         except UnsupportedRepositoryError as exc:
-            # A shape RepoLab cannot build yet is a clear message, not a traceback.
+            # A shape RepoLens cannot build yet is a clear message, not a traceback.
             print(f"NOT SUPPORTED  {exc}", file=sys.stderr)
             await provider.close()  # type: ignore[attr-defined]
             return 3

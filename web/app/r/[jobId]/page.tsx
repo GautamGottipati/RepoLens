@@ -51,7 +51,7 @@ import type { ExperienceDefinition, ExperienceListing, JobEvent, JobState } from
 
 import { useWorkspace } from "./workspace";
 
-const HINT_KEY = "repolab.hint.start-here.dismissed";
+const HINT_KEY = "repolens.hint.start-here.dismissed";
 
 export default function OverviewPage() {
   const { jobId, job, manifest, architecture, experiences, events, environmentReady, openActivity } =
@@ -82,7 +82,7 @@ export default function OverviewPage() {
   if (analyzing) return <Analyzing events={events} job={job} />;
   if (!manifest) {
     return (
-      <EmptyState title="RepoLab couldn't finish reading this repository">
+      <EmptyState title="RepoLens couldn't finish reading this repository">
         The reason is above. The agent&apos;s steps are in the activity log.
         <div className="mt-4">
           <Button onClick={openActivity} size="sm">
@@ -157,7 +157,7 @@ export default function OverviewPage() {
           </>
         ) : (
           <EmptyState
-            title="Nothing here can run in RepoLab yet"
+            title="Nothing here can run in RepoLens yet"
             data-testid="overview-nothing-runs"
             actions={
               <>
@@ -174,7 +174,7 @@ export default function OverviewPage() {
             }
           >
             {listing?.nothing_runs_because[0] ??
-              "RepoLab mapped the code, but has no safe way to run this kind of repository."}{" "}
+              "RepoLens mapped the code, but has no safe way to run this kind of repository."}{" "}
             You can still learn how it works from its architecture.
           </EmptyState>
         )}
@@ -227,7 +227,7 @@ export default function OverviewPage() {
               size="md"
               href={firstQuestion ? `/r/${jobId}/ask?q=${encodeURIComponent(firstQuestion)}` : `/r/${jobId}/ask`}
             >
-              Ask RepoLab
+              Ask RepoLens
             </ActionLink>
           </div>
           {firstQuestion && (
@@ -265,7 +265,7 @@ function Analyzing({ events, job }: { events: JobEvent[]; job: JobState | null }
     <div className="flex max-w-3xl flex-col gap-8" data-testid="overview-analyzing">
       <PageHeader
         title="Understanding the repository"
-        description="RepoLab is reading the code to find what it is, how it runs and what you can do with it. Nothing in the repository is executed at this stage."
+        description="RepoLens is reading the code to find what it is, how it runs and what you can do with it. Nothing in the repository is executed at this stage."
       />
       <Card className="flex flex-col gap-5 p-5">
         {job?.health !== "interrupted" && (
@@ -430,7 +430,7 @@ function StartHint({ count: ways }: { count: number }) {
         1
       </span>
       <p className="flex-1 text-sm text-fg">
-        RepoLab found {ways === 1 ? "one way" : `${ways} ways`} to experience this repository. Try the
+        RepoLens found {ways === 1 ? "one way" : `${ways} ways`} to experience this repository. Try the
         recommended one first.
       </p>
       <button

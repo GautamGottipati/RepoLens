@@ -1,5 +1,5 @@
 /**
- * Ask RepoLab, offline: an answer laid out to teach -- simple answer, picture,
+ * Ask RepoLens, offline: an answer laid out to teach -- simple answer, picture,
  * steps, details, then sources a click away -- and the context around it.
  */
 
@@ -276,7 +276,7 @@ describe("sources", () => {
 
 describe("partial evidence", () => {
   it("still shows the sources when no answer could be written", () => {
-    renderAnswer(result(null, { error: "No model is configured, so RepoLab cannot write an answer." }));
+    renderAnswer(result(null, { error: "No model is configured, so RepoLens cannot write an answer." }));
     expect(screen.getByTestId("answer-error").textContent).toContain("No model is configured");
     expect(screen.getByTestId("source-counts").textContent).toContain("Code 3");
     expect(screen.queryByTestId("how-it-works")).toBeNull();

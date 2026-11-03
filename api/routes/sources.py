@@ -5,7 +5,7 @@
                                        any captured commit (an answer made at
                                        another commit cites that commit)
 
-Served only from RepoLab's own copies (:mod:`repolab.sources.store`). A file
+Served only from RepoLens's own copies (:mod:`repolens.sources.store`). A file
 that was not captured is reported as such, with a link to the host at the same
 commit -- never replaced by whatever the repository holds today.
 """
@@ -20,9 +20,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from api.deps import get_session
-from repolab.db.jobs import get_job
-from repolab.db.models import Ingestion
-from repolab.sources import read
+from repolens.db.jobs import get_job
+from repolens.db.models import Ingestion
+from repolens.sources import read
 
 router = APIRouter(tags=["sources"])
 
@@ -35,7 +35,7 @@ class SourceFile(BaseModel):
     commit_sha: str
     path: str
     captured: bool
-    """False when RepoLab kept no copy of this file at this commit."""
+    """False when RepoLens kept no copy of this file at this commit."""
     sha256: str | None = None
     first_line: int = 1
     """The line number of ``lines[0]`` (files longer than MAX_LINES are windowed)."""

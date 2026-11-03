@@ -15,11 +15,11 @@ from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.analytics.model_telemetry import DbModelTelemetry, db_model_telemetry
-from repolab.db import Base
-from repolab.db.models import ModelCallRecord
-from repolab.llm.telemetry import CallRecord
-from repolab.llm.tiers import ModelTier
+from repolens.analytics.model_telemetry import DbModelTelemetry, db_model_telemetry
+from repolens.db import Base
+from repolens.db.models import ModelCallRecord
+from repolens.llm.telemetry import CallRecord
+from repolens.llm.tiers import ModelTier
 
 
 @pytest.fixture

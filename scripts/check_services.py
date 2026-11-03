@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Probe the external capabilities RepoLab depends on and print a report.
+"""Probe the external capabilities RepoLens depends on and print a report.
 
 Usage:
     make check
@@ -24,7 +24,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.capability import (  # noqa: E402
+from repolens.capability import (  # noqa: E402
     CapabilityReport,
     ProbeStatus,
     failed,
@@ -39,7 +39,7 @@ from repolab.capability import (  # noqa: E402
     probe_tool_calling,
     skipped,
 )
-from repolab.config import Settings, get_settings  # noqa: E402
+from repolens.config import Settings, get_settings  # noqa: E402
 
 NO_MUSE_KEY = "MUSE_API_KEY not set"
 NO_DOCKER = "Docker daemon not available"
@@ -81,7 +81,7 @@ async def check_inference(report: CapabilityReport, settings: Settings) -> None:
             report.add(skipped(f"{name} native tool calling", NO_MUSE_KEY, required=False))
         return
 
-    from repolab.llm.muse import MuseLLMProvider
+    from repolens.llm.muse import MuseLLMProvider
 
     llm = MuseLLMProvider(
         api_key=settings.muse_api_key.get_secret_value(),
@@ -130,8 +130,8 @@ async def check_inference(report: CapabilityReport, settings: Settings) -> None:
 
 
 async def check_sandbox(report: CapabilityReport, settings: Settings) -> None:
-    from repolab.sandbox import DockerSandboxProvider
-    from repolab.sandbox.docker import docker_available
+    from repolens.sandbox import DockerSandboxProvider
+    from repolens.sandbox.docker import docker_available
 
     if not docker_available():
         for capability, required in SANDBOX_CAPABILITIES:
@@ -175,7 +175,7 @@ async def check_research(report: CapabilityReport, settings: Settings) -> None:
         report.add(skipped("Muse official search", NO_MUSE_KEY))
         return
 
-    from repolab.research.muse import MuseResearchProvider
+    from repolens.research.muse import MuseResearchProvider
 
     research = MuseResearchProvider(api_key=settings.muse_api_key.get_secret_value())
     report.add(await guarded("Muse official search", lambda: probe_research(research)))
@@ -192,7 +192,7 @@ async def run_all() -> CapabilityReport:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Check RepoLab external capabilities.")
+    parser = argparse.ArgumentParser(description="Check RepoLens external capabilities.")
     parser.add_argument("--json", type=Path, help="write the full report (with detail) here")
     parser.add_argument(
         "--markdown",

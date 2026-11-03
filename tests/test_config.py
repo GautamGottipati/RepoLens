@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.config import DEFAULT_MUSE_BASE_URL, Settings
+from repolens.config import DEFAULT_MUSE_BASE_URL, Settings
 
 SECRET = "super-secret-key-value"
 

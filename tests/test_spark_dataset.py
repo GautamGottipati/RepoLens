@@ -11,7 +11,7 @@ import io
 
 import pytest
 
-from repolab.experiences.spark.dataset import (
+from repolens.experiences.spark.dataset import (
     COLUMNS,
     DEFAULT_SEED,
     OTHER_KEYS,

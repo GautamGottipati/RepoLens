@@ -9,7 +9,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from repolab.evidence.models import (
+from repolens.evidence.models import (
     CodeReference,
     DocumentationReference,
     EvidenceBundle,
@@ -17,7 +17,7 @@ from repolab.evidence.models import (
     Measurement,
     MeasurementSource,
 )
-from repolab.manifest.models import (
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Concept,

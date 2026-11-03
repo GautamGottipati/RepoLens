@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.architecture.models import NodeCategory
-from repolab.ingest import ingest_clone
-from repolab.manifest.architecture import GraphSource
-from repolab.manifest.models import (
+from repolens.architecture.models import NodeCategory
+from repolens.ingest import ingest_clone
+from repolens.manifest.architecture import GraphSource
+from repolens.manifest.models import (
     BuildKind,
     ClassificationSource,
     Fidelity,
@@ -158,7 +158,7 @@ class TestArchitectureGraph:
         assert {"PostgreSQL", "Redis"} <= labels
 
     async def test_the_graph_round_trips(self, spark_result) -> None:
-        from repolab.architecture import ArchitectureGraph
+        from repolens.architecture import ArchitectureGraph
 
         result, _ = spark_result
         restored = ArchitectureGraph.model_validate_json(result.architecture.model_dump_json())
@@ -191,7 +191,7 @@ class TestPipelineReporting:
         assert result.file_count == len(SPARK_REPO)
 
     async def test_a_summary_can_be_rendered(self, spark_result) -> None:
-        from repolab.ingest import summarize
+        from repolens.ingest import summarize
 
         result, _ = spark_result
         text = summarize(result)

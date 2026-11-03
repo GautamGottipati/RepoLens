@@ -23,11 +23,11 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from api.deps import get_session
-from repolab.artifacts import SPECS, Status, spec
-from repolab.artifacts import store as artifacts
-from repolab.db.jobs import get_job
-from repolab.db.models import AnalysisArtifactRecord, Ingestion, Job
-from repolab.events import DbEventEmitter
+from repolens.artifacts import SPECS, Status, spec
+from repolens.artifacts import store as artifacts
+from repolens.db.jobs import get_job
+from repolens.db.models import AnalysisArtifactRecord, Ingestion, Job
+from repolens.events import DbEventEmitter
 
 log = structlog.get_logger(__name__)
 
@@ -204,8 +204,8 @@ def _announce(job: Job, record: AnalysisArtifactRecord) -> None:
 
 def _record_request(job: Job, artifact_type: str, *, retry: bool) -> None:
     from api import deps
-    from repolab.analytics import AnalyticsEventType, DbAnalyticsWriter
-    from repolab.analytics.events import AnalyticsEvent
+    from repolens.analytics import AnalyticsEventType, DbAnalyticsWriter
+    from repolens.analytics.events import AnalyticsEvent
 
     DbAnalyticsWriter(lambda: deps.session_factory()()).record(
         AnalyticsEvent(

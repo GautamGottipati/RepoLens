@@ -18,11 +18,11 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.main import app
-from repolab.db import Base
-from repolab.db.jobs import create_job
-from repolab.db.models import ArchitectureRecord, Ingestion, Job, Repository, SparkRun
-from repolab.events import JobStatus
-from repolab.experiences.spark.dataset import generate_dataset
+from repolens.db import Base
+from repolens.db.jobs import create_job
+from repolens.db.models import ArchitectureRecord, Ingestion, Job, Repository, SparkRun
+from repolens.events import JobStatus
+from repolens.experiences.spark.dataset import generate_dataset
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 
@@ -254,7 +254,7 @@ class TestReadingRuns:
         assert body["total_runtime_ms"] == 6011
         assert body["dataset_hash"] == "d" * 64
 
-    def test_every_run_discloses_what_repolab_added(
+    def test_every_run_discloses_what_repolens_added(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
         """The repository's job performs no shuffle; the additions must be visible."""
@@ -340,7 +340,7 @@ def ingested_v2_job(factory: sessionmaker[Session], tmp_path) -> str:
     """A job whose architecture was built by the current analysis, from a Spark fixture."""
     import asyncio
 
-    from repolab.db.models import RepoManifestRecord
+    from repolens.db.models import RepoManifestRecord
     from tests.support import architecture_fixtures as fx
 
     graph, manifest, _ = asyncio.run(

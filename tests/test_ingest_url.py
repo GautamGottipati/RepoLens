@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.ingest import InvalidRepoUrlError, validate_repo_url
+from repolens.ingest import InvalidRepoUrlError, validate_repo_url
 
 
 class TestAcceptedUrls:

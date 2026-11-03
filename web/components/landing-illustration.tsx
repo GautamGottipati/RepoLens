@@ -4,7 +4,7 @@
  *
  *   GitHub repo → $ spark-submit → Live Playground → Driver → Executors
  *
- * Purely decorative (`aria-hidden`): it shows the idea of RepoLab, not data
+ * Purely decorative (`aria-hidden`): it shows the idea of RepoLens, not data
  * from any investigation, so it carries no numbers or results. Built from SVG
  * and HTML so it stays sharp at any size and needs no image assets. Colours
  * follow the product's meanings: emerald for something running, cyan for

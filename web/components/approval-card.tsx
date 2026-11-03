@@ -37,7 +37,7 @@ export function ApprovalCard({
       className="rounded-lg border border-exp-line border-t-2 border-t-exp bg-surface"
     >
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
-        <h2 className="text-card font-semibold text-exp-fg">RepoLab wants to run an experiment</h2>
+        <h2 className="text-card font-semibold text-exp-fg">RepoLens wants to run an experiment</h2>
         <Badge tone="attention">needs your approval</Badge>
       </header>
 
@@ -116,7 +116,7 @@ export function ApprovalCard({
         {plan.dropped_metrics.length > 0 && (
           <p className="text-xs text-exp-fg">
             <strong>Not measurable:</strong> {plan.dropped_metrics.join(", ")} — requested
-            but RepoLab has no instrument for it, so it was dropped from the plan.
+            but RepoLens has no instrument for it, so it was dropped from the plan.
           </p>
         )}
 
@@ -156,7 +156,7 @@ export function CliApprovalCard({
       className="rounded-lg border border-exp-line border-t-2 border-t-exp bg-surface"
     >
       <header className="flex items-center gap-2 border-b border-line px-4 py-3">
-        <h2 className="text-card font-semibold text-exp-fg">RepoLab wants to run an experiment</h2>
+        <h2 className="text-card font-semibold text-exp-fg">RepoLens wants to run an experiment</h2>
         <Badge tone="attention">needs your approval</Badge>
       </header>
 

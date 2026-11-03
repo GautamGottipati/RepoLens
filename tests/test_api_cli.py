@@ -23,22 +23,22 @@ from api import deps
 from api.main import app
 from api.routes import cli as cli_routes
 from api.routes import lessons as lesson_routes
-from repolab.builds.models import BuildArtifact, BuildCapabilities, SmokeTestResult
-from repolab.config import Settings
-from repolab.db import Base
-from repolab.db.builds import save_build
-from repolab.db.jobs import create_job
-from repolab.db.lessons import save_lesson
-from repolab.db.models import Ingestion, RepoManifestRecord, Repository
-from repolab.events import JobStatus
-from repolab.experiences.cli.session import CliSessionManager, SessionStatus, cql_command
-from repolab.lessons.cassandra import cassandra_lesson
-from repolab.manifest.models import BuildKind
-from repolab.sandbox.fake import FakeSandboxProvider, ScriptedCommand
+from repolens.builds.models import BuildArtifact, BuildCapabilities, SmokeTestResult
+from repolens.config import Settings
+from repolens.db import Base
+from repolens.db.builds import save_build
+from repolens.db.jobs import create_job
+from repolens.db.lessons import save_lesson
+from repolens.db.models import Ingestion, RepoManifestRecord, Repository
+from repolens.events import JobStatus
+from repolens.experiences.cli.session import CliSessionManager, SessionStatus, cql_command
+from repolens.lessons.cassandra import cassandra_lesson
+from repolens.manifest.models import BuildKind
+from repolens.sandbox.fake import FakeSandboxProvider, ScriptedCommand
 from tests.support.builds import CASSANDRA_REPO, SHA, cassandra_manifest
 
 CQLSH = "/opt/cassandra/bin/cqlsh"
-TAG = "repolab/apache-cassandra:ccc-official-release"
+TAG = "repolens/apache-cassandra:ccc-official-release"
 SERVICE = "cassandra -f"
 
 FILTERING_ERROR = (
@@ -136,7 +136,7 @@ async def provider() -> FakeSandboxProvider:
     lesson = cassandra_lesson(CASSANDRA_REPO, SHA)
     outputs = {
         1: " release_version\n-----------------\n           5.0.9\n\n(1 rows)\n",
-        2: "system_schema\nsystem\nrepolab\n",
+        2: "system_schema\nsystem\nrepolens\n",
         3: "",
         4: "",
         5: "",
@@ -495,7 +495,7 @@ class TestUpgrades:
 
         environment = manager.environment(session_id)
         assert environment is not None
-        environment.begin("CREATE KEYSPACE repolab")
+        environment.begin("CREATE KEYSPACE repolens")
 
         response = client.post(f"/cli/sessions/{session_id}/upgrade")
 
@@ -512,7 +512,7 @@ class TestUpgrades:
 
 
 class TestTheLesson:
-    def test_repolabs_own_lesson_is_served_before_one_is_generated(
+    def test_repolens_own_lesson_is_served_before_one_is_generated(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
         """A learner arriving early still has eight steps to do."""
@@ -527,7 +527,7 @@ class TestTheLesson:
     async def test_a_step_can_be_checked_straight_after_fetching_the_lesson(
         self, client: TestClient, db: sessionmaker[Session], manager: CliSessionManager
     ) -> None:
-        """Fetching persists RepoLab's own lesson, so it has an identity to check against."""
+        """Fetching persists RepoLens's own lesson, so it has an identity to check against."""
         job_id = investigated(db, build=artifact())
         session_id = await started_session(client, manager, job_id)
 
@@ -545,8 +545,8 @@ class TestTheLesson:
     def test_a_repository_without_cqlsh_gets_no_built_in_lesson(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
-        """RepoLab's own lesson teaches CQL. Handing it to another CLI would be false."""
-        from repolab.db.models import Ingestion, RepoManifestRecord, Repository
+        """RepoLens's own lesson teaches CQL. Handing it to another CLI would be false."""
+        from repolens.db.models import Ingestion, RepoManifestRecord, Repository
 
         other = "https://github.com/pallets/click"
         with db() as session:
@@ -825,7 +825,7 @@ class TestExplaining:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """A claim quoting output that is not there is reported, not printed as fact."""
-        from repolab.lessons.explain import Claim, SupportKind, WhatHappened
+        from repolens.lessons.explain import Claim, SupportKind, WhatHappened
 
         answer = WhatHappened(
             summary="Cassandra refused to scan every partition.",
@@ -952,7 +952,7 @@ class TestTheSocketUnderStress:
     async def test_an_execution_failure_reaches_the_terminal_as_prose(
         self, client: TestClient, db: sessionmaker[Session], manager: CliSessionManager
     ) -> None:
-        from repolab.sandbox.models import SandboxError
+        from repolens.sandbox.models import SandboxError
 
         job_id = investigated(db, build=artifact())
         session_id = await started_session(client, manager, job_id)

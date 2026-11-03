@@ -21,13 +21,13 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.main import app
-from repolab.db import Base
-from repolab.db.experiments import save_experiment
-from repolab.db.jobs import mark_finished, read_events_after
-from repolab.db.models import AnalyticsEventRecord, Job
-from repolab.events import EventType, JobStatus
-from repolab.experiments.experiment import Experiment
-from repolab.experiments.models import ExperimentStatus
+from repolens.db import Base
+from repolens.db.experiments import save_experiment
+from repolens.db.jobs import mark_finished, read_events_after
+from repolens.db.models import AnalyticsEventRecord, Job
+from repolens.events import EventType, JobStatus
+from repolens.experiments.experiment import Experiment
+from repolens.experiments.models import ExperimentStatus
 from tests.support.experiments import plan, variant_run
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
@@ -84,7 +84,7 @@ def stored_experiment(
     explanation: dict | None = None,
 ) -> Experiment:
     """An experiment already in the database, in a chosen state."""
-    from repolab.db.jobs import create_job
+    from repolens.db.jobs import create_job
 
     experiment = Experiment(
         question=QUESTION,
@@ -352,8 +352,8 @@ class TestEventStream:
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
         experiment = stored_experiment(db)
-        from repolab.db.jobs import append_event
-        from repolab.events import JobEvent
+        from repolens.db.jobs import append_event
+        from repolens.events import JobEvent
 
         with db() as session:
             for seq in range(1, 4):
@@ -388,7 +388,7 @@ class TestEventStream:
     ) -> None:
         experiment = stored_experiment(db, job_id="")
         with db() as session:
-            from repolab.db.models import ExperimentRecord
+            from repolens.db.models import ExperimentRecord
 
             session.get(ExperimentRecord, experiment.id).job_id = None
             session.commit()
@@ -413,8 +413,8 @@ class TestTriagedQuestions:
     def test_an_answered_question_carries_its_answer_and_nothing_to_approve(
         self, client: TestClient, db: sessionmaker[Session], enqueued: dict
     ) -> None:
-        from repolab.db.experiments import save_answer, save_triage
-        from repolab.questions.models import AnswerResult, QuestionKind, Route, Triage
+        from repolens.db.experiments import save_answer, save_triage
+        from repolens.questions.models import AnswerResult, QuestionKind, Route, Triage
 
         created = client.post(
             "/experiments", json={"repo_url": REPO, "question": "What is Apache Spark?"}
@@ -451,8 +451,8 @@ class TestTriagedQuestions:
     def test_a_structured_answer_reaches_the_client_whole(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
-        from repolab.db.experiments import save_answer
-        from repolab.questions.models import (
+        from repolens.db.experiments import save_answer
+        from repolens.questions.models import (
             AnswerResult,
             AnswerStep,
             AnswerVisual,
@@ -505,10 +505,10 @@ class TestTriagedQuestions:
     def test_a_cli_experiment_is_approved_through_the_same_gate(
         self, client: TestClient, db: sessionmaker[Session], enqueued: dict
     ) -> None:
-        from repolab.db.experiments import save_cli_experiment
-        from repolab.db.jobs import create_job
-        from repolab.experiments.cli.models import CliExperiment
-        from repolab.experiments.cli.validation import validate_cli_plan
+        from repolens.db.experiments import save_cli_experiment
+        from repolens.db.jobs import create_job
+        from repolens.experiments.cli.models import CliExperiment
+        from repolens.experiments.cli.validation import validate_cli_plan
         from tests.test_cli_experiment import artifact, proposal
 
         experiment = CliExperiment(
@@ -553,8 +553,8 @@ class TestArchitectureContext:
     def test_the_context_is_stored_and_survives_triage(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
-        from repolab.db.experiments import question_context, save_triage
-        from repolab.questions.models import QuestionKind, Route, Triage
+        from repolens.db.experiments import question_context, save_triage
+        from repolens.questions.models import QuestionKind, Route, Triage
 
         created = client.post(
             "/experiments",
@@ -588,7 +588,7 @@ class TestArchitectureContext:
     def test_the_level_and_subsystem_reach_the_answer(
         self, client: TestClient, db: sessionmaker[Session]
     ) -> None:
-        from repolab.db.experiments import question_context
+        from repolens.db.experiments import question_context
 
         context = {
             **CONTEXT,

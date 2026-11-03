@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RepoLab",
+  title: "RepoLens",
   description: "Agentic experimentation and learning environment for real software",
 };
 

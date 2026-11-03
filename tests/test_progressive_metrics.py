@@ -9,15 +9,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.analytics.metrics import EAGER_ARTIFACTS, _progressive_analysis
-from repolab.db.models import Job, JobEventRecord
+from repolens.analytics.metrics import EAGER_ARTIFACTS, _progressive_analysis
+from repolens.db.models import Job, JobEventRecord
 
 T0 = datetime(2026, 10, 26, 12, 0, tzinfo=UTC)
 
 
 @pytest.fixture
 def session():
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool

@@ -2,9 +2,9 @@
  * Learn — the CLI experience: a real terminal beside one guided lesson.
  *
  * The screen's whole claim is that nothing here is pretend. The terminal is
- * connected by WebSocket to a container running the build RepoLab resolved; the
+ * connected by WebSocket to a container running the build RepoLens resolved; the
  * statements are executed by that container's own cqlsh; the output is what
- * cqlsh printed; and a step is marked complete only after RepoLab has checked
+ * cqlsh printed; and a step is marked complete only after RepoLens has checked
  * the real output of the real command.
  *
  * Three things the screen is careful about:
@@ -79,7 +79,7 @@ export default function LearnPage() {
   // the container the learner was already working in rather than starting a
   // second one beside it. The backend keeps the session alive across the socket
   // closing for exactly this reason.
-  const sessionKey = `repolab.cli.session.${jobId}`;
+  const sessionKey = `repolens.cli.session.${jobId}`;
 
   // The environment and the lesson, both of which exist before any session.
   useEffect(() => {
@@ -332,7 +332,7 @@ export default function LearnPage() {
   if (surfaces.length === 0) {
     return (
       <Empty title="This repository has no command-line surface">
-        RepoLab renders the experiences the manifest found. This one found{" "}
+        RepoLens renders the experiences the manifest found. This one found{" "}
         {manifest.interaction_surfaces.map((surface) => surface.type).join(", ") || "none"}.
       </Empty>
     );
@@ -402,7 +402,7 @@ export default function LearnPage() {
           subtitle={environment.reason || "No environment has finished building yet."}
         >
           <p className="text-sm text-fg-secondary">
-            RepoLab resolves one through the whole fidelity ladder: the requested commit built from
+            RepoLens resolves one through the whole fidelity ladder: the requested commit built from
             source, the official release, a reduced single node, and a conceptual Mini Lab if none
             of those can be produced. The first rung to pass its smoke test is the one you start on;
             a better one is offered later, never forced.
@@ -515,7 +515,7 @@ export default function LearnPage() {
               {lesson.generated_by !== "super" && (
                 <div className="flex flex-wrap items-center gap-3">
                   <Note>
-                    This is RepoLab&apos;s own lesson, and it is complete. Muse Super can write
+                    This is RepoLens&apos;s own lesson, and it is complete. Muse Super can write
                     one instead, from the repository, its own cqlsh documentation, version-matched
                     official documentation and what this environment can do.
                   </Note>

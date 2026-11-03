@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from repolab.agents.models import AgentRun, AgentStep, ToolRequest, ToolResult
-from repolab.agents.planner import DeterministicPlanner, PlannedAction, SuperPlanner
+from repolens.agents.models import AgentRun, AgentStep, ToolRequest, ToolResult
+from repolens.agents.planner import DeterministicPlanner, PlannedAction, SuperPlanner
 
 TOOLS = [
     {"name": name, "arguments": [], "description": name}

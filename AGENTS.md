@@ -1,10 +1,10 @@
-# RepoLab
+# RepoLens
 
-RepoLab turns software repositories into **interactive, executable learning environments**.
+RepoLens turns software repositories into **interactive, executable learning environments**.
 
-Give RepoLab a repository URL and it autonomously investigates the codebase, determines how the software is intended to run, builds an isolated environment, detects the appropriate interaction surfaces, and creates a learning experience around the real application.
+Give RepoLens a repository URL and it autonomously investigates the codebase, determines how the software is intended to run, builds an isolated environment, detects the appropriate interaction surfaces, and creates a learning experience around the real application.
 
-Depending on the repository, RepoLab may render:
+Depending on the repository, RepoLens may render:
 
 - a Spark/data playground
 - an interactive CLI
@@ -14,13 +14,13 @@ Depending on the repository, RepoLab may render:
 - a notebook
 - multiple surfaces for hybrid repositories
 
-RepoLab uses Muse Spark models as reasoning agents. Agents can inspect code, search the repository, read documentation, build environments, run tests, diagnose failures, propose experiments, execute approved experiments, analyze evidence, and generate lessons.
+RepoLens uses Muse Spark models as reasoning agents. Agents can inspect code, search the repository, read documentation, build environments, run tests, diagnose failures, propose experiments, execute approved experiments, analyze evidence, and generate lessons.
 
 ## Core Principles
 
 > **Don't just tell. Show.**
 
-> **RepoLab doesn't generate an answer when it can generate an experiment.**
+> **RepoLens doesn't generate an answer when it can generate an experiment.**
 
 Answers should be grounded in repository code, actual execution, measured results, logs, and version-relevant official documentation.
 
@@ -65,7 +65,7 @@ User approves
         ↓
 Agent runs controlled variants
         ↓
-RepoLab measures actual behavior
+RepoLens measures actual behavior
         ↓
 Agent explains measured results
 ```
@@ -142,7 +142,7 @@ Full Airflow playground is optional.
 web/
 api/
 worker/
-repolab/
+repolens/
 ```
 
 ## `web/`
@@ -213,7 +213,7 @@ Responsibilities:
 # Shared Package
 
 ```text
-repolab/
+repolens/
   agents/
   llm/
   ingest/
@@ -234,9 +234,9 @@ repolab/
 
 # Agent Architecture
 
-`repolab/agents/`
+`repolens/agents/`
 
-RepoLab uses an **agent orchestrator with specialized agents and deterministic tools**.
+RepoLens uses an **agent orchestrator with specialized agents and deterministic tools**.
 
 Do not implement agents as unrestricted autonomous loops.
 
@@ -401,7 +401,7 @@ may result in:
 
 # Classification
 
-`repolab/classify/`
+`repolens/classify/`
 
 Classification order:
 
@@ -430,7 +430,7 @@ Classification produces one or more interaction surfaces and recommends a primar
 
 # Experience Adapters
 
-`repolab/experiences/`
+`repolens/experiences/`
 
 Initial adapters:
 
@@ -645,7 +645,7 @@ Use only for:
 
 # Model Router
 
-`repolab/llm/`
+`repolens/llm/`
 
 All model access passes through the router.
 
@@ -734,7 +734,7 @@ Read-only repository investigation does not require approval.
 Example:
 
 ```text
-RepoLab wants to run an experiment.
+RepoLens wants to run an experiment.
 
 Question:
 How does shuffle partition count affect runtime?
@@ -753,7 +753,7 @@ Estimated:
 
 # Docker Sandboxes
 
-`repolab/sandbox/`
+`repolens/sandbox/`
 
 Execution runs in local Docker containers (`DockerSandboxProvider`):
 `docker commit` checkpoints state, committed images run again independently,
@@ -935,7 +935,7 @@ The UI should indicate whether an experiment is reproducible.
 
 # Evidence System
 
-`repolab/evidence/`
+`repolens/evidence/`
 
 Every substantive explanation should be backed by an `EvidenceBundle`.
 
@@ -968,7 +968,7 @@ The UI displays evidence next to explanations.
 
 # Muse Research
 
-`repolab/research/`
+`repolens/research/`
 
 Use Muse web search for external documentation.
 
@@ -1001,7 +1001,7 @@ Repository code remains primary evidence for repository-specific behavior.
 
 # Learning Agent
 
-`repolab/lessons/`
+`repolens/lessons/`
 
 The Learning Agent creates guided exploration from the actual repository.
 
@@ -1129,7 +1129,7 @@ Refreshing the browser must replay history.
 
 # Fast + Deep Responses
 
-RepoLab should feel responsive while deeper reasoning runs.
+RepoLens should feel responsive while deeper reasoning runs.
 
 ```text
 User question
@@ -1171,7 +1171,7 @@ workload.
 
 # Analytics
 
-`repolab/analytics/`
+`repolens/analytics/`
 
 Instrument product events from the beginning.
 
@@ -1233,7 +1233,7 @@ Long-term enterprise north-star metric:
 
 > **Time to First Meaningful Contribution**
 
-RepoLab should eventually help organizations understand:
+RepoLens should eventually help organizations understand:
 
 - which repositories are hardest to learn
 - which concepts cause the most difficulty
@@ -1419,7 +1419,7 @@ class SandboxProvider(Protocol):
         ...
 ```
 
-This prevents RepoLab from becoming tightly coupled to infrastructure implementations.
+This prevents RepoLens from becoming tightly coupled to infrastructure implementations.
 
 ---
 
@@ -1516,14 +1516,14 @@ Update it after every significant milestone.
 
 # Product Definition
 
-RepoLab is **not**:
+RepoLens is **not**:
 
 - another repository chatbot
 - another AI documentation generator
 - another online IDE
 - another RAG wrapper
 
-RepoLab is an:
+RepoLens is an:
 
 > **Agentic experimentation and learning environment for real software.**
 
@@ -1567,8 +1567,8 @@ User Approval
 
 > **Don't just tell. Show.**
 
-> **RepoLab doesn't generate an answer when it can generate an experiment.**
+> **RepoLens doesn't generate an answer when it can generate an experiment.**
 
 > **Models reason about measurements. Models never manufacture measurements.**
 
-> **When RepoLab can test a claim against the real software, prefer evidence over speculation.**
+> **When RepoLens can test a claim against the real software, prefer evidence over speculation.**

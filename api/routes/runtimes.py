@@ -11,7 +11,7 @@ needs approval), and nothing slow happens here: the launch is a worker job whose
 progress arrives on the job's event stream.
 
 The live app itself is served by :class:`RuntimeProxyMiddleware`, on its own
-origin per service, and only to the port RepoLab's sidecar holds for it.
+origin per service, and only to the port RepoLens's sidecar holds for it.
 """
 
 from __future__ import annotations
@@ -29,11 +29,11 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from api.deps import get_session
-from repolab.db.jobs import create_job, get_job
-from repolab.db.runtimes import create_runtime, latest_runtime, load_runtime
-from repolab.db.store import load_manifest
-from repolab.runtime.models import RuntimePlan, RuntimeState, RuntimeStatus
-from repolab.runtime.proxy import forward_response_headers, proxy_origin, target_port
+from repolens.db.jobs import create_job, get_job
+from repolens.db.runtimes import create_runtime, latest_runtime, load_runtime
+from repolens.db.store import load_manifest
+from repolens.runtime.models import RuntimePlan, RuntimeState, RuntimeStatus
+from repolens.runtime.proxy import forward_response_headers, proxy_origin, target_port
 
 log = structlog.get_logger(__name__)
 
@@ -106,7 +106,7 @@ def start(job_id: str, session: Annotated[Session, Depends(get_session)]) -> Run
     if manifest is None or manifest.runtime is None or not manifest.runtime.services:
         raise HTTPException(
             status.HTTP_409_CONFLICT,
-            "RepoLab has no plan to run this repository; investigate it again first",
+            "RepoLens has no plan to run this repository; investigate it again first",
         )
 
     existing = latest_runtime(session, job.repo_url)
@@ -248,6 +248,6 @@ def _timeout_detail(plan: dict[str, Any] | None, service: str) -> str:
         if service in d.services and d.state.value != "provisionable"
     ]
     if blocked:
-        detail += f". RepoLab's plan expected this for routes that use {blocked[0].kind.value}: "
+        detail += f". RepoLens's plan expected this for routes that use {blocked[0].kind.value}: "
         detail += blocked[0].reason
     return detail

@@ -39,7 +39,7 @@ statement before it ran. Line editing, history and Ctrl+C are implemented here
 because xterm.js emulates a terminal, not a shell.
 
 **Lesson** — one step at a time: concept, goal, context, the statement to run,
-what to expect, how RepoLab will check it, and the repository lines and
+what to expect, how RepoLens will check it, and the repository lines and
 documentation pages behind it. *Run in the terminal* types the statement into
 the terminal the learner can see. *Check my work* judges the real output.
 
@@ -76,7 +76,7 @@ displayed as a failure beside them, not dropped.
 ## Must never show
 
 - Output that was not produced by the environment. The terminal prints what
-  cqlsh printed and nothing else; a refusal is RepoLab's own sentence and is
+  cqlsh printed and nothing else; a refusal is RepoLens's own sentence and is
   labelled as one.
 - A step marked complete without a real command and real output behind it.
 - A pass decided by a model presented as a check.

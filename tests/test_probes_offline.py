@@ -3,7 +3,7 @@ without credentials or network access."""
 
 from __future__ import annotations
 
-from repolab.capability import (
+from repolens.capability import (
     ProbeStatus,
     guarded,
     probe_inference,
@@ -13,9 +13,9 @@ from repolab.capability import (
     probe_structured_output,
     probe_tool_calling,
 )
-from repolab.interfaces import CommandResult, SearchResultItem
-from repolab.sandbox import FakeSandboxProvider, ScriptedCommand
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
+from repolens.interfaces import CommandResult, SearchResultItem
+from repolens.sandbox import FakeSandboxProvider, ScriptedCommand
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
 
 SMOKE_OUTPUTS = {
     "echo hello": CommandResult(stdout="hello\n", exit_code=0),
@@ -217,7 +217,7 @@ class TestResearch:
         assert result.status is ProbeStatus.FAIL
 
     async def test_results_without_snippets_fail(self) -> None:
-        """URLs alone are not enough: RepoLab cites excerpts as evidence."""
+        """URLs alone are not enough: RepoLens cites excerpts as evidence."""
         research = FakeResearchProvider(
             results=[SearchResultItem(url="https://spark.apache.org/docs/latest/", content=None)]
         )

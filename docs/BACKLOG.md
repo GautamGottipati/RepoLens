@@ -53,7 +53,7 @@ Each item has an ID, which links back to its source, and a size:
 ## Testing
 
 ### B-010 · Update the Playwright specs after the UI redesign · M
-- **Why:** `web/e2e/p0.spec.ts` looks for the heading "RepoLab", and
+- **Why:** `web/e2e/p0.spec.ts` looks for the heading "RepoLens", and
   `web/e2e/airflow.spec.ts` for "Available Experiences". The Phase 20 redesign
   removed both. The app works; the specs check text that no longer exists.
   `metrics.spec.ts` passes.
@@ -91,8 +91,8 @@ Each item has an ID, which links back to its source, and a size:
 
 ### B-030 · Harden the Spark playground and experiment containers · M
 - **Why:** these containers run with the default network, as root, with only a
-  4 GB memory limit (`repolab/sandbox/docker.py`, `hardened=False` paths in
-  `worker/spark_tasks.py` and `repolab/experiments/executor.py`). The
+  4 GB memory limit (`repolens/sandbox/docker.py`, `hardened=False` paths in
+  `worker/spark_tasks.py` and `repolens/experiments/executor.py`). The
   learner-code paths already use `HARDENED_FLAGS`.
 - **What:** check whether these runs need the network. The dataset is generated
   and the image is pre-pulled. If not, apply `HARDENED_FLAGS`. Re-run
@@ -108,7 +108,7 @@ Each item has an ID, which links back to its source, and a size:
 - **What:** a dedicated execution VM. It needs changes to the worker's bind
   mounts and to the API's `127.0.0.1` live-app proxy, both of which assume one
   machine.
-- **Done when:** no repository code runs on the VM that holds RepoLab's
+- **Done when:** no repository code runs on the VM that holds RepoLens's
   secrets.
 
 ## Operations
@@ -128,8 +128,8 @@ Each item has an ID, which links back to its source, and a size:
   the backup timer, or schedule disk snapshots.
 
 ### B-042 · Garbage-collect checkpoint images · M
-- **Why:** committed images (`repolab/checkpoint:*`, `repolab/experience-*`,
-  `repolab/runtime-*`) accumulate and are never removed. A long-running VM will
+- **Why:** committed images (`repolens/checkpoint:*`, `repolens/experience-*`,
+  `repolens/runtime-*`) accumulate and are never removed. A long-running VM will
   fill its disk. `docker image prune -a` is unsafe because Postgres cache rows
   point at these images.
 - **What:** a reaper that deletes images no cache row references, plus cache

@@ -18,14 +18,14 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.config import get_settings
-from repolab.evidence.models import (
+from repolens.config import get_settings
+from repolens.evidence.models import (
     CodeReference,
     DocumentationReference,
     EvidenceBundle,
     LogReference,
 )
-from repolab.experiments.explanation import (
+from repolens.experiments.explanation import (
     SYSTEM_PROMPT,
     ClaimKind,
     Explanation,
@@ -33,10 +33,10 @@ from repolab.experiments.explanation import (
     default_notes,
     verify_explanation,
 )
-from repolab.experiments.models import ProposedPlan
-from repolab.experiments.statistics import compute_statistics
-from repolab.experiments.validation import ExperimentBudget, validate_plan
-from repolab.llm import ModelTier, Purpose, build_router
+from repolens.experiments.models import ProposedPlan
+from repolens.experiments.statistics import compute_statistics
+from repolens.experiments.validation import ExperimentBudget, validate_plan
+from repolens.llm import ModelTier, Purpose, build_router
 from tests.support.experiments import IMAGE, variant_run
 
 pytestmark = pytest.mark.live
@@ -79,8 +79,8 @@ def statistics():
 
 class TestUltraDesignsAnExperiment:
     async def test_the_proposal_survives_validation(self, router) -> None:
-        from repolab.experiments.agent import DESIGN_PROMPT_TEMPLATE, DESIGN_SYSTEM_PROMPT
-        from repolab.experiments.validation import ALLOWED_VARIABLES, measurable_metrics
+        from repolens.experiments.agent import DESIGN_PROMPT_TEMPLATE, DESIGN_SYSTEM_PROMPT
+        from repolens.experiments.validation import ALLOWED_VARIABLES, measurable_metrics
 
         prompt = DESIGN_PROMPT_TEMPLATE.format(
             question=QUESTION,
@@ -102,7 +102,7 @@ class TestUltraDesignsAnExperiment:
             max_repeats=5,
         )
 
-        from repolab.experiments.agent import DESIGN_MAX_TOKENS
+        from repolens.experiments.agent import DESIGN_MAX_TOKENS
 
         completion = await router.ultra(
             purpose=Purpose.EXPERIMENT_DESIGN,
@@ -129,7 +129,7 @@ class TestUltraDesignsAnExperiment:
 
     async def test_the_model_stays_inside_the_allowlist(self, router) -> None:
         """Given one permitted variable, it must propose that one."""
-        from repolab.experiments.agent import DESIGN_SYSTEM_PROMPT
+        from repolens.experiments.agent import DESIGN_SYSTEM_PROMPT
 
         completion = await router.ultra(
             purpose=Purpose.EXPERIMENT_DESIGN,
@@ -139,13 +139,13 @@ class TestUltraDesignsAnExperiment:
                 f"Question: {QUESTION}\n\n"
                 "Variables you may vary (nothing else is permitted):\n"
                 "- spark.sql.shuffle.partitions (allowed range 1-2000)\n\n"
-                "Metrics RepoLab can measure:\n"
+                "Metrics RepoLens can measure:\n"
                 "- total runtime\n- partitions\n- empty partitions\n- shuffle read\n\n"
                 "The current value is 200. At most 24 runs."
             ),
             max_tokens=2048,
         )
-        from repolab.experiments.validation import canonical_variable
+        from repolens.experiments.validation import canonical_variable
 
         assert canonical_variable(completion.value.variable) is not None
 
@@ -189,7 +189,7 @@ async def explanation(router, statistics):
         evidence=evidence,
         notes=default_notes(validated, statistics),
     )
-    from repolab.experiments.agent import (
+    from repolens.experiments.agent import (
         EXPLANATION_MAX_TOKENS,
         EXPLANATION_TIMEOUT_SECONDS,
     )

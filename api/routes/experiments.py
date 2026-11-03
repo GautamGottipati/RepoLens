@@ -32,7 +32,7 @@ from sqlalchemy.orm import Session
 from api import deps
 from api.deps import get_session
 from api.routes.jobs import stream_events
-from repolab.db.experiments import (
+from repolens.db.experiments import (
     KIND_CLI,
     KIND_PENDING,
     get_experiment,
@@ -40,12 +40,12 @@ from repolab.db.experiments import (
     load_any_experiment,
     save_any_experiment,
 )
-from repolab.db.jobs import create_job
-from repolab.db.models import ExperimentRecord
-from repolab.events import EventType, JobStatus
-from repolab.experiments.models import ExperimentStatus
-from repolab.ingest.url import InvalidRepoUrlError, validate_repo_url
-from repolab.questions.models import ArchitectureFocus
+from repolens.db.jobs import create_job
+from repolens.db.models import ExperimentRecord
+from repolens.events import EventType, JobStatus
+from repolens.experiments.models import ExperimentStatus
+from repolens.ingest.url import InvalidRepoUrlError, validate_repo_url
+from repolens.questions.models import ArchitectureFocus
 
 log = structlog.get_logger(__name__)
 
@@ -206,8 +206,8 @@ def ask(
     )
     session.commit()
 
-    from repolab.analytics import AnalyticsEventType, DbAnalyticsWriter
-    from repolab.analytics.events import AnalyticsEvent
+    from repolens.analytics import AnalyticsEventType, DbAnalyticsWriter
+    from repolens.analytics.events import AnalyticsEvent
 
     DbAnalyticsWriter(lambda: deps.session_factory()()).record(
         AnalyticsEvent(
@@ -417,8 +417,8 @@ def _emit_decision(job_id: str, experiment_id: str, *, approved: bool, by: str |
     here: a client watching the stream sees the approval the moment it is given
     rather than when a worker picks the job up.
     """
-    from repolab.db.jobs import get_job
-    from repolab.events import DbEventEmitter
+    from repolens.db.jobs import get_job
+    from repolens.events import DbEventEmitter
 
     factory = deps.session_factory()
     with factory() as session:
@@ -436,7 +436,7 @@ def _emit_decision(job_id: str, experiment_id: str, *, approved: bool, by: str |
         # A rejected experiment's stream is finished; say so rather than leaving a
         # client reconnecting forever.
         with factory() as session:
-            from repolab.db.jobs import mark_finished
+            from repolens.db.jobs import mark_finished
 
             mark_finished(session, job_id, status=JobStatus.COMPLETED)
             session.commit()

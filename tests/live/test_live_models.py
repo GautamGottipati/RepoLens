@@ -4,7 +4,7 @@ Marked ``live`` and therefore deselected by default: ``make test`` stays offline
 Run with ``make smoke``.
 
 Each configured tier must return exactly one validated Pydantic object through
-the router. This is the only place RepoLab asserts anything about the real
+the router. This is the only place RepoLens asserts anything about the real
 models, and it skips loudly rather than passing vacuously when credentials or
 model IDs are absent.
 """
@@ -14,8 +14,8 @@ from __future__ import annotations
 import pytest
 from pydantic import BaseModel, Field
 
-from repolab.config import get_settings
-from repolab.llm import ModelTier, Purpose, build_router
+from repolens.config import get_settings
+from repolens.llm import ModelTier, Purpose, build_router
 
 pytestmark = pytest.mark.live
 

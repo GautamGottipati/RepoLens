@@ -13,27 +13,27 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds.models import BuildArtifact, SmokeTestResult
-from repolab.experiences.cli.session import cql_command
-from repolab.experiments.cli.agent import CliExperimentAgent, verify_cli_explanation
-from repolab.experiments.cli.models import CliProposedPlan, CliVariantSpec
-from repolab.experiments.cli.runner import NodeStoppedError, keyspace_for
-from repolab.experiments.cli.statistics import (
+from repolens.builds.models import BuildArtifact, SmokeTestResult
+from repolens.experiences.cli.session import cql_command
+from repolens.experiments.cli.agent import CliExperimentAgent, verify_cli_explanation
+from repolens.experiments.cli.models import CliProposedPlan, CliVariantSpec
+from repolens.experiments.cli.runner import NodeStoppedError, keyspace_for
+from repolens.experiments.cli.statistics import (
     compute_cli_statistics,
     parse_error,
     parse_rows,
 )
-from repolab.experiments.cli.validation import statement_problem, validate_cli_plan
-from repolab.experiments.executor import ApprovalRequiredError
-from repolab.experiments.experiment import IllegalTransitionError
-from repolab.experiments.explanation import Claim, ClaimKind, Explanation
-from repolab.experiments.models import ExperimentStatus
-from repolab.manifest.models import BuildKind
-from repolab.sandbox.fake import FakeSandboxProvider, ScriptedCommand
+from repolens.experiments.cli.validation import statement_problem, validate_cli_plan
+from repolens.experiments.executor import ApprovalRequiredError
+from repolens.experiments.experiment import IllegalTransitionError
+from repolens.experiments.explanation import Claim, ClaimKind, Explanation
+from repolens.experiments.models import ExperimentStatus
+from repolens.manifest.models import BuildKind
+from repolens.sandbox.fake import FakeSandboxProvider, ScriptedCommand
 from tests.support.builds import CASSANDRA_REPO, SHA
 
 CQLSH = "/opt/cassandra/bin/cqlsh"
-TAG = "repolab/apache-cassandra:abc-official-release"
+TAG = "repolens/apache-cassandra:abc-official-release"
 EXPERIMENT_ID = "0123456789ab-cdef-0000-0000-000000000000"
 QUESTION = "What happens if I filter on a column that is not part of the primary key?"
 
@@ -215,7 +215,7 @@ class TestTheGate:
         assert fake.executed == []
 
     async def test_the_runner_refuses_an_unapproved_status(self) -> None:
-        from repolab.experiments.cli.runner import CliVariantRunner
+        from repolens.experiments.cli.runner import CliVariantRunner
 
         plan = validate_cli_plan(proposal(), artifact=artifact()).require()
         fake = await provider()

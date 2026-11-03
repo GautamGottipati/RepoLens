@@ -1,4 +1,4 @@
-"""Source references RepoLab can stand behind.
+"""Source references RepoLens can stand behind.
 
 Line numbers come from the snapshot, never from a model: a definition's range
 is computed, re-read and checked, a wrong hint is corrected or rejected, and a
@@ -14,8 +14,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.evidence.models import EvidenceStrength
-from repolab.sources import (
+from repolens.evidence.models import EvidenceStrength
+from repolens.sources import (
     MemorySnapshot,
     StoredSnapshot,
     SymbolIndex,
@@ -247,7 +247,7 @@ class TestVerify:
 
 @pytest.fixture
 def session() -> Iterator[Session]:
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -300,7 +300,7 @@ class TestStore:
             capture(session, repo_url="r", commit_sha=OTHER, snapshot=snapshot(), paths=["pom.xml"])
 
     def test_binary_and_oversized_files_are_skipped_not_truncated(self, session, tmp_path) -> None:
-        from repolab.sources import CloneSnapshot
+        from repolens.sources import CloneSnapshot
 
         (tmp_path / "bin.dat").write_bytes(b"\x00\x01\x02")
         (tmp_path / "big.txt").write_text("x" * 1_000_001)

@@ -18,10 +18,10 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.main import app
-from repolab.analytics.events import AnalyticsEventType
-from repolab.analytics.metrics import NORTH_STAR_LABEL
-from repolab.db import Base
-from repolab.db.models import AnalyticsEventRecord, ExperimentRecord, Job
+from repolens.analytics.events import AnalyticsEventType
+from repolens.analytics.metrics import NORTH_STAR_LABEL
+from repolens.db import Base
+from repolens.db.models import AnalyticsEventRecord, ExperimentRecord, Job
 
 REPO = "https://github.com/apache/cassandra"
 

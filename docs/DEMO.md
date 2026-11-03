@@ -1,4 +1,4 @@
-# Running the RepoLab demo
+# Running the RepoLens demo
 
 Everything here was verified on 2026-10-05 against the real stack. Commands are
 copy-pasteable; the state each one expects is written down so a deviation is
@@ -8,7 +8,7 @@ visible rather than surprising.
 
 ## 1. The demo repositories
 
-Three, each demonstrating a different thing. The commits are what RepoLab was
+Three, each demonstrating a different thing. The commits are what RepoLens was
 last verified at; a repository that has moved on will be re-investigated on
 import, which is the expected path, not a problem.
 
@@ -24,7 +24,7 @@ particular commit.
 
 A fourth is useful for showing a *refusal* rather than a feature:
 
-| `https://github.com/pallets/click` | any | RepoLab investigates it, finds a CLI surface, and says plainly that it cannot build it |
+| `https://github.com/pallets/click` | any | RepoLens investigates it, finds a CLI surface, and says plainly that it cannot build it |
 
 ---
 
@@ -83,9 +83,9 @@ demo repositories
 The Cassandra checkpoints are local Docker images, about 3 GB in total:
 
 ```
-repolab/apache-cassandra:<commit>-source-build        1.85 GB   exact fidelity
-repolab/apache-cassandra:<commit>-official-release     568 MB   high fidelity
-repolab/apache-cassandra:<commit>-partial-build        568 MB   partial fidelity
+repolens/apache-cassandra:<commit>-source-build        1.85 GB   exact fidelity
+repolens/apache-cassandra:<commit>-official-release     568 MB   high fidelity
+repolens/apache-cassandra:<commit>-partial-build        568 MB   partial fidelity
 ```
 
 With them cached, a terminal session starts in about 40 seconds (restore a
@@ -122,7 +122,7 @@ make check-secrets   # scans the database and web/test-results for credentials
 Timings are from real runs with the cache warm. The repository URL is prefilled
 on the Import screen.
 
-**0:00 — Import (10s).** "RepoLab takes a repository URL and nothing else."
+**0:00 — Import (10s).** "RepoLens takes a repository URL and nothing else."
 Click **Investigate** on the prefilled Spark repository.
 
 **0:10 — Investigation (60s).** Four phases announce themselves; the agent's
@@ -134,11 +134,11 @@ stream continues. That is worth doing live.
 one citation: every claim names the lines behind it.
 
 **1:30 — Playground (30s).** The dataset and its hash. The pipeline, with the
-three steps *RepoLab added* marked as RepoLab's. Say the honest part: the
-repository's own job performs no shuffle, so RepoLab adds one to have something
+three steps *RepoLens added* marked as RepoLens's. Say the honest part: the
+repository's own job performs no shuffle, so RepoLens adds one to have something
 to measure. Metrics come from Spark's own event log.
 
-**2:00 — Ask RepoLab (45s).** *"Why does this job use 200 shuffle partitions?"*
+**2:00 — Ask RepoLens (45s).** *"Why does this job use 200 shuffle partitions?"*
 The plan appears with its cost — 4 configurations × 3 repeats, ~4 minutes — and
 **nothing runs**. Click **Decline** to show the gate holds, then **Approve**.
 Charts fill in as variants complete.
@@ -154,7 +154,7 @@ empty.
   `ALLOW FILTERING` refusal; step 8 explains it.
 - **Airflow** (1 min): import it, open **Experiences**. Four surfaces with
   evidence, none runnable, each saying so. No Playground or Learn tab.
-- **Metrics** (30s): `/metrics` — learning activity and RepoLab's own
+- **Metrics** (30s): `/metrics` — learning activity and RepoLens's own
   operational performance, with the north-star KPI labelled and unnumbered.
 
 ---
@@ -169,11 +169,11 @@ Each row is a failure that has actually been provoked and watched.
 | *"The model's answer could not be used."* | the answer failed schema validation twice | Try again. Nothing was acted on, and an experiment will still be designed deterministically. |
 | *"No model is configured for this step."* | `MODEL_*` unset | Everything deterministic still works. Set them in `.env` and restart the worker. |
 | *"The execution environment is not available."* | Docker is not reachable | Start Docker Desktop. `make demo-check` confirms. |
-| *"RepoLab could not build a runnable environment."* | every ladder rung failed its smoke test | Usually Docker memory. Raise it to 6 GB and retry. The activity feed names the rung. |
-| *"RepoLab does not know how to build this repository yet."* | no build strategy covers it | Expected for anything but Spark and Cassandra. The read-only screens still work — this is a feature to show, not a fault. |
+| *"RepoLens could not build a runnable environment."* | every ladder rung failed its smoke test | Usually Docker memory. Raise it to 6 GB and retry. The activity feed names the rung. |
+| *"RepoLens does not know how to build this repository yet."* | no build strategy covers it | Expected for anything but Spark and Cassandra. The read-only screens still work — this is a feature to show, not a fault. |
 | *"The repository's own job failed when it ran."* | the application exited non-zero | The activity feed holds its own output. |
 | *"The repository has moved on since it was investigated."* | HEAD changed between investigation and build | Import it again. |
-| *"The job stopped because RepoLab's worker restarted."* | a worker died mid-job; it is now resolved rather than stuck | Start the action again. |
+| *"The job stopped because RepoLens's worker restarted."* | a worker died mid-job; it is now resolved rather than stuck | Start the action again. |
 | **`reconnecting`** on the job badge | the SSE stream dropped | It reconnects on its own and replays from where it left off. If the API is down, restart it; the page recovers. |
 | a variant fails mid-experiment | one Spark run did not complete | The others continue. The statistics say they rest on fewer runs. Below two surviving values, the experiment is abandoned with a clear message. |
 | terminal says *starting* for a while | Cassandra is replaying its commit log | Up to 5 minutes cold, ~40s from a cached checkpoint. |
@@ -188,7 +188,7 @@ pkill -f "python -m worker.main" && make dev-worker   # abandoned jobs are resol
 pkill -f "uvicorn api.main:app"; pkill -f "next dev"; make dev
 
 # containers left behind by an interrupted build
-docker ps -q --filter "name=repolab-" | xargs -r docker rm -f
+docker ps -q --filter "name=repolens-" | xargs -r docker rm -f
 
 # start from a clean database (loses history, keeps images)
 make down && make up && make db-upgrade && make demo-prepare

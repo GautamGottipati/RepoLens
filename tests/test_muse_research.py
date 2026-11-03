@@ -10,8 +10,8 @@ from typing import Any
 
 import pytest
 
-import repolab.research.muse as muse_module
-from repolab.research.muse import (
+import repolens.research.muse as muse_module
+from repolens.research.muse import (
     DEFAULT_TIMEOUT_SECONDS,
     InvalidAPIKeyError,
     MuseResearchError,

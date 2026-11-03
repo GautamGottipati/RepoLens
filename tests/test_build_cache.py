@@ -11,7 +11,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.builds import (
+from repolens.builds import (
     BuildArtifact,
     BuildCache,
     BuildCapabilities,
@@ -20,10 +20,10 @@ from repolab.builds import (
     NullBuildCache,
     SmokeTestResult,
 )
-from repolab.builds.models import BuildSource
-from repolab.db import Base
-from repolab.db.builds import count_builds, load_build, save_build
-from repolab.manifest.models import Fidelity
+from repolens.builds.models import BuildSource
+from repolens.db import Base
+from repolens.db.builds import count_builds, load_build, save_build
+from repolens.manifest.models import Fidelity
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 SHA = "e" * 40
@@ -36,13 +36,13 @@ def ready_artifact(**overrides) -> BuildArtifact:
         "provider": "fake",
         "base_image": "docker://apache/spark-py:v3.4.0",
         "checkpoint_id": "ckpt-1",
-        "checkpoint_tag": "repolab/demo:eeeeeeeeeeee",
+        "checkpoint_tag": "repolens/demo:eeeeeeeeeeee",
         "smoke": SmokeTestResult(
             name="a tiny Spark job completes",
-            command="python3 /work/repolab_smoke.py",
+            command="python3 /work/repolens_smoke.py",
             passed=True,
             exit_code=0,
-            stdout="REPOLAB_SPARK_OK 3.5.1\n",
+            stdout="REPOLENS_SPARK_OK 3.5.1\n",
         ),
         "capabilities": BuildCapabilities(
             capabilities=["run pyspark jobs locally"],
@@ -113,7 +113,7 @@ class TestDatabaseCache:
         loaded = load_build(session, REPO, SHA)
         assert loaded is not None
         assert loaded.checkpoint_id == "ckpt-1"
-        assert loaded.checkpoint_tag == "repolab/demo:eeeeeeeeeeee"
+        assert loaded.checkpoint_tag == "repolens/demo:eeeeeeeeeeee"
         assert loaded.ready is True
 
     def test_an_unready_build_is_not_stored(self, session: Session) -> None:
@@ -147,7 +147,7 @@ class TestDatabaseCache:
         smoke = load_build(session, REPO, SHA).smoke
         assert smoke is not None
         assert smoke.passed is True
-        assert "REPOLAB_SPARK_OK" in smoke.stdout
+        assert "REPOLENS_SPARK_OK" in smoke.stdout
 
     def test_resaving_the_same_commit_updates(self, session: Session) -> None:
         save_build(session, ready_artifact())

@@ -9,15 +9,15 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.experiments.experiment import Experiment, IllegalTransitionError
-from repolab.experiments.models import (
+from repolens.experiments.experiment import Experiment, IllegalTransitionError
+from repolens.experiments.models import (
     MAX_QUESTION_LENGTH,
     ExperimentStatus,
     ProposedPlan,
     ReproducibilityRecord,
     ResourceProfile,
 )
-from repolab.experiments.validation import PlanRejected
+from repolens.experiments.validation import PlanRejected
 from tests.support.experiments import IMAGE, dataset_spec, plan, variant_run
 
 
@@ -45,7 +45,7 @@ class TestProposedPlan:
         assert len(proposal.question) == MAX_QUESTION_LENGTH
 
     def test_a_proposal_carries_no_fixed_settings_field(self) -> None:
-        """What is held fixed is RepoLab's fact to state, not the model's."""
+        """What is held fixed is RepoLens's fact to state, not the model's."""
         assert "fixed_settings" not in ProposedPlan.model_fields
 
 

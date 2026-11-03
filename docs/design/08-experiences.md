@@ -6,16 +6,16 @@ Answer **"What can I actually do with this software?"** — not "what interfaces
 detected". A ★ primary experience (*if I have five minutes, what should I try?*)
 and up to three more, each a real action: *Transform a Dataset*, *Use the
 Application*, *Try the API*, *Try the CLI*, *Try the Library*. When nothing real
-can run: why, what RepoLab runs, a **Mini Lab** clearly marked as a simulation, and
-the Architecture and Ask RepoLab as next steps — never a dead end.
+can run: why, what RepoLens runs, a **Mini Lab** clearly marked as a simulation, and
+the Architecture and Ask RepoLens as next steps — never a dead end.
 
 ## Four states, three realities
 
 | State | Means |
 |---|---|
 | detected | the repository has the capability (evidence) |
-| supported | RepoLab has an adapter for it |
-| runnable | a validated plan exists; RepoLab can start it (possibly after a build) |
+| supported | RepoLens has an adapter for it |
+| runnable | a validated plan exists; RepoLens can start it (possibly after a build) |
 | running | a session is up and its readiness check passed |
 
 | Reality | Badge | Runs |
@@ -28,9 +28,9 @@ Every runtime option also records its **strategy** (the fallback rung):
 cached build → repository container → source build → official release → partial →
 Mini Lab. Switching rungs is a choice the learner makes on the card, never silent.
 
-## Discovery and ranking (`repolab/experiences/discovery.py`)
+## Discovery and ranking (`repolens/experiences/discovery.py`)
 
-Adapters (`repolab/experiences/adapters/`) propose experiences from evidence —
+Adapters (`repolens/experiences/adapters/`) propose experiences from evidence —
 surfaces, frameworks, `RepoManifest.facts` (a shipped Spark runtime, a Python
 package and its README/`examples/` code, read with their lines at investigation
 time), the Phase 18 runtime plan. Ranking is deterministic and its signals are
@@ -77,7 +77,7 @@ WHAT JUST HAPPENED?   Your code ↓ DataFrame / SQL API ↓ Query planning (Exch
 
 Mapping steps appear only when the run shows them *and* the architecture graph has
 a matching part; an official-runtime run says the links are the investigated
-source, not the version that ran. Explanations are verified like Ask RepoLab
+source, not the version that ran. Explanations are verified like Ask RepoLens
 (measured claims need recorded measurements). The experiment reuses the existing
 flow — approval, repeats, deterministic statistics — on the learner's snippet and
 runtime.
@@ -97,7 +97,7 @@ runtime.
 - `GET /jobs/{job_id}/experiences` — the catalog: each surface with its icon,
   label, confidence, detection reason, cited files, and whether it is runnable.
 
-The runnability is decided in `repolab/experiences/catalog.py` by asking the code
+The runnability is decided in `repolens/experiences/catalog.py` by asking the code
 that would actually refuse — `candidates_for` for a build strategy,
 `teaches_cassandra` for the lesson — so this screen cannot offer something the
 rest of the product declines.
@@ -119,14 +119,14 @@ the surface is ("A user interface that runs in the browser.").
 
 **Status** — either:
 
-- *Runnable in this build, through RepoLab's `<adapter>`*, with a button that
+- *Runnable in this build, through RepoLens's `<adapter>`*, with a button that
   opens it; or
-- the sentence, verbatim: **Detected, but not yet runnable in this RepoLab
+- the sentence, verbatim: **Detected, but not yet runnable in this RepoLens
   build.** followed by the specific reason — no build strategy for this
   repository, no adapter for this kind of surface, no lesson for this command
-  line, or not the surface RepoLab would build.
+  line, or not the surface RepoLens would build.
 
-**Why RepoLab thinks so**, on selection:
+**Why RepoLens thinks so**, on selection:
 
 - the signals as readable phrases ("Creates an Express app", "Depends on
   Angular", "A script starts a server"). Unknown kinds are shown as-is, never
@@ -134,7 +134,7 @@ the surface is ("A user interface that runs in the browser.").
 - the cited files, each linked at the investigated commit.
 
 **Above the cards**, one sentence says what was found and which surface is the
-main way in. The classifier's raw rationale is in a collapsed "How RepoLab
+main way in. The classifier's raw rationale is in a collapsed "How RepoLens
 decided".
 
 ## States
@@ -143,7 +143,7 @@ decided".
 - **Hybrid** — a badge, from the classification's own `hybrid` flag.
 - **Nothing runnable** — the normal case for a hybrid repository today. The
   screen says so once, calmly, and points at what *is* available for every
-  investigated repository: **Explore the architecture** and **Ask RepoLab**,
+  investigated repository: **Explore the architecture** and **Ask RepoLens**,
   with the repository's recommended first question. These are not experiences
   for the undetected surfaces, so the rule below still holds.
 - **No surfaces at all** — an empty state pointing at the Investigation screen's
@@ -152,7 +152,7 @@ decided".
 ## Elsewhere in the workspace
 
 - The tab list gates *Playground* and *Learn* on this catalog reporting that
-  surface **runnable**, so neither appears for a repository RepoLab cannot run.
+  surface **runnable**, so neither appears for a repository RepoLens cannot run.
 - The Investigation screen's "Surfaces" count links here, and its next-step
   buttons offer a runnable experience only when the catalog names one.
 
@@ -172,8 +172,8 @@ Three states, kept apart in code and on screen:
 | State | Means | Decided by |
 |---|---|---|
 | **Detected** | evidence of a web app or API | the classifier (`RepoManifest.interaction_surfaces`) |
-| **Runnable** | a `RuntimePlan` service exists for the surface, from repository evidence, and the `LiveAppExperience` adapter can attempt it | `repolab/experiences/catalog.py` |
-| **Running / LIVE** | built, started, listening on a reachable address, and answered HTTP through RepoLab's sidecar | the launcher (`repolab/runtime/launcher.py`) |
+| **Runnable** | a `RuntimePlan` service exists for the surface, from repository evidence, and the `LiveAppExperience` adapter can attempt it | `repolens/experiences/catalog.py` |
+| **Running / LIVE** | built, started, listening on a reachable address, and answered HTTP through RepoLens's sidecar | the launcher (`repolens/runtime/launcher.py`) |
 
 ### Reads and writes
 
@@ -190,7 +190,7 @@ Three states, kept apart in code and on screen:
 ### Layout
 
 ```
-Run it in RepoLab                              [Start application]
+Run it in RepoLens                              [Start application]
   Needs: MongoDB — external, not reachable from the sandbox (app.js:19)
   🌐 Web application  ./        Runtime node:14 — lockfile v1 (inferred)
                                 Install npm ci · Start npm run start -- --host 0.0.0.0 …

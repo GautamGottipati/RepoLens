@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify a RepoLab production deployment. Read-only; prints no secret values.
+# Verify a RepoLens production deployment. Read-only; prints no secret values.
 #
 #   bash scripts/check_deployment.sh [BASE_URL]
 #
@@ -26,7 +26,7 @@ if [ -z "$BASE" ]; then
     echo "no BASE_URL given and PUBLIC_URL is not set in .env" >&2
     exit 2
 fi
-echo "RepoLab deployment check: $BASE"
+echo "RepoLens deployment check: $BASE"
 
 echo "Containers"
 for service in postgres redis api web nginx; do
@@ -65,7 +65,7 @@ if [ -n "${JOB_ID:-}" ]; then
 fi
 
 echo "Data services"
-check "Postgres accepts connections" "${COMPOSE[@]}" exec -T postgres pg_isready -U repolab -d repolab
+check "Postgres accepts connections" "${COMPOSE[@]}" exec -T postgres pg_isready -U repolens -d repolens
 pong="$("${COMPOSE[@]}" exec -T redis redis-cli ping 2>/dev/null | tr -d '\r')"
 [ "$pong" = PONG ] && pass "Redis answers PING" || fail "Redis: ${pong:-no answer}"
 registered="$("${COMPOSE[@]}" exec -T api python -c '
@@ -82,7 +82,7 @@ fi
 
 echo "Configuration (set / unset only)"
 "${COMPOSE[@]}" exec -T api python -c '
-from repolab.config import get_settings
+from repolens.config import get_settings
 s = get_settings()
 rows = {
     "MUSE_API_KEY": s.muse_api_key is not None,
@@ -101,7 +101,7 @@ print(f"RUNTIME_PROXY {s.runtime_proxy_scheme}://rt-*.{s.runtime_proxy_domain}")
 done
 reach="$("${COMPOSE[@]}" exec -T api python -c '
 import urllib.error, urllib.request
-from repolab.config import get_settings
+from repolens.config import get_settings
 url = get_settings().muse_base_url.rstrip("/") + "/models"
 try:
     print(urllib.request.urlopen(url, timeout=10).status)
@@ -124,18 +124,18 @@ version="$("${COMPOSE[@]}" exec -T worker docker info --format '{{.ServerVersion
 [ -n "$version" ] && pass "worker reaches Docker $version" || fail "worker cannot reach Docker"
 
 # Which cloud this VM was bootstrapped for (bootstrap_gcp.sh writes it).
-PROVIDER="$(cat /etc/repolab/provider 2>/dev/null || echo unknown)"
+PROVIDER="$(cat /etc/repolens/provider 2>/dev/null || echo unknown)"
 METADATA_NAMES="metadata.google.internal"
 
 echo "Container firewall (provider: $PROVIDER)"
 if [ "$(id -u)" -eq 0 ]; then AS_ROOT=(); else AS_ROOT=(sudo -n); fi
-if rules="$("${AS_ROOT[@]}" iptables -S REPOLAB-CONTAINERS 2>/dev/null)"; then
+if rules="$("${AS_ROOT[@]}" iptables -S REPOLENS-CONTAINERS 2>/dev/null)"; then
     count="$(grep -c '^-A' <<<"$rules")"
-    [ "$count" -gt 0 ] && pass "REPOLAB-CONTAINERS chain installed ($count rules)" || fail "REPOLAB-CONTAINERS chain is empty"
-    if "${AS_ROOT[@]}" iptables -S DOCKER-USER 2>/dev/null | grep -q -- '-j REPOLAB-CONTAINERS'; then
-        pass "DOCKER-USER jumps to REPOLAB-CONTAINERS"
+    [ "$count" -gt 0 ] && pass "REPOLENS-CONTAINERS chain installed ($count rules)" || fail "REPOLENS-CONTAINERS chain is empty"
+    if "${AS_ROOT[@]}" iptables -S DOCKER-USER 2>/dev/null | grep -q -- '-j REPOLENS-CONTAINERS'; then
+        pass "DOCKER-USER jumps to REPOLENS-CONTAINERS"
     else
-        fail "DOCKER-USER does not jump to REPOLAB-CONTAINERS"
+        fail "DOCKER-USER does not jump to REPOLENS-CONTAINERS"
     fi
 else
     info "cannot read iptables without sudo; skipped (the probes below still run)"
@@ -154,7 +154,7 @@ while IFS='|' read -r name privileged service sock memory pids; do
         esac
     fi
     if [ -z "$service" ]; then
-        # Not a compose service: a container RepoLab started for a repository.
+        # Not a compose service: a container RepoLens started for a repository.
         if [ "${memory:-0}" = 0 ]; then
             fail "repository container $name has no memory limit"
         else
@@ -169,7 +169,7 @@ fi
 
 echo "Isolation (probed from a throwaway container on the default bridge)"
 probe="$(METADATA_NAMES="$METADATA_NAMES" docker run --rm -i --network bridge -e METADATA_NAMES \
-    repolab-backend:latest python - <<'PY' 2>&1
+    repolens-backend:latest python - <<'PY' 2>&1
 import os, socket, subprocess
 
 def gateway():

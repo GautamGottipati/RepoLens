@@ -16,9 +16,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from repolab.analytics import Analytics
-from repolab.analytics.events import CollectingAnalyticsWriter
-from repolab.artifacts import (
+from repolens.analytics import Analytics
+from repolens.analytics.events import CollectingAnalyticsWriter
+from repolens.artifacts import (
     ARCH_COMPONENTS,
     ARCH_RUNTIME,
     ARCH_SOURCE,
@@ -28,10 +28,10 @@ from repolab.artifacts import (
     REPO_FACTS,
     REPO_MANIFEST,
 )
-from repolab.artifacts import store as artifacts
-from repolab.db.models import Job, JobEventRecord
-from repolab.events import DbEventEmitter
-from repolab.ingest.url import RepoUrl
+from repolens.artifacts import store as artifacts
+from repolens.db.models import Job, JobEventRecord
+from repolens.events import DbEventEmitter
+from repolens.ingest.url import RepoUrl
 
 PIPELINE = {
     "README.md": "# Sales ETL\n\nA small Spark job that totals sales by region.\n",
@@ -57,7 +57,7 @@ PIPELINE = {
 
 @pytest.fixture
 def db() -> Iterator[sessionmaker[Session]]:
-    from repolab.db import Base
+    from repolens.db import Base
 
     engine = create_engine(
         "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
@@ -229,7 +229,7 @@ class TestProgressiveInvestigation:
         from datetime import UTC, datetime, timedelta
 
         import worker.analysis as analysis
-        from repolab.artifacts import Status
+        from repolens.artifacts import Status
 
         root, sha = repo
         url = local_url(root)
@@ -271,7 +271,7 @@ class TestProgressiveInvestigation:
             [
                 "git",
                 "-c",
-                "user.email=t@repolab.invalid",
+                "user.email=t@repolens.invalid",
                 "-c",
                 "user.name=T",
                 "commit",
@@ -313,7 +313,7 @@ class TestProgressiveInvestigation:
     def test_a_lazy_artifact_requested_during_the_job_starts_when_its_dependency_is_ready(
         self, db, repo
     ) -> None:
-        from repolab.artifacts import ARCH_RUNTIME_NAMING
+        from repolens.artifacts import ARCH_RUNTIME_NAMING
 
         root, sha = repo
         url = local_url(root)
@@ -333,7 +333,7 @@ class TestProgressiveInvestigation:
 def name_on_demand(db, job_id: str, url: RepoUrl, sha: str, monkeypatch, *, router, renamed=None):
     """Claim runtime naming as the API would, then run the worker's pass."""
     import worker.artifact_tasks as tasks
-    from repolab.artifacts import ARCH_RUNTIME_NAMING, Status
+    from repolens.artifacts import ARCH_RUNTIME_NAMING, Status
 
     ingestion_id = run(db, job_id, url)
     with db() as session:
@@ -375,10 +375,10 @@ class TestRuntimeNamingOnDemand:
     def test_a_named_runtime_is_stored_on_the_artifact_and_overlaid_on_read(
         self, db, repo, monkeypatch
     ) -> None:
-        from repolab.architecture import load_graph
-        from repolab.architecture.models import Provenance
-        from repolab.artifacts.overlay import architecture_sections, with_refinements
-        from repolab.db.models import ArchitectureRecord
+        from repolens.architecture import load_graph
+        from repolens.architecture.models import Provenance
+        from repolens.artifacts.overlay import architecture_sections, with_refinements
+        from repolens.db.models import ArchitectureRecord
 
         root, sha = repo
         url = local_url(root)
@@ -427,7 +427,7 @@ class TestRuntimeNamingOnDemand:
         self, db, repo, monkeypatch
     ) -> None:
         import worker.artifact_tasks as tasks
-        from repolab.artifacts import ARCH_RUNTIME_NAMING
+        from repolens.artifacts import ARCH_RUNTIME_NAMING
 
         root, sha = repo
         url = local_url(root)

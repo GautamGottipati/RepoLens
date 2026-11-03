@@ -17,7 +17,7 @@ from pathlib import Path
 
 import pytest
 
-from repolab.architecture.models import (
+from repolens.architecture.models import (
     ArchitectureEdge,
     ArchitectureGraph,
     ArchitectureNode,
@@ -26,12 +26,12 @@ from repolab.architecture.models import (
     Provenance,
     SystemConcept,
 )
-from repolab.architecture.runtime import MeasuredValue, RuntimeOverlay
-from repolab.evidence.models import CodeReference
-from repolab.questions.answer import AnswerAgent
-from repolab.questions.context import MAX_SLICE_NODES, architecture_slice, edge_id
-from repolab.questions.layout import NOT_ESTABLISHED
-from repolab.questions.models import (
+from repolens.architecture.runtime import MeasuredValue, RuntimeOverlay
+from repolens.evidence.models import CodeReference
+from repolens.questions.answer import AnswerAgent
+from repolens.questions.context import MAX_SLICE_NODES, architecture_slice, edge_id
+from repolens.questions.layout import NOT_ESTABLISHED
+from repolens.questions.models import (
     AnswerClaim,
     AnswerClaimKind,
     AnswerComparison,
@@ -49,7 +49,7 @@ from repolab.questions.models import (
     VisualEdge,
     VisualNode,
 )
-from repolab.questions.triage import explanation_shape
+from repolens.questions.triage import explanation_shape
 from tests.test_question_answer import Super
 
 REPO = "https://github.com/example/events"
@@ -558,7 +558,7 @@ def test_an_answer_stored_before_the_layout_still_loads() -> None:
 
 class TestReadingTheNextHop:
     def test_local_imports_resolve_against_the_real_tree(self) -> None:
-        from repolab.questions.investigation import local_imports
+        from repolens.questions.investigation import local_imports
 
         paths = {
             "backend/routes/posts.js",

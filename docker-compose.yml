@@ -1,24 +1,24 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: repolab-postgres
+    container_name: repolens-postgres
     environment:
-      POSTGRES_USER: repolab
-      POSTGRES_PASSWORD: repolab
-      POSTGRES_DB: repolab
+      POSTGRES_USER: repolens
+      POSTGRES_PASSWORD: repolens
+      POSTGRES_DB: repolens
     ports:
       - "5432:5432"
     volumes:
-      - repolab-pgdata:/var/lib/postgresql/data
+      - repolens-pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U repolab -d repolab"]
+      test: ["CMD-SHELL", "pg_isready -U repolens -d repolens"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   redis:
     image: redis:7-alpine
-    container_name: repolab-redis
+    container_name: repolens-redis
     ports:
       - "6379:6379"
     healthcheck:
@@ -28,4 +28,4 @@ services:
       retries: 10
 
 volumes:
-  repolab-pgdata:
+  repolens-pgdata:

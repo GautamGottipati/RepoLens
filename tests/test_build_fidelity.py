@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.builds import (
+from repolens.builds import (
     FIDELITY_ORDER,
     BuildArtifact,
     BuildCapabilities,
@@ -17,7 +17,7 @@ from repolab.builds import (
     fidelity_for,
     fidelity_rank,
 )
-from repolab.manifest.models import BuildKind, Fidelity
+from repolens.manifest.models import BuildKind, Fidelity
 
 
 def ready(kind: BuildKind, **overrides) -> BuildArtifact:

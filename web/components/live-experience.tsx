@@ -1,9 +1,9 @@
 /**
- * Running a repository's web app and API, inside RepoLab.
+ * Running a repository's web app and API, inside RepoLens.
  *
- * Three states, never blurred: the plan (what RepoLab *would* run, from the
+ * Three states, never blurred: the plan (what RepoLens *would* run, from the
  * repository's own scripts), the launch (each step as it really happens), and
- * LIVE -- shown only once a service answered HTTP through RepoLab's proxy. A
+ * LIVE -- shown only once a service answered HTTP through RepoLens's proxy. A
  * failure says what succeeded, what failed and why, with the evidence and the
  * log it came from. Nothing here invents a reason.
  */
@@ -49,7 +49,7 @@ const FAILED = new Set<RuntimeStatus>(Object.keys(FAILED_AT) as RuntimeStatus[])
 const ACTIVE = new Set<RuntimeStatus>(["planning", "preparing", "installing", "building", "starting", "health_checking"]);
 
 const DEPENDENCY_LABEL: Record<RuntimeDependency["state"], string> = {
-  provisionable: "RepoLab will start an ephemeral one",
+  provisionable: "RepoLens will start an ephemeral one",
   external_required: "external — not reachable from the sandbox",
   unsupported: "cannot be provided",
 };
@@ -114,7 +114,7 @@ export function LiveExperience({ jobId, repoUrl, commitSha }: { jobId: string; r
   return (
     <section className="flex flex-col gap-4 rounded-lg border border-line p-4" data-testid="live-experience">
       <header className="flex flex-wrap items-center gap-3">
-        <h2 className="text-sm font-semibold">Run it in RepoLab</h2>
+        <h2 className="text-sm font-semibold">Run it in RepoLens</h2>
         {state && <StatusBadge status={state.status} />}
         <div className="ml-auto flex gap-2">
           {!launched && (
@@ -138,7 +138,7 @@ export function LiveExperience({ jobId, repoUrl, commitSha }: { jobId: string; r
       {!launched && (
         <p className="text-xs text-fg-secondary">
           Each service runs in its own container, on a private network with no internet access,
-          reachable only through RepoLab. Starting it installs its dependencies, which can take a few minutes.
+          reachable only through RepoLens. Starting it installs its dependencies, which can take a few minutes.
         </p>
       )}
       {error && <p className="text-sm text-danger-fg">{error}</p>}
@@ -398,12 +398,12 @@ function Explorer({
           ))}
         </ul>
       ) : (
-        <p className="text-xs text-fg-secondary">RepoLab found no route declarations in the source; you can still send a request to any path.</p>
+        <p className="text-xs text-fg-secondary">RepoLens found no route declarations in the source; you can still send a request to any path.</p>
       )}
       {selected && (
         <p className="text-xs text-fg-secondary">
           Declared in <Refs refs={[{ path: selected.file, start_line: selected.line, end_line: null, commit_sha: commitSha, excerpt: null }]} repoUrl={repoUrl} commitSha={commitSha} />.
-          RepoLab shows the route as the code declares it; it does not know the request body the handler expects.
+          RepoLens shows the route as the code declares it; it does not know the request body the handler expects.
         </p>
       )}
       <div className="flex flex-wrap gap-2">

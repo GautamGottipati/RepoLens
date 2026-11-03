@@ -31,8 +31,8 @@ from api.routes import (
     sources,
 )
 from api.runtime_proxy import RuntimeProxyMiddleware
-from repolab import __version__
-from repolab.config import get_settings
+from repolens import __version__
+from repolens.config import get_settings
 
 
 @asynccontextmanager
@@ -75,7 +75,7 @@ async def _reap_idle_runtimes() -> None:
             pass
 
 
-app = FastAPI(title="RepoLab API", version=__version__, lifespan=lifespan)
+app = FastAPI(title="RepoLens API", version=__version__, lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -86,7 +86,7 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["*"],
 )
-# Added last so it runs first: a live app's host never reaches RepoLab's routes.
+# Added last so it runs first: a live app's host never reaches RepoLens's routes.
 app.add_middleware(RuntimeProxyMiddleware)
 
 app.include_router(jobs.router)

@@ -1,6 +1,6 @@
 """Manifest fixtures, recorded from real ingestions.
 
-The Airflow manifest below is not invented: it is what RepoLab actually detected
+The Airflow manifest below is not invented: it is what RepoLens actually detected
 in `apache/airflow` at `a8a62573f54f` — the same four surfaces, the same
 confidences, the same reasons, and real files from its own evidence. A fixture
 that made up a cleaner repository would prove the catalog works on repositories
@@ -9,8 +9,8 @@ that do not exist.
 
 from __future__ import annotations
 
-from repolab.evidence.models import CodeReference
-from repolab.manifest.models import (
+from repolens.evidence.models import CodeReference
+from repolens.manifest.models import (
     BuildKind,
     BuildStrategy,
     Classification,
@@ -112,7 +112,7 @@ def airflow_manifest(repo_url: str = AIRFLOW_REPO, sha: str = AIRFLOW_SHA) -> Re
 
 
 def spark_manifest(repo_url: str = SPARK_REPO, sha: str = "a" * 40) -> RepoManifest:
-    """A Spark repository: a data playground RepoLab can build, and a weak CLI."""
+    """A Spark repository: a data playground RepoLens can build, and a weak CLI."""
     surfaces = [
         InteractionSurface(
             type=SurfaceType.DATA_PLAYGROUND,

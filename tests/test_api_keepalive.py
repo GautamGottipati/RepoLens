@@ -16,9 +16,9 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.routes import jobs
-from repolab.db import Base
-from repolab.db.jobs import append_event, create_job, mark_running
-from repolab.events import EventType, JobEvent
+from repolens.db import Base
+from repolens.db.jobs import append_event, create_job, mark_running
+from repolens.events import EventType, JobEvent
 
 REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.sandbox import (
+from repolens.sandbox import (
     Checkpoint,
     FakeSandboxProvider,
     SandboxError,
@@ -41,7 +41,7 @@ class TestConformance:
 
     def test_the_docker_provider_satisfies_the_protocol(self) -> None:
         """Constructing it needs no daemon; only execution does."""
-        from repolab.sandbox import DockerSandboxProvider
+        from repolens.sandbox import DockerSandboxProvider
 
         assert isinstance(DockerSandboxProvider(), SandboxProvider)
 
@@ -55,7 +55,7 @@ class TestCapabilitiesAreHonest:
 
     def test_docker_reports_the_full_lifecycle(self) -> None:
         """Committed images run again and can be deleted, so this must claim it."""
-        from repolab.sandbox import DockerSandboxProvider
+        from repolens.sandbox import DockerSandboxProvider
 
         capabilities = DockerSandboxProvider().capabilities
         assert capabilities.supports_checkpoints is True
@@ -153,10 +153,10 @@ class TestCheckpointAndRestore:
 
     async def test_a_tag_becomes_the_durable_reference(self, provider: FakeSandboxProvider) -> None:
         handle = await provider.create("busybox")
-        checkpoint = await provider.checkpoint(handle, tag="repolab/demo:v1")
+        checkpoint = await provider.checkpoint(handle, tag="repolens/demo:v1")
 
-        assert checkpoint.tag == "repolab/demo:v1"
-        assert checkpoint.reference == "repolab/demo:v1"
+        assert checkpoint.tag == "repolens/demo:v1"
+        assert checkpoint.reference == "repolens/demo:v1"
 
     async def test_restore_returns_the_state_as_of_the_checkpoint(
         self, provider: FakeSandboxProvider
@@ -176,9 +176,9 @@ class TestCheckpointAndRestore:
     async def test_restoring_by_tag_works(self, provider: FakeSandboxProvider) -> None:
         handle = await provider.create("busybox")
         handle, _ = await provider.execute(handle, "make base")
-        await provider.checkpoint(handle, tag="repolab/demo:v1")
+        await provider.checkpoint(handle, tag="repolens/demo:v1")
 
-        restored = await provider.restore("repolab/demo:v1")
+        restored = await provider.restore("repolens/demo:v1")
         assert "/work/base" in provider.files_in(restored)
 
     async def test_two_branches_from_one_checkpoint_are_independent(

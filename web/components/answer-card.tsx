@@ -19,7 +19,7 @@ const KIND_LABEL: Record<Triage["kind"], string> = {
   testable: "Testable question",
 };
 
-/** How a question was classified, and what RepoLab chose to do about it. */
+/** How a question was classified, and what RepoLens chose to do about it. */
 export function TriageNote({ triage }: { triage: Triage }) {
   const action =
     triage.route === "experiment"

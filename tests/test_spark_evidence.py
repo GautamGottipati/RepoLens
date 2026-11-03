@@ -11,10 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from repolab.evidence.models import EvidenceBundle, MeasurementSource
-from repolab.experiences.spark.eventlog import parse_event_log
-from repolab.experiences.spark.measurements import measure
-from repolab.experiences.spark.runner import build_evidence
+from repolens.evidence.models import EvidenceBundle, MeasurementSource
+from repolens.experiences.spark.eventlog import parse_event_log
+from repolens.experiences.spark.measurements import measure
+from repolens.experiences.spark.runner import build_evidence
 from tests.test_detectors import SPARK_REPO
 
 FIXTURE = Path(__file__).parent / "fixtures" / "spark" / "real_event_log.jsonl"
@@ -42,7 +42,7 @@ def bundle(make_repo) -> EvidenceBundle:
         commit_sha=COMMIT,
         event_log_path=FIXTURE,
         event_log_excerpt=FIXTURE.read_text().splitlines()[0],
-        driver_tail="REPOLAB_SPARK_RUN_OK\n",
+        driver_tail="REPOLENS_SPARK_RUN_OK\n",
     )
 
 

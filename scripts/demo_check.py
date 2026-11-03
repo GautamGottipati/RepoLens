@@ -7,7 +7,7 @@ Read-only. Prints a checklist and exits non-zero if anything required is
 missing, so it can be run immediately before presenting. Everything it reports
 is observed now, not remembered from a previous run.
 
-Optional rows are marked and never fail the check: RepoLab's deterministic path
+Optional rows are marked and never fail the check: RepoLens's deterministic path
 works without credentials, and saying so is more useful than refusing to start.
 """
 
@@ -20,7 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.config import get_settings  # noqa: E402
+from repolens.config import get_settings  # noqa: E402
 
 #: The repositories the demo uses, and what each one demonstrates.
 DEMO_REPOS: tuple[tuple[str, str], ...] = (
@@ -61,7 +61,7 @@ class Check:
 def check_infrastructure() -> list[Check]:
     from sqlalchemy import text as sql
 
-    from repolab.db import build_engine
+    from repolens.db import build_engine
 
     settings = get_settings()
     checks: list[Check] = []
@@ -106,7 +106,7 @@ def check_infrastructure() -> list[Check]:
     checks.append(redis)
 
     docker = Check("Docker available")
-    from repolab.sandbox.docker import docker_available
+    from repolens.sandbox.docker import docker_available
 
     docker.report(OK) if docker_available() else docker.report(BAD, "start Docker Desktop")
     checks.append(docker)
@@ -140,7 +140,7 @@ def _literal(text: str, prefix: str) -> str | None:
 
 
 def check_images() -> list[Check]:
-    from repolab.sandbox.docker import image_present
+    from repolens.sandbox.docker import image_present
 
     checks = []
     for image in DEMO_IMAGES:
@@ -154,10 +154,10 @@ def check_images() -> list[Check]:
 
 
 def check_repositories() -> list[Check]:
-    from repolab.db import build_engine, session_scope
-    from repolab.db.builds import load_builds
-    from repolab.db.lessons import load_lesson
-    from repolab.db.store import load_latest_ingestion
+    from repolens.db import build_engine, session_scope
+    from repolens.db.builds import load_builds
+    from repolens.db.lessons import load_lesson
+    from repolens.db.store import load_latest_ingestion
 
     checks: list[Check] = []
     engine = build_engine(get_settings())
@@ -214,7 +214,7 @@ def check_credentials() -> list[Check]:
 
 
 def main() -> int:
-    print("RepoLab demo preflight\n")
+    print("RepoLens demo preflight\n")
 
     sections = (
         ("infrastructure", check_infrastructure),

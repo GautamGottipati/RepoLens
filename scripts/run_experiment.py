@@ -35,22 +35,22 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from repolab.config import get_settings  # noqa: E402
-from repolab.events import CollectingEmitter, EventType  # noqa: E402
-from repolab.experiences.spark.driver import SparkRunConfig  # noqa: E402
-from repolab.experiences.spark.measurements import Determinism  # noqa: E402
-from repolab.experiments import (  # noqa: E402
+from repolens.config import get_settings  # noqa: E402
+from repolens.events import CollectingEmitter, EventType  # noqa: E402
+from repolens.experiences.spark.driver import SparkRunConfig  # noqa: E402
+from repolens.experiences.spark.measurements import Determinism  # noqa: E402
+from repolens.experiments import (  # noqa: E402
     ExperimentAgent,
     ExperimentBudget,
     ProposedPlan,
     validate_plan,
 )
-from repolab.experiments.experiment import Experiment  # noqa: E402
-from repolab.experiments.explanation import ClaimKind  # noqa: E402
-from repolab.ingest.clone import TemporaryClone  # noqa: E402
-from repolab.ingest.limits import DEFAULT_LIMITS  # noqa: E402
-from repolab.ingest.url import validate_repo_url  # noqa: E402
-from repolab.sandbox.docker import docker_available  # noqa: E402
+from repolens.experiments.experiment import Experiment  # noqa: E402
+from repolens.experiments.explanation import ClaimKind  # noqa: E402
+from repolens.ingest.clone import TemporaryClone  # noqa: E402
+from repolens.ingest.limits import DEFAULT_LIMITS  # noqa: E402
+from repolens.ingest.url import validate_repo_url  # noqa: E402
+from repolens.sandbox.docker import docker_available  # noqa: E402
 
 DEMO_REPO = "https://github.com/AlexIoannides/pyspark-example-project"
 
@@ -111,7 +111,7 @@ def print_plan(experiment: Experiment) -> None:
 
     print()
     print("=" * 72)
-    print("RepoLab wants to run an experiment.")
+    print("RepoLens wants to run an experiment.")
     print("=" * 72)
     print()
     print(f"Question    {plan.question}")
@@ -135,7 +135,7 @@ def print_plan(experiment: Experiment) -> None:
         print(f"  {key:<34} {value}")
     if plan.dropped_metrics:
         print()
-        print("Requested but not measurable by RepoLab (dropped)")
+        print("Requested but not measurable by RepoLens (dropped)")
         for metric in plan.dropped_metrics:
             print(f"  - {metric}")
     if plan.adjustments:
@@ -262,7 +262,7 @@ def print_reproducibility(experiment: Experiment) -> None:
             f"    {run.variant_id} r{run.repeat}  {run.event_log_sha256[:12]}  {run.event_log_path}"
         )
     print()
-    print("  added by RepoLab, not present in the repository")
+    print("  added by RepoLens, not present in the repository")
     for step in record.added_steps:
         print(f"    - {step}")
 
@@ -272,11 +272,11 @@ def _providers():
     router = None
     research = None
     if settings.muse_api_key is not None and any(settings.configured_models.values()):
-        from repolab.llm import build_router
+        from repolens.llm import build_router
 
         router = build_router(settings)
     if settings.muse_api_key is not None:
-        from repolab.research.muse import MuseResearchProvider
+        from repolens.research.muse import MuseResearchProvider
 
         research = MuseResearchProvider(api_key=settings.muse_api_key.get_secret_value())
     return router, research
@@ -394,8 +394,8 @@ async def run(args: argparse.Namespace) -> int:
         print(f"\nfull experiment written to {args.json}")
 
     if args.persist:
-        from repolab.db import build_engine, session_scope
-        from repolab.db.experiments import count_measurements, save_experiment
+        from repolens.db import build_engine, session_scope
+        from repolens.db.experiments import count_measurements, save_experiment
 
         engine = build_engine(get_settings())
         try:

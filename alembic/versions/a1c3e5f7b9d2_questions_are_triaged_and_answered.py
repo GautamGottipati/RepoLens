@@ -1,6 +1,6 @@
 """questions are triaged, and answered or tested on the repository's own surface
 
-Ask RepoLab used to turn every question into a Spark experiment. A question is
+Ask RepoLens used to turn every question into a Spark experiment. A question is
 now triaged first: conceptual and repository questions are answered from
 evidence, and testable ones run on whatever this repository really is -- a Spark
 job, or CQL through a built node's cqlsh. ``kind`` says which, ``triage`` how

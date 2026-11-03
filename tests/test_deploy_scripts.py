@@ -67,8 +67,8 @@ class TestFirewallRules:
     def rules(self, provider: str, resolv_conf: str, **env: str) -> list[str]:
         result = bash(
             f"container_firewall_rules {provider}",
-            REPOLAB_RESOLV_CONF=resolv_conf,
-            REPOLAB_EXTERNAL_IFACE=env.pop("iface", "ens4"),
+            REPOLENS_RESOLV_CONF=resolv_conf,
+            REPOLENS_EXTERNAL_IFACE=env.pop("iface", "ens4"),
             **env,
         )
         assert result.returncode == 0, result.stderr
@@ -117,8 +117,8 @@ class TestFirewallRules:
     def test_no_interface_means_no_private_rules_and_a_warning(self, resolv) -> None:
         result = bash(
             "container_firewall_rules gcp",
-            REPOLAB_RESOLV_CONF=resolv(),
-            REPOLAB_EXTERNAL_IFACE="",
+            REPOLENS_RESOLV_CONF=resolv(),
+            REPOLENS_EXTERNAL_IFACE="",
         )
         # With no default route found, nothing is blocked blindly.
         assert result.returncode == 0
@@ -129,8 +129,8 @@ class TestFirewallRules:
     def test_an_unknown_provider_is_refused(self, resolv, provider: str) -> None:
         result = bash(
             f"container_firewall_rules {provider}",
-            REPOLAB_RESOLV_CONF=resolv(),
-            REPOLAB_EXTERNAL_IFACE="eth0",
+            REPOLENS_RESOLV_CONF=resolv(),
+            REPOLENS_EXTERNAL_IFACE="eth0",
         )
         assert result.returncode != 0
         assert "unknown provider" in result.stderr
@@ -139,7 +139,7 @@ class TestFirewallRules:
 class TestDockerDaemonJson:
     def merge(self, path: Path, mtu: str) -> subprocess.CompletedProcess[str]:
         return bash(
-            "merge_docker_daemon_json", DOCKER_DAEMON_JSON=str(path), REPOLAB_EXTERNAL_MTU=mtu
+            "merge_docker_daemon_json", DOCKER_DAEMON_JSON=str(path), REPOLENS_EXTERNAL_MTU=mtu
         )
 
     def test_adds_log_rotation_and_the_network_mtu(self, tmp_path: Path) -> None:
@@ -179,7 +179,7 @@ class TestBootstrapBranching:
             ["bash", str(DEPLOY / script), "tester"],
             capture_output=True,
             text=True,
-            env={**os.environ, "REPOLAB_BOOTSTRAP_DRY_RUN": "1"},
+            env={**os.environ, "REPOLENS_BOOTSTRAP_DRY_RUN": "1"},
             check=False,
         )
         assert result.returncode == 0, result.stderr
@@ -205,7 +205,7 @@ class TestBootstrapBranching:
             ["bash", str(DEPLOY / "bootstrap_gcp.sh")],
             capture_output=True,
             text=True,
-            env={**os.environ, "REPOLAB_BOOTSTRAP_DRY_RUN": "1", "SUDO_USER": ""},
+            env={**os.environ, "REPOLENS_BOOTSTRAP_DRY_RUN": "1", "SUDO_USER": ""},
             check=False,
         )
         assert result.returncode != 0
@@ -220,7 +220,7 @@ class TestCompose:
         shutil.copy(ROOT / "docker-compose.prod.yml", tmp_path / "docker-compose.prod.yml")
         (tmp_path / ".env").write_text(
             "POSTGRES_PASSWORD=x\nREDIS_PASSWORD=y\n"
-            "PUBLIC_URL=http://203.0.113.10\nREPOLAB_DOMAIN=203.0.113.10\n"
+            "PUBLIC_URL=http://203.0.113.10\nREPOLENS_DOMAIN=203.0.113.10\n"
         )
         result = subprocess.run(
             ["docker", "compose", "-f", "docker-compose.prod.yml", "config", "--quiet"],
@@ -247,11 +247,11 @@ class TestCompose:
 class TestNginx:
     """Render each template the way the nginx image does, then `nginx -t` it."""
 
-    SELECTOR = "/docker-entrypoint.d/15-repolab-select-conf.sh"
+    SELECTOR = "/docker-entrypoint.d/15-repolens-select-conf.sh"
 
     @pytest.mark.parametrize("mode", ["http", "https"])
     def test_the_config_is_accepted(self, tmp_path: Path, mode: str) -> None:
-        domain = "repolab.example"
+        domain = "repolens.example"
         live = tmp_path / "letsencrypt" / "live" / domain
         live.mkdir(parents=True)
         if mode == "https":
@@ -266,8 +266,8 @@ class TestNginx:
             )  # fmt: skip
         result = subprocess.run(
             ["docker", "run", "--rm",
-             "-e", f"REPOLAB_DOMAIN={domain}", "-e", "NGINX_ENVSUBST_FILTER=REPOLAB_",
-             "-v", f"{ROOT / 'nginx' / 'templates'}:/etc/repolab/nginx:ro",
+             "-e", f"REPOLENS_DOMAIN={domain}", "-e", "NGINX_ENVSUBST_FILTER=REPOLENS_",
+             "-v", f"{ROOT / 'nginx' / 'templates'}:/etc/repolens/nginx:ro",
              "-v", f"{ROOT / 'nginx' / '40-select-conf.sh'}:{self.SELECTOR}:ro",
              "-v", f"{tmp_path / 'letsencrypt'}:/etc/letsencrypt:ro",
              "nginx:1.27-alpine", "nginx", "-t"],
@@ -277,5 +277,5 @@ class TestNginx:
         )  # fmt: skip
         output = result.stdout + result.stderr
         assert result.returncode == 0, output
-        assert f"repolab: serving {mode} for {domain}" in output
+        assert f"repolens: serving {mode} for {domain}" in output
         assert "test is successful" in output

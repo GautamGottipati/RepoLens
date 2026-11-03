@@ -1,8 +1,8 @@
 /**
  * KPI dashboard — `/metrics`
  *
- * Two sections, deliberately separated: what developers did with RepoLab, and
- * how RepoLab itself performed. Product-wide rather than per-repository,
+ * Two sections, deliberately separated: what developers did with RepoLens, and
+ * how RepoLens itself performed. Product-wide rather than per-repository,
  * because that is what a KPI is.
  *
  * The screen's rule is the same one the metric model enforces in Python: a
@@ -12,7 +12,7 @@
  * only one of them is true.
  *
  * Two things are stated rather than implied: whose activity these numbers
- * describe, and that the north-star metric is a long-term outcome RepoLab has
+ * describe, and that the north-star metric is a long-term outcome RepoLens has
  * never measured.
  *
  * Spec: docs/design/09-metrics.md
@@ -59,7 +59,7 @@ export default function MetricsPage() {
     <div className="mx-auto max-w-[1100px] px-6 py-10">
       <header className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
         <Link href="/" className="text-sm font-semibold tracking-tight">
-          RepoLab
+          RepoLens
         </Link>
         <span aria-hidden className="text-fg-muted">
           /
@@ -98,14 +98,14 @@ export default function MetricsPage() {
           <Section
             id="learning"
             title="Developer learning activity"
-            subtitle="What people did with RepoLab"
+            subtitle="What people did with RepoLens"
             groups={dashboard.learning}
           />
 
           <Section
             id="operations"
-            title="RepoLab operational & agent performance"
-            subtitle="How RepoLab itself behaved while they did it"
+            title="RepoLens operational & agent performance"
+            subtitle="How RepoLens itself behaved while they did it"
             groups={dashboard.operations}
           />
 

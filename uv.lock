@@ -494,7 +494,7 @@ wheels = [
 ]
 
 [[package]]
-name = "repolab"
+name = "repolens"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

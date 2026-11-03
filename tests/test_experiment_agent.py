@@ -17,12 +17,12 @@ from pathlib import Path
 
 import pytest
 
-from repolab.events import CollectingEmitter, EventType
-from repolab.experiments import ExperimentAgent, ExperimentBudget
-from repolab.experiments.executor import ApprovalRequiredError
-from repolab.experiments.models import ExperimentStatus
-from repolab.llm import ModelRouter, ModelTier
-from repolab.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
+from repolens.events import CollectingEmitter, EventType
+from repolens.experiments import ExperimentAgent, ExperimentBudget
+from repolens.experiments.executor import ApprovalRequiredError
+from repolens.experiments.models import ExperimentStatus
+from repolens.llm import ModelRouter, ModelTier
+from repolens.testing.fakes import FakeLLMProvider, FakeMessage, FakeResearchProvider
 from tests.support.experiments import DATASET_HASH, IMAGE, spark_run_result
 
 QUESTION = "Why does this job use 200 shuffle partitions?"
@@ -144,12 +144,12 @@ class TestProposing:
 
         assert experiment.plan is not None
         assert experiment.proposal is not None
-        # The model asked for a metric RepoLab cannot measure.
+        # The model asked for a metric RepoLens cannot measure.
         assert "gc_time_ms" in experiment.proposal.metrics
         assert experiment.plan.dropped_metrics == ["gc_time_ms"]
         assert "gc_time_ms" not in experiment.plan.metrics
 
-    async def test_the_fixed_settings_come_from_repolab_not_the_model(
+    async def test_the_fixed_settings_come_from_repolens_not_the_model(
         self, repository: Path
     ) -> None:
         model, _ = router(DESIGN_RESPONSE)
@@ -260,7 +260,7 @@ class TestExecuting:
         subject = agent(repository, model_router=model, runner=runner)
         experiment = await subject.propose(QUESTION)
 
-        from repolab.experiments.experiment import IllegalTransitionError
+        from repolens.experiments.experiment import IllegalTransitionError
 
         with pytest.raises((IllegalTransitionError, ApprovalRequiredError)):
             await subject.execute(experiment)
@@ -322,7 +322,7 @@ class TestExecuting:
         assert record.application_version == "3.5.1", "the version actually measured"
         assert record.started_at is not None and record.finished_at is not None
         assert record.reproducible is True
-        assert record.added_steps, "RepoLab's additions must be disclosed"
+        assert record.added_steps, "RepoLens's additions must be disclosed"
 
     async def test_variant_events_are_streamed_as_they_finish(self, repository: Path) -> None:
         model, _ = router(DESIGN_RESPONSE, EXPLANATION_RESPONSE)
@@ -463,7 +463,7 @@ class TestExecuting:
         experiment = await subject.propose(QUESTION)
         experiment.approve()
 
-        from repolab.experiments.executor import EquivalenceViolation
+        from repolens.experiments.executor import EquivalenceViolation
 
         with pytest.raises(EquivalenceViolation):
             await subject.execute(experiment)

@@ -68,7 +68,7 @@ demo-check:
 demo-prepare:
 	uv run python scripts/demo_prepare.py $(ARGS)
 
-# Scan everything RepoLab has written for a configured credential.
+# Scan everything RepoLens has written for a configured credential.
 check-secrets:
 	uv run python scripts/check_secrets.py
 
@@ -112,7 +112,7 @@ run-spark-demo:
 build:
 	uv run python scripts/build_repo.py $(URL) $(ARGS)
 
-# The core RepoLab flow: a question answered by measurement, not assertion.
+# The core RepoLens flow: a question answered by measurement, not assertion.
 # Prints the plan and the estimated cost, then WAITS for approval before running
 # anything. Needs Docker; works without credentials (deterministic fallback).
 # Usage: make experiment Q="Why does this job use 200 shuffle partitions?"

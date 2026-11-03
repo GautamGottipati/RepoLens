@@ -11,8 +11,8 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from repolab.evidence.models import CodeReference, DocumentationReference
-from repolab.lessons.models import (
+from repolens.evidence.models import CodeReference, DocumentationReference
+from repolens.lessons.models import (
     MAX_TEXT,
     CheckKind,
     Lesson,
@@ -29,7 +29,7 @@ def step(number: int = 1, **overrides: object) -> LessonStep:
         "concept": "partition keys decide where a row lives",
         "goal": "create a table whose key you chose",
         "context": "the key determines which queries are possible",
-        "action": "CREATE TABLE repolab.t (id text PRIMARY KEY)",
+        "action": "CREATE TABLE repolens.t (id text PRIMARY KEY)",
         "expected_observation": "no output; the table was created",
         "validation": StepCheck(kind=CheckKind.SUCCEEDS),
     }
@@ -190,7 +190,7 @@ class TestSilentStatements:
 
     @staticmethod
     def step(action: str, observation: str, kind: str = "succeeds"):
-        from repolab.lessons.models import CheckKind, LessonStep, StepCheck
+        from repolens.lessons.models import CheckKind, LessonStep, StepCheck
 
         return LessonStep(
             number=1,
@@ -203,7 +203,7 @@ class TestSilentStatements:
         )
 
     def test_an_invented_success_message_is_replaced(self) -> None:
-        from repolab.lessons.models import SILENT_OBSERVATION
+        from repolens.lessons.models import SILENT_OBSERVATION
 
         step = self.step(
             "CREATE KEYSPACE IF NOT EXISTS demo WITH REPLICATION = "

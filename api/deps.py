@@ -12,8 +12,8 @@ from functools import lru_cache
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from repolab.config import get_settings
-from repolab.db import build_engine, build_session_factory
+from repolens.config import get_settings
+from repolens.db import build_engine, build_session_factory
 
 
 @lru_cache

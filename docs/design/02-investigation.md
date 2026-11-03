@@ -3,7 +3,7 @@
 ## Purpose
 
 Show the agent working. Someone who has just submitted a repository should be
-able to tell what RepoLab is doing, that it is still doing it, and when it is
+able to tell what RepoLens is doing, that it is still doing it, and when it is
 done — without reading tool names or seeing anything the model thought
 privately.
 

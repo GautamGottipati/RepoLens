@@ -4,7 +4,7 @@ Verified rather than assumed. The audit this suite keeps true: an authentication
 failure from Muse -- `AuthenticationError: Error code: 401 -
 {'detail': "Couldn't authenticate…"}` from chat, `InvalidAPIKeyError:
 Unauthorized` from research -- must never echo the key back, and neither may
-the places RepoLab itself could leak one: events, job errors, API responses,
+the places RepoLens itself could leak one: events, job errors, API responses,
 failure messages and the log stream.
 
 The secrets below are obvious fakes with a distinctive marker, so a match is
@@ -17,10 +17,10 @@ import json
 
 import pytest
 
-from repolab.analytics import AnalyticsEvent, AnalyticsEventType, CollectingAnalyticsWriter
-from repolab.config import Settings
-from repolab.events import CollectingEmitter, EventType
-from repolab.failures import describe, explain
+from repolens.analytics import AnalyticsEvent, AnalyticsEventType, CollectingAnalyticsWriter
+from repolens.config import Settings
+from repolens.events import CollectingEmitter, EventType
+from repolens.failures import describe, explain
 
 MUSE_SECRET = "muse-LEAKCANARY-aaaaaaaaaaaaaaaaaaaa"
 CANARY = "LEAKCANARY"
@@ -83,7 +83,7 @@ class TestFailureMessages:
     def test_the_technical_detail_is_the_one_place_it_could_appear(self) -> None:
         """And it is a disclosure the user opens, not a message they are shown.
 
-        RepoLab does not redact here: the technical field is the exception's own
+        RepoLens does not redact here: the technical field is the exception's own
         words, and silently rewriting them would make a real error harder to
         diagnose. What this test fixes is that the *default* view carries
         nothing, so a screenshot or a glance cannot leak.
@@ -139,8 +139,8 @@ class TestTheCodebaseItself:
         """The router logs one record per call. It must hold no credential."""
         import asyncio
 
-        from repolab.llm import ModelRouter, ModelTier
-        from repolab.testing.fakes import FakeLLMProvider, FakeMessage
+        from repolens.llm import ModelRouter, ModelTier
+        from repolens.testing.fakes import FakeLLMProvider, FakeMessage
 
         class Answer(__import__("pydantic").BaseModel):
             answer: str

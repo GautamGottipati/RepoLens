@@ -18,12 +18,12 @@ from sqlalchemy.pool import StaticPool
 
 from api import deps
 from api.main import app
-from repolab.db import Base
-from repolab.db.jobs import create_job
-from repolab.db.models import Ingestion, RepoManifestRecord, Repository
-from repolab.events import JobStatus
-from repolab.experiences.catalog import NOT_RUNNABLE
-from repolab.manifest.models import RepoManifest
+from repolens.db import Base
+from repolens.db.jobs import create_job
+from repolens.db.models import Ingestion, RepoManifestRecord, Repository
+from repolens.events import JobStatus
+from repolens.experiences.catalog import NOT_RUNNABLE
+from repolens.manifest.models import RepoManifest
 from tests.support.manifests import AIRFLOW_REPO, airflow_manifest, spark_manifest
 
 

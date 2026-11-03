@@ -193,7 +193,7 @@ export function CliResults({
         <Panel title="Explanation">
           <Empty title="The outputs stand alone">
             {experiment.explanation_error ??
-              "No model is configured, so RepoLab shows what came back without a narrative."}
+              "No model is configured, so RepoLens shows what came back without a narrative."}
           </Empty>
         </Panel>
       )}

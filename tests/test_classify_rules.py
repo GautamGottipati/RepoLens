@@ -9,11 +9,11 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.classify import classify_deterministic
-from repolab.classify.signals import STRONG_CONFIDENCE, SURFACE_PRECEDENCE
-from repolab.evidence.models import CodeReference
-from repolab.ingest.detectors.base import DetectorRun
-from repolab.manifest.models import EntryPoint, EntryPointKind, Service, SurfaceType
+from repolens.classify import classify_deterministic
+from repolens.classify.signals import STRONG_CONFIDENCE, SURFACE_PRECEDENCE
+from repolens.evidence.models import CodeReference
+from repolens.ingest.detectors.base import DetectorRun
+from repolens.manifest.models import EntryPoint, EntryPointKind, Service, SurfaceType
 
 
 def run_with(*signals: tuple[str, str]) -> DetectorRun:
@@ -229,7 +229,7 @@ class TestEveryClassificationIsJustified:
         assert sum(1 for s in rich.surfaces if s.primary) == 1
 
     def test_an_uncitable_signal_is_ignored(self) -> None:
-        """A signal RepoLab cannot point at is not evidence."""
+        """A signal RepoLens cannot point at is not evidence."""
         run = DetectorRun()
         run.add("spark_session", "no references at all")
         result = classify_deterministic(run)
@@ -354,7 +354,7 @@ class TestEvidenceOrdering:
 class TestHybridThreshold:
     def test_hybrid_uses_a_lower_bar_than_the_model_gate(self) -> None:
         """Two substantial surfaces is a hybrid even if neither closes the gate."""
-        from repolab.classify.signals import HYBRID_CONFIDENCE, STRONG_CONFIDENCE
+        from repolens.classify.signals import HYBRID_CONFIDENCE, STRONG_CONFIDENCE
 
         assert HYBRID_CONFIDENCE < STRONG_CONFIDENCE
 

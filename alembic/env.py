@@ -1,6 +1,6 @@
 """Alembic environment.
 
-The database URL is read from RepoLab settings rather than ``alembic.ini`` so
+The database URL is read from RepoLens settings rather than ``alembic.ini`` so
 credentials live only in the environment.
 """
 
@@ -9,12 +9,12 @@ from __future__ import annotations
 from logging.config import fileConfig
 
 from alembic import context
-from repolab.config import get_settings
+from repolens.config import get_settings
 
 # Importing the models module registers every table on Base.metadata, which is
 # what autogenerate compares against.
-from repolab.db import models  # noqa: F401
-from repolab.db.base import Base, build_engine
+from repolens.db import models  # noqa: F401
+from repolens.db.base import Base, build_engine
 
 config = context.config
 if config.config_file_name is not None:

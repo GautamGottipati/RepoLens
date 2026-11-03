@@ -49,7 +49,7 @@ type Props = {
   commitSha: string;
   jobId?: string | null;
   architecture?: ArchitectureGraph | null;
-  /** Ask a follow-up through the same Ask RepoLab flow. */
+  /** Ask a follow-up through the same Ask RepoLens flow. */
   onAsk?: (question: string) => void;
   /** Or link to it, where asking in place is not possible. */
   askHref?: (question: string) => string;
@@ -187,7 +187,7 @@ function Visual({
       {graph && <AnswerDiagram answer={answer} graph={graph} jobId={jobId} architecture={architecture} onOpen={onOpen} />}
       {missing.length > 0 && (
         <p className="text-xs text-fg-secondary" data-testid="not-established">
-          RepoLab could not establish from the code: {missing.join(" · ")}. These are not drawn.
+          RepoLens could not establish from the code: {missing.join(" · ")}. These are not drawn.
         </p>
       )}
       {locations.length > 0 && (
@@ -422,7 +422,7 @@ function Sources({
                   {source.reference ? (
                     <Excerpt source={source} />
                   ) : (
-                    <p className="text-xs text-fg-secondary">RepoLab did not keep an excerpt of this file.</p>
+                    <p className="text-xs text-fg-secondary">RepoLens did not keep an excerpt of this file.</p>
                   )}
                   <div className="mt-1 flex gap-3 text-xs">
                     <button type="button" onClick={() => onOpen(source)} className="underline underline-offset-2">
@@ -456,7 +456,7 @@ function Sources({
           {result.answer && result.answer.answer.claims.length > 0 && <ClaimList claims={result.answer.answer.claims} />}
           {result.findings.length > 0 && (
             <div>
-              <h4 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">What RepoLab did</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-fg-secondary">What RepoLens did</h4>
               <ul className="mt-1 list-disc pl-5 text-xs text-fg-secondary">
                 {result.findings.map((finding, i) => (
                   <li key={i}>{finding}</li>
@@ -538,7 +538,7 @@ export function CodeDrawer({
         {source.reference ? (
           <Excerpt source={source} />
         ) : (
-          <p className="text-xs text-fg-secondary">RepoLab did not keep an excerpt of this file.</p>
+          <p className="text-xs text-fg-secondary">RepoLens did not keep an excerpt of this file.</p>
         )}
       </div>
       <h4 className="mt-4 text-xs font-semibold uppercase tracking-wide text-fg-secondary">Why this matters</h4>

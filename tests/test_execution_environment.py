@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from repolab.sandbox import (
+from repolens.sandbox import (
     EnvironmentNotStartedError,
     ExecutionEnvironment,
     FakeSandboxProvider,
@@ -76,10 +76,10 @@ class TestLifecycle:
         env, _ = environment
         await env.start("busybox")
         await env.run("make thing")
-        checkpoint = await env.save(tag="repolab/demo:v1")
+        checkpoint = await env.save(tag="repolens/demo:v1")
 
         assert checkpoint.id
-        assert checkpoint.tag == "repolab/demo:v1"
+        assert checkpoint.tag == "repolens/demo:v1"
 
     async def test_stop_releases_the_environment(self, environment) -> None:
         env, provider = environment

@@ -14,11 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from repolab.experiences.spark import SparkDemoRunner, SparkRunConfig
-from repolab.ingest.clone import TemporaryClone
-from repolab.ingest.limits import DEFAULT_LIMITS
-from repolab.ingest.url import validate_repo_url
-from repolab.sandbox.docker import DockerEnvironment, docker_available
+from repolens.experiences.spark import SparkDemoRunner, SparkRunConfig
+from repolens.ingest.clone import TemporaryClone
+from repolens.ingest.limits import DEFAULT_LIMITS
+from repolens.ingest.url import validate_repo_url
+from repolens.sandbox.docker import DockerEnvironment, docker_available
 
 pytestmark = pytest.mark.docker
 
