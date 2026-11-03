@@ -16,13 +16,13 @@ import { useMemo, useState } from "react";
 
 import { ClaimList, EvidencePanel, UnsupportedClaims } from "./evidence";
 import { useSourceViewer } from "./source-ref";
-import { Badge, Note } from "./ui";
+import { AnswerDiagram } from "./diagram/answer-diagram";
+import { answerGraph } from "./diagram/layout";
+import { Badge, Note, SourceChip } from "./ui";
 import {
   SHAPE_LABEL,
-  answerGraph,
   citedSources,
   detailOf,
-  diagramLayers,
   excerptRange,
   parseSource,
   provenanceLine,
@@ -47,6 +47,7 @@ type Props = {
   result: AnswerResult;
   repoUrl: string;
   commitSha: string;
+  jobId?: string | null;
   architecture?: ArchitectureGraph | null;
   /** Ask a follow-up through the same Ask RepoLab flow. */
   onAsk?: (question: string) => void;
@@ -54,7 +55,7 @@ type Props = {
   askHref?: (question: string) => string;
 };
 
-export function AnswerView({ result, repoUrl, commitSha, architecture = null, onAsk, askHref }: Props) {
+export function AnswerView({ result, repoUrl, commitSha, jobId = null, architecture = null, onAsk, askHref }: Props) {
   const [open, setOpen] = useState<CitedSource | null>(null);
   const sources = useMemo(() => citedSources(result), [result]);
   const verified = result.answer;
@@ -105,6 +106,7 @@ export function AnswerView({ result, repoUrl, commitSha, architecture = null, on
             answer={answer}
             verified={verified}
             architecture={architecture}
+            jobId={jobId}
             onOpen={openSource}
           />
           <Steps answer={answer} onOpen={openSource} />
@@ -165,11 +167,13 @@ function Visual({
   answer,
   verified,
   architecture,
+  jobId,
   onOpen,
 }: {
   answer: GroundedAnswer;
   verified: VerifiedAnswer;
   architecture: ArchitectureGraph | null;
+  jobId: string | null;
   onOpen: (cited: string, reason: string) => void;
 }) {
   const graph = answerGraph(answer, architecture);
@@ -180,7 +184,7 @@ function Visual({
 
   return (
     <section className="flex min-w-0 flex-col gap-4">
-      {graph && <AnswerDiagram answer={answer} graph={graph} onOpen={onOpen} />}
+      {graph && <AnswerDiagram answer={answer} graph={graph} jobId={jobId} architecture={architecture} onOpen={onOpen} />}
       {missing.length > 0 && (
         <p className="text-xs text-fg-secondary" data-testid="not-established">
           RepoLab could not establish from the code: {missing.join(" · ")}. These are not drawn.
@@ -249,152 +253,6 @@ function Visual({
         </div>
       )}
     </section>
-  );
-}
-
-const BOX_W = 150;
-const BOX_H = 44;
-const GAP_X = 20;
-const GAP_Y = 36;
-
-/**
- * The answer's boxes in top-to-bottom layers. Scales down to fit its column,
- * so it never pushes the page sideways. Inferred arrows are dashed.
- */
-export function AnswerDiagram({
-  answer,
-  graph,
-  onOpen,
-}: {
-  answer: GroundedAnswer;
-  graph: ArchitectureGraph;
-  onOpen: (cited: string, reason: string) => void;
-}) {
-  const boxes = diagramLayers(graph);
-  const perLayer = new Map<number, number>();
-  for (const box of boxes) perLayer.set(box.layer, Math.max(perLayer.get(box.layer) ?? 0, box.column + 1));
-  const columns = Math.max(1, ...perLayer.values());
-  const layers = Math.max(1, ...boxes.map((b) => b.layer + 1));
-  const width = columns * BOX_W + (columns - 1) * GAP_X;
-  const height = layers * BOX_H + (layers - 1) * GAP_Y;
-  const at = new Map(
-    boxes.map((box) => {
-      const count = perLayer.get(box.layer) ?? 1;
-      const rowWidth = count * BOX_W + (count - 1) * GAP_X;
-      const x = (width - rowWidth) / 2 + box.column * (BOX_W + GAP_X);
-      return [box.id, { x, y: box.layer * (BOX_H + GAP_Y), box }];
-    }),
-  );
-  const visual = answer.visual!;
-  const sourceOf = new Map(visual.nodes.map((node) => [node.id, node.source]));
-
-  return (
-    <figure className="min-w-0" data-testid="answer-visual">
-      <svg
-        viewBox={`-4 -4 ${width + 8} ${height + 8}`}
-        width="100%"
-        style={{ maxWidth: width + 8 }}
-        role="group"
-        aria-label={`${visual.nodes.length} parts and ${visual.edges.length} relationships`}
-        className="mx-auto block h-auto"
-      >
-        <defs>
-          <marker id="answer-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
-          </marker>
-        </defs>
-        {visual.edges.map((edge, index) => {
-          const from = at.get(edge.source);
-          const to = at.get(edge.target);
-          if (!from || !to) return null;
-          const down = to.y > from.y;
-          const x1 = from.x + BOX_W / 2;
-          const y1 = down ? from.y + BOX_H : from.y + BOX_H / 2;
-          const x2 = to.x + BOX_W / 2;
-          const y2 = down ? to.y : to.y + BOX_H / 2;
-          const mid = (y1 + y2) / 2;
-          return (
-            <path
-              key={`${edge.source}-${edge.target}-${index}`}
-              data-testid="diagram-edge"
-              data-provenance={edge.provenance}
-              d={down ? `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}` : `M ${x1} ${y1} L ${x2} ${y2}`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.4}
-              strokeDasharray={edge.provenance === "inferred" ? "4 3" : undefined}
-              markerEnd="url(#answer-arrow)"
-              className="text-fg-muted"
-            >
-              <title>{edge.label || "connects to"}</title>
-            </path>
-          );
-        })}
-        {[...at.values()].map(({ x, y, box }) => {
-          const source = sourceOf.get(box.id) ?? null;
-          return (
-            <g
-              key={box.id}
-              transform={`translate(${x} ${y})`}
-              data-testid="diagram-node"
-              data-node-id={box.id}
-              role={source ? "button" : undefined}
-              tabIndex={source ? 0 : undefined}
-              aria-label={source ? `${box.label}, open ${source}` : undefined}
-              onClick={source ? () => onOpen(source, box.label) : undefined}
-              onKeyDown={
-                source
-                  ? (event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        onOpen(source, box.label);
-                      }
-                    }
-                  : undefined
-              }
-              className={source ? "cursor-pointer" : undefined}
-            >
-              <rect
-                width={BOX_W}
-                height={BOX_H}
-                rx="7"
-                className="fill-surface stroke-line-strong"
-              />
-              <text x={BOX_W / 2} y="19" textAnchor="middle" className="fill-fg text-[12px] font-medium">
-                {truncate(box.label, 22)}
-              </text>
-              <text x={BOX_W / 2} y="34" textAnchor="middle" className="fill-fg-muted text-[10px]">
-                {truncate(box.caption, 26)}
-              </text>
-            </g>
-          );
-        })}
-      </svg>
-      <figcaption className="mt-3">
-        <ul className="flex flex-col gap-1 text-xs text-fg-secondary" data-testid="relationships">
-          {visual.edges.map((edge, index) => {
-            const from = visual.nodes.find((n) => n.id === edge.source)?.label;
-            const to = visual.nodes.find((n) => n.id === edge.target)?.label;
-            const file = edge.provenance !== "inferred" && !edge.support.startsWith("edge:") ? edge.support : null;
-            return (
-              <li key={index} className="flex flex-wrap items-center gap-x-2">
-                <span>
-                  {from} → {to}
-                  {edge.label ? `: ${edge.label}` : ""}
-                </span>
-                {edge.provenance === "inferred" ? (
-                  <span className="italic text-fg-muted">inferred</span>
-                ) : file ? (
-                  <SourceChip cited={file} onOpen={() => onOpen(file, `${from} → ${to}`)} />
-                ) : (
-                  <span className="text-fg-muted">from the architecture analysis</span>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </figcaption>
-    </figure>
   );
 }
 
@@ -494,26 +352,6 @@ function Section({ section, onOpen }: { section: AnswerSection; onOpen: (cited: 
         </div>
       )}
     </div>
-  );
-}
-
-function SourceChip({ cited, onOpen }: { cited: string; onOpen: () => void }) {
-  if (/^https?:\/\//.test(cited)) {
-    return (
-      <a href={cited} target="_blank" rel="noreferrer" data-testid="source-chip" className="break-all font-mono text-xs text-brand-fg underline-offset-2 hover:underline">
-        🌐 {cited.replace(/^https?:\/\//, "")}
-      </a>
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      data-testid="source-chip"
-      className="break-all text-left font-mono text-xs text-fg-secondary underline-offset-2 hover:underline"
-    >
-      📄 {cited}
-    </button>
   );
 }
 
@@ -737,6 +575,3 @@ export function CodeDrawer({
   );
 }
 
-function truncate(value: string, max: number): string {
-  return value.length <= max ? value : `${value.slice(0, max - 1)}…`;
-}

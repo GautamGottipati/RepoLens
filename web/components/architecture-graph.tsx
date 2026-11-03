@@ -13,7 +13,10 @@
 
 "use client";
 
-import { CATEGORY_LABEL, CATEGORY_TONE, flowEdges, layout } from "@/lib/architecture";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+
+import { CATEGORY_LABEL, CATEGORY_TONE, cameraFor, flowEdges, fullView, layout } from "@/lib/architecture";
+import type { ViewBox } from "@/lib/architecture";
 import type { ArchitectureGraph as Graph, ArchitectureNode, MeasuredValue } from "@/lib/types";
 
 const BOX_WIDTH = 170;
@@ -55,6 +58,9 @@ export function ArchitectureGraph({
   kind = (node) => CATEGORY_LABEL[node.category],
   edgeLabel,
   columnGap = COLUMN_GAP,
+  frameSelected = false,
+  selectedEdge = null,
+  onEdgeSelect,
 }: {
   graph: Graph;
   selected: string | null;
@@ -69,8 +75,14 @@ export function ArchitectureGraph({
   edgeLabel?: (edge: Graph["edges"][number]) => string | null;
   /** Wider gaps leave room for edge labels. */
   columnGap?: number;
+  /** Zoom the camera to the selection and what it touches; off shows everything. */
+  frameSelected?: boolean;
+  /** The relationship under inspection, if any. */
+  selectedEdge?: { source: string; target: string } | null;
+  /** When given, relationships are clickable and report here. */
+  onEdgeSelect?: (edge: Graph["edges"][number]) => void;
 }) {
-  const placements = layout(graph);
+  const placements = useMemo(() => layout(graph), [graph]);
   const emphasised = flowEdges(graph);
   const columns = Math.max(1, ...[...placements.values()].map((p) => p.rank + 1));
   const rows = Math.max(1, ...[...placements.values()].map((p) => p.row + 1));
@@ -84,16 +96,32 @@ export function ArchitectureGraph({
       if (edge.target === selected) connected.add(edge.source);
     }
   }
+  const target = useMemo(() => {
+    if (!frameSelected || !selected) return fullView({ width, height });
+    return (
+      cameraFor(
+        placements,
+        [selected, ...connected],
+        { boxWidth: BOX_WIDTH, boxHeight: BOX_HEIGHT, columnGap, rowGap: ROW_GAP },
+        { width, height },
+      ) ?? fullView({ width, height })
+    );
+    // placements is memoised on graph; connected derives from selected + graph.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [frameSelected, selected, graph, columnGap, width, height]);
+  const [svgRef, initialView] = useCamera(target);
   const dimmed = (id: string) => selected !== null && id !== selected && !connected.has(id);
   const at = (id: string) => {
     const p = placements.get(id);
     return p ? { x: p.rank * (BOX_WIDTH + columnGap), y: p.row * (BOX_HEIGHT + ROW_GAP) } : null;
   };
 
+  const labelOf = (id: string) => graph.nodes.find((n) => n.id === id)?.label ?? id;
   return (
     <div className="overflow-x-auto">
       <svg
-        viewBox={`-8 -8 ${width + 16} ${height + 16}`}
+        ref={svgRef}
+        viewBox={formatViewBox(initialView)}
         width={width + 16}
         height={height + 16}
         role="group"
@@ -128,27 +156,49 @@ export function ArchitectureGraph({
           const onFlow = emphasised.has(`${edge.source}->${edge.target}`);
           const active = selected === edge.source || selected === edge.target;
           const faded = selected !== null && !active;
-          return (
+          const isEdgeSelected = selectedEdge?.source === edge.source && selectedEdge?.target === edge.target;
+          const d = forward
+            ? `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`
+            : `M ${startX} ${startY} L ${endX} ${endY}`;
+          const visible = (
             <path
-              key={`${edge.source}-${edge.target}-${index}`}
               data-testid="architecture-edge"
               data-provenance={edge.provenance}
-              d={
-                forward
-                  ? `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`
-                  : `M ${startX} ${startY} L ${endX} ${endY}`
-              }
+              d={d}
               fill="none"
               stroke="currentColor"
-              strokeWidth={active || onFlow ? 1.8 : 1}
+              strokeWidth={isEdgeSelected ? 2.4 : active || onFlow ? 1.8 : 1}
               strokeDasharray={edge.provenance === "inferred" ? "4 3" : undefined}
               markerEnd="url(#arch-arrow)"
               className={`transition-opacity duration-150 ${
-                active ? "text-arch" : onFlow ? "text-fg-secondary" : "text-fg-muted"
+                isEdgeSelected || active ? "text-arch" : onFlow ? "text-fg-secondary" : "text-fg-muted"
               } ${faded ? "opacity-25" : ""}`}
             >
               <title>{edge.type.replace(/_/g, " ")}</title>
             </path>
+          );
+          if (!onEdgeSelect) return <g key={`${edge.source}-${edge.target}-${index}`}>{visible}</g>;
+          return (
+            <g
+              key={`${edge.source}-${edge.target}-${index}`}
+              role="button"
+              tabIndex={0}
+              aria-pressed={isEdgeSelected}
+              aria-label={`${labelOf(edge.source)} ${edge.type.replace(/_/g, " ")} ${labelOf(edge.target)}`}
+              data-testid="architecture-edge-button"
+              data-edge={`${edge.source}->${edge.target}`}
+              onClick={() => onEdgeSelect(edge)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onEdgeSelect(edge);
+                }
+              }}
+              className="cursor-pointer outline-none"
+            >
+              <path d={d} fill="none" stroke="transparent" strokeWidth={16} pointerEvents="stroke" />
+              {visible}
+            </g>
           );
         })}
 
@@ -251,6 +301,59 @@ export function ArchitectureGraph({
       </svg>
     </div>
   );
+}
+
+/**
+ * The camera: eases the SVG's viewBox toward its target so it glides instead
+ * of jumping, without re-rendering every frame. Instant on first paint, when
+ * reduced motion is preferred, and wherever animation frames don't exist.
+ */
+function useCamera(target: ViewBox): [RefObject<SVGSVGElement | null>, ViewBox] {
+  const ref = useRef<SVGSVGElement | null>(null);
+  const [initial] = useState(target);
+  const shownRef = useRef(target);
+  const first = useRef(true);
+  const key = `${target.x},${target.y},${target.w},${target.h}`;
+  useEffect(() => {
+    const el = ref.current;
+    const from = shownRef.current;
+    const animate =
+      !first.current &&
+      el !== null &&
+      typeof requestAnimationFrame !== "undefined" &&
+      !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    first.current = false;
+    if (!animate || !el) {
+      shownRef.current = target;
+      el?.setAttribute("viewBox", formatViewBox(target));
+      return;
+    }
+    const start = performance.now();
+    const duration = 320;
+    let frame = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const next = {
+        x: from.x + (target.x - from.x) * eased,
+        y: from.y + (target.y - from.y) * eased,
+        w: from.w + (target.w - from.w) * eased,
+        h: from.h + (target.h - from.h) * eased,
+      };
+      shownRef.current = next;
+      el.setAttribute("viewBox", formatViewBox(next));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+    // The key stands in for the target's fields, which change identity each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return [ref, initial];
+}
+
+function formatViewBox(view: ViewBox): string {
+  return `${view.x} ${view.y} ${view.w} ${view.h}`;
 }
 
 function defaultCaption(node: ArchitectureNode): string {

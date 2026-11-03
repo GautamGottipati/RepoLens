@@ -72,6 +72,7 @@ export function AnsweredQuestion({
             result={result}
             repoUrl={experiment.repo_url}
             commitSha={experiment.commit_sha}
+            jobId={jobId}
             architecture={architecture}
             askHref={jobId ? (question) => `/r/${jobId}/ask?q=${encodeURIComponent(question)}` : undefined}
           />

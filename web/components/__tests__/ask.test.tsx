@@ -140,6 +140,16 @@ describe("the picture", () => {
     expect(svg.getAttribute("viewBox")).toBeTruthy();
   });
 
+  it("links a grounded box to its component in the Architecture tab", () => {
+    render(
+      <AnswerView result={result(flow)} repoUrl={REPO} commitSha={COMMIT} jobId="job-9" architecture={webView().graph} />,
+    );
+    const box = screen.getByTestId("answer-visual").querySelector('[data-node-id="server"]')!;
+    fireEvent.click(box);
+    const link = within(screen.getByTestId("diagram-detail")).getByTestId("diagram-open-architecture");
+    expect(link.getAttribute("href")).toBe("/r/job-9/architecture?node=service%3Aserver");
+  });
+
   it("lays out a code map for a location question", () => {
     renderAnswer(
       result({

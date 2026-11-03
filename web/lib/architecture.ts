@@ -179,6 +179,48 @@ export function layout(graph: ArchitectureGraph): Map<string, Placement> {
   return placements;
 }
 
+/** The box geometry an SVG graph draws with, so the camera can frame it. */
+export type GraphDims = { boxWidth: number; boxHeight: number; columnGap: number; rowGap: number };
+
+/** An SVG viewBox, as numbers. */
+export type ViewBox = { x: number; y: number; w: number; h: number };
+
+/** The margin the graph draws around its canvas. */
+const CANVAS_MARGIN = 8;
+
+/** The whole canvas, as a viewBox. */
+export function fullView(canvas: { width: number; height: number }): ViewBox {
+  return { x: -CANVAS_MARGIN, y: -CANVAS_MARGIN, w: canvas.width + 2 * CANVAS_MARGIN, h: canvas.height + 2 * CANVAS_MARGIN };
+}
+
+/**
+ * The camera framing for a set of nodes: the smallest box holding their boxes,
+ * padded, clamped to the canvas. Unknown ids are ignored; when none of the ids
+ * is placed, null means "show the whole canvas".
+ */
+export function cameraFor(
+  placements: Map<string, Placement>,
+  ids: string[],
+  dims: GraphDims,
+  canvas: { width: number; height: number },
+  padding = 48,
+): ViewBox | null {
+  const placed = ids.map((id) => placements.get(id)).filter((p) => p !== undefined);
+  if (placed.length === 0) return null;
+  const left = Math.min(...placed.map((p) => p.rank * (dims.boxWidth + dims.columnGap)));
+  const top = Math.min(...placed.map((p) => p.row * (dims.boxHeight + dims.rowGap)));
+  const right = Math.max(...placed.map((p) => p.rank * (dims.boxWidth + dims.columnGap) + dims.boxWidth));
+  const bottom = Math.max(...placed.map((p) => p.row * (dims.boxHeight + dims.rowGap) + dims.boxHeight));
+  const x = Math.max(-CANVAS_MARGIN, left - padding);
+  const y = Math.max(-CANVAS_MARGIN, top - padding);
+  return {
+    x,
+    y,
+    w: Math.min(canvas.width + CANVAS_MARGIN, right + padding) - x,
+    h: Math.min(canvas.height + CANVAS_MARGIN, bottom + padding) - y,
+  };
+}
+
 /** Edges on any primary flow, for emphasis. */
 export function flowEdges(graph: ArchitectureGraph): Set<string> {
   const keys = new Set<string>();
@@ -391,7 +433,17 @@ export function conceptGraph(graph: ArchitectureGraph): ArchitectureGraph {
     type: link.type,
     description: link.description,
     provenance: link.provenance,
-    evidence: [],
+    // File-backed evidence survives as citations; url-only evidence has no
+    // CodeReference to become, so the edge inspector says so instead.
+    evidence: link.evidence
+      .filter((e) => e.path)
+      .map((e) => ({
+        path: e.path!,
+        start_line: e.line,
+        end_line: e.end_line ?? e.line,
+        commit_sha: null,
+        excerpt: e.excerpt,
+      })),
     confidence: 0.6,
   }));
   const walk = (graph.walkthroughs ?? []).find((w) => w.level === "system");

@@ -237,6 +237,11 @@ class TestExplanationShape:
             ("What is the difference between the reader and the writer?", "comparison"),
             ("Why use threads instead of processes here?", "comparison"),
             ("How is this repository organized?", "architecture"),
+            ("Explain how the scheduler works", "flow"),
+            ("Please explain how retries reach the dead-letter queue", "flow"),
+            ("Explain the system", "architecture"),
+            ("Explain the architecture", "architecture"),
+            ("Explain what a partition is", None),
             ("Tell me something interesting", None),
         ],
     )
