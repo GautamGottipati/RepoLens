@@ -10,9 +10,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { EvidenceList, InferredTag } from "./architecture-inspector";
+import { TourPlayer } from "./architecture-tour";
 import { Badge, Panel } from "./ui";
 import {
   REPOSITORY_KIND_LABEL,
@@ -225,38 +226,100 @@ export function SubsystemCards({
 export function Walkthroughs({
   walkthroughs,
   onSelect,
+  onTourSelect,
+  onTourActiveChange,
 }: {
   walkthroughs: Walkthrough[];
   onSelect: (id: string) => void;
+  /** Selection during a tour: stays in this view instead of navigating. Defaults to onSelect. */
+  onTourSelect?: (id: string) => void;
+  /** Fired when a tour starts and ends, so the graph can frame each step. */
+  onTourActiveChange?: (active: boolean) => void;
 }) {
   const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [step, setStep] = useState(0);
+  const playingRef = useRef(false);
   const walk = walkthroughs[Math.min(index, walkthroughs.length - 1)];
+  const tourSelect = onTourSelect ?? onSelect;
+  useEffect(() => {
+    playingRef.current = playing;
+  }, [playing]);
+  useEffect(
+    () => () => {
+      // A tour that unmounts mid-play (its view navigated away) still ends.
+      if (playingRef.current) onTourActiveChange?.(false);
+    },
+    [onTourActiveChange],
+  );
   if (!walk) return null;
+  const goStep = (next: number) => {
+    const at = Math.min(Math.max(next, 0), walk.steps.length - 1);
+    setStep(at);
+    const target = walk.steps[at]?.target_id;
+    if (target) tourSelect(target);
+  };
+  const startTour = () => {
+    setPlaying(true);
+    setStep(0);
+    onTourActiveChange?.(true);
+    const target = walk.steps[0]?.target_id;
+    if (target) tourSelect(target);
+  };
+  const endTour = () => {
+    setPlaying(false);
+    onTourActiveChange?.(false);
+  };
+  const switchWalk = (next: number) => {
+    setIndex(next);
+    setStep(0);
+    if (playingRef.current) {
+      setPlaying(false);
+      onTourActiveChange?.(false);
+    }
+  };
   return (
     <Panel
       title={walk.name}
       subtitle={walk.description ?? "One concrete path through the code, along relationships RepoLab could evidence"}
       action={
-        walkthroughs.length > 1 ? (
-          <div className="flex gap-1">
-            {walkthroughs.map((w, i) => (
-              <button
-                key={w.id}
-                type="button"
-                onClick={() => setIndex(i)}
-                aria-pressed={i === index}
-                className={`rounded px-2 py-0.5 text-xs ${i === index ? "bg-brand text-white" : "border border-line-strong"}`}
-              >
-                {w.name}
-              </button>
-            ))}
-          </div>
-        ) : undefined
+        <div className="flex items-center gap-1">
+          {walkthroughs.length > 1 && (
+            <div className="flex gap-1">
+              {walkthroughs.map((w, i) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  onClick={() => switchWalk(i)}
+                  aria-pressed={i === index}
+                  className={`rounded px-2 py-0.5 text-xs ${i === index ? "bg-brand text-white" : "border border-line-strong"}`}
+                >
+                  {w.name}
+                </button>
+              ))}
+            </div>
+          )}
+          {walk.steps.length > 0 && !playing && (
+            <button
+              type="button"
+              onClick={startTour}
+              data-testid="tour-start"
+              className="rounded px-2 py-0.5 text-xs font-medium text-arch-fg hover:underline"
+            >
+              Play tour →
+            </button>
+          )}
+        </div>
       }
     >
-      <ol className="flex flex-col items-start gap-1" data-testid="walkthrough" data-walkthrough-id={walk.id}>
-        {walk.steps.map((step, i) => (
-          <li key={`${step.target_id}-${i}`} className="flex flex-col items-start">
+      {playing && <TourPlayer walkthrough={walk} step={step} onStep={goStep} onEnd={endTour} />}
+      <ol
+        className={`flex-col items-start gap-1 ${playing ? "mt-3 flex" : "flex"}`}
+        data-testid="walkthrough"
+        data-walkthrough-id={walk.id}
+      >
+        {walk.steps.map((s, i) => (
+          <li key={`${s.target_id}-${i}`} className="flex flex-col items-start">
             {i > 0 && (
               <span aria-hidden className="ml-4 text-fg-muted">
                 ↓
@@ -264,17 +327,20 @@ export function Walkthroughs({
             )}
             <button
               type="button"
-              onClick={() => onSelect(step.target_id)}
+              onClick={() => (playing ? goStep(i) : onSelect(s.target_id))}
               data-testid="walkthrough-step"
-              className="rounded border border-line-strong px-3 py-1 text-left text-sm hover:border-line-strong"
+              aria-current={playing && i === step ? "step" : undefined}
+              className={`rounded border px-3 py-1 text-left text-sm hover:border-line-strong ${
+                playing && i === step ? "border-arch bg-arch-soft/40" : "border-line-strong"
+              }`}
             >
-              <span className="font-medium">{step.label}</span>
-              {step.detail && <span className="ml-2 text-xs text-fg-secondary">{step.detail}</span>}
+              <span className="font-medium">{s.label}</span>
+              {s.detail && <span className="ml-2 text-xs text-fg-secondary">{s.detail}</span>}
             </button>
           </li>
         ))}
       </ol>
-      {walk.provenance === "inferred" && (
+      {walk.provenance === "inferred" && !playing && (
         <p className="mt-2 text-xs uppercase tracking-wide text-fg-muted">
           inferred by Muse along evidenced relationships
         </p>

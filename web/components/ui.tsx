@@ -138,6 +138,27 @@ export function Note({ children }: { children: ReactNode }) {
   );
 }
 
+/** One cited file or page: opens the source viewer, or the page in a new tab. */
+export function SourceChip({ cited, onOpen }: { cited: string; onOpen: () => void }) {
+  if (/^https?:\/\//.test(cited)) {
+    return (
+      <a href={cited} target="_blank" rel="noreferrer" data-testid="source-chip" className="break-all font-mono text-xs text-brand-fg underline-offset-2 hover:underline">
+        🌐 {cited.replace(/^https?:\/\//, "")}
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      data-testid="source-chip"
+      className="break-all text-left font-mono text-xs text-fg-secondary underline-offset-2 hover:underline"
+    >
+      📄 {cited}
+    </button>
+  );
+}
+
 export function Skeleton({ rows = 3 }: { rows?: number }) {
   return (
     <div className="flex flex-col gap-2" aria-hidden>

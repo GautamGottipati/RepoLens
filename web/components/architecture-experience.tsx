@@ -22,7 +22,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { ArchitectureGraph } from "./architecture-graph";
-import { ArchitectureInspector, ConceptInspector, EvidenceList } from "./architecture-inspector";
+import { ArchitectureInspector, ConceptInspector, EdgeInspector, EvidenceList } from "./architecture-inspector";
 import {
   AnalysisDetails,
   ImportantFiles,
@@ -58,6 +58,7 @@ import {
   subsystemPath,
 } from "@/lib/architecture";
 import type {
+  ArchitectureEdge,
   ArchitectureGraph as Graph,
   ArchitectureView,
   ImportantFile,
@@ -181,6 +182,8 @@ function GuidedArchitecture({
     initialSelection && runtimeIds.has(initialSelection) ? initialSelection : null,
   );
   const [flowId, setFlowId] = useState<string | null>(null);
+  const [tourActive, setTourActive] = useState(false);
+  const [selectedEdge, setSelectedEdge] = useState<ArchitectureEdge | null>(null);
   const wide = useWide();
 
   useEffect(() => {
@@ -208,6 +211,7 @@ function GuidedArchitecture({
   };
   const selectRuntime = (id: string) => {
     setSelected(null);
+    setSelectedEdge(null);
     setRuntimeSelected(id);
   };
   const showFlow = (id: string) => {
@@ -221,6 +225,7 @@ function GuidedArchitecture({
   };
   const select = (id: string) => {
     if (runtimeIds.has(id)) return selectRuntime(id);
+    setSelectedEdge(null);
     setRuntimeSelected(null);
     const kind = subjectKind(graph, id);
     if (kind === "subsystem") return explore(id);
@@ -230,6 +235,18 @@ function GuidedArchitecture({
     }
     if (kind === "concept") setSubsystemId(null);
     setSelected(id);
+  };
+  const tourSelect = (id: string) => {
+    // A tour stays in its view: select without navigating subsystems, so the
+    // player survives every step. The inspector resolves from the whole graph.
+    setSelectedEdge(null);
+    setRuntimeSelected(null);
+    setSelected(id);
+  };
+  const selectEdge = (edge: ArchitectureEdge) => {
+    setSelected(null);
+    setRuntimeSelected(null);
+    setSelectedEdge(edge);
   };
   const openStep = (step: LearningStep) => {
     if (!step.target_id) return;
@@ -256,6 +273,14 @@ function GuidedArchitecture({
       componentId={runtimeSelected}
       onSelect={selectRuntime}
       onShowFlow={showFlow}
+    />
+  ) : selectedEdge ? (
+    <EdgeInspector
+      edge={selectedEdge}
+      graph={graph}
+      repoUrl={view.repo_url}
+      commit={view.commit_sha}
+      onSelect={select}
     />
   ) : selected ? (
     <Inspector
@@ -296,6 +321,11 @@ function GuidedArchitecture({
       measured={measured}
       groupMeasured={grouped[subsystem.id] ?? []}
       onSelect={select}
+      onTourSelect={tourSelect}
+      onTourActiveChange={setTourActive}
+      frameSelected={tourActive}
+      selectedEdge={selectedEdge}
+      onEdgeSelect={selectEdge}
     />
   ) : perspective === "overview" ? (
     <>
@@ -335,9 +365,9 @@ function GuidedArchitecture({
           </div>
         </Panel>
       )}
-      <SystemModelPanel graph={graph} selected={selected} measured={grouped} onSelect={select} />
+      <SystemModelPanel graph={graph} selected={selected} measured={grouped} onSelect={select} frameSelected={tourActive} selectedEdge={selectedEdge} onEdgeSelect={selectEdge} />
       {subsystems.length > 0 && <SubsystemCards subsystems={subsystems} measured={grouped} onExplore={explore} />}
-      <Walkthroughs walkthroughs={overviewWalkthroughs(graph)} onSelect={select} />
+      <Walkthroughs walkthroughs={overviewWalkthroughs(graph)} onSelect={select} onTourSelect={tourSelect} onTourActiveChange={setTourActive} />
       <AnalysisDetails graph={graph} overlay={overlay} />
     </>
   ) : perspective === "runtime" ? (
@@ -355,7 +385,7 @@ function GuidedArchitecture({
       {(graph.flows ?? []).length > 0 && (
         <FlowsView graph={graph} flowId={flowId} onSelectFlow={setFlowId} onSelectComponent={selectRuntime} />
       )}
-      <Walkthroughs walkthroughs={flowWalkthroughs(graph)} onSelect={select} />
+      <Walkthroughs walkthroughs={flowWalkthroughs(graph)} onSelect={select} onTourSelect={tourSelect} onTourActiveChange={setTourActive} />
     </>
   ) : perspective === "learning" ? (
     <LearningPath
@@ -487,6 +517,7 @@ function GuidedArchitecture({
                   onClick={() => {
                     setSelected(null);
                     setRuntimeSelected(null);
+                    setSelectedEdge(null);
                   }}
                   className="rounded-md px-2 py-1 text-xs text-fg-secondary hover:bg-surface-hover hover:text-fg"
                 >
@@ -505,6 +536,7 @@ function GuidedArchitecture({
           onClose={() => {
             setSelected(null);
             setRuntimeSelected(null);
+            setSelectedEdge(null);
           }}
           title={runtimeSelected ? (graph.runtime?.components.find((c) => c.id === runtimeSelected)?.name ?? "Details") : labelOf(graph, selected!)}
           data-testid="details-sheet"
@@ -566,11 +598,17 @@ function SystemModelPanel({
   selected,
   measured,
   onSelect,
+  frameSelected,
+  selectedEdge,
+  onEdgeSelect,
 }: {
   graph: Graph;
   selected: string | null;
   measured: Record<string, MeasuredValue[]>;
   onSelect: (id: string) => void;
+  frameSelected: boolean;
+  selectedEdge: ArchitectureEdge | null;
+  onEdgeSelect: (edge: ArchitectureEdge) => void;
 }) {
   const model = graph.system_model;
   const concepts = useMemo(() => conceptGraph(graph), [graph]);
@@ -597,6 +635,9 @@ function SystemModelPanel({
             onSelect={onSelect}
             caption={(node) => (node.technology ? `Internal name: ${node.technology}` : "concept")}
             kind={() => "concept"}
+            frameSelected={frameSelected}
+            selectedEdge={selectedEdge}
+            onEdgeSelect={onEdgeSelect}
           />
         </div>
       )}
@@ -611,6 +652,11 @@ function SubsystemView({
   measured,
   groupMeasured,
   onSelect,
+  onTourSelect,
+  onTourActiveChange,
+  frameSelected,
+  selectedEdge,
+  onEdgeSelect,
 }: {
   view: ArchitectureView;
   subsystem: Subsystem;
@@ -618,6 +664,11 @@ function SubsystemView({
   measured: Record<string, MeasuredValue[]>;
   groupMeasured: MeasuredValue[];
   onSelect: (id: string) => void;
+  onTourSelect: (id: string) => void;
+  onTourActiveChange: (active: boolean) => void;
+  frameSelected: boolean;
+  selectedEdge: ArchitectureEdge | null;
+  onEdgeSelect: (edge: ArchitectureEdge) => void;
 }) {
   const graph = view.graph;
   const sub = useMemo(() => subsystemGraph(graph, subsystem.id), [graph, subsystem.id]);
@@ -663,9 +714,12 @@ function SubsystemView({
         selected={selected}
         measured={measured}
         onSelect={onSelect}
+        frameSelected={frameSelected}
+        selectedEdge={selectedEdge}
+        onEdgeSelect={onEdgeSelect}
         emptyText="RepoLab found no runtime components in this part's code. The starting points above are the place to read; Ask RepoLab can explain it."
       />
-      {walks.length > 0 && <Walkthroughs walkthroughs={walks} onSelect={onSelect} />}
+      {walks.length > 0 && <Walkthroughs walkthroughs={walks} onSelect={onSelect} onTourSelect={onTourSelect} onTourActiveChange={onTourActiveChange} />}
       {groupMeasured.length > 0 && (
         <Panel title="Measured in real runs" subtitle="Values from components in this part">
           <MeasuredList values={groupMeasured} />
@@ -684,6 +738,9 @@ function ComponentPanel({
   measured,
   onSelect,
   emptyText,
+  frameSelected = false,
+  selectedEdge = null,
+  onEdgeSelect,
 }: {
   graph: Graph;
   title: string;
@@ -692,6 +749,9 @@ function ComponentPanel({
   measured: Record<string, MeasuredValue[]>;
   onSelect: (id: string) => void;
   emptyText: string;
+  frameSelected?: boolean;
+  selectedEdge?: ArchitectureEdge | null;
+  onEdgeSelect?: (edge: ArchitectureEdge) => void;
 }) {
   const [file, setFile] = useState<string | null>(null);
   const highlighted = useMemo(
@@ -707,7 +767,7 @@ function ComponentPanel({
         <Empty title="No components detected here">{emptyText}</Empty>
       ) : (
         <div className="flex flex-col gap-4">
-          <ArchitectureGraph graph={graph} selected={selected} highlighted={highlighted} measured={measured} onSelect={onSelect} />
+          <ArchitectureGraph graph={graph} selected={selected} highlighted={highlighted} measured={measured} onSelect={onSelect} frameSelected={frameSelected} selectedEdge={selectedEdge} onEdgeSelect={onEdgeSelect} />
           {graph.primary_flows.length > 0 && (
             <ol className="flex flex-col gap-1 border-t border-line pt-3 text-xs" data-testid="primary-flows">
               {graph.primary_flows.map((flow) => (

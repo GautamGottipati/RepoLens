@@ -288,6 +288,7 @@ export default function AskPage() {
             result={experiment.answer}
             repoUrl={experiment.repo_url}
             commitSha={experiment.commit_sha}
+            jobId={jobId}
             architecture={architecture?.graph ?? null}
             onAsk={(next) => void ask(next)}
           />

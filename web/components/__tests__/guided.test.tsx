@@ -4,10 +4,11 @@
  */
 
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
-import { afterEach, beforeAll, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { AgentActivityPanel } from "../activity";
 import { ArchitectureExperience } from "../architecture-experience";
+import { EdgeInspector } from "../architecture-inspector";
 import { guidedView, manifest } from "./fixtures";
 import { askUrl, focusFor } from "@/lib/architecture";
 import type { JobEvent, RuntimeOverlay } from "@/lib/types";
@@ -249,5 +250,103 @@ describe("agent activity", () => {
     render(<AgentActivityPanel events={events} done={false} summary={null} />);
     expect(screen.queryByTestId("activity-summary")).toBeNull();
     expect(screen.getByTestId("activity-feed")).toBeTruthy();
+  });
+});
+
+describe("tour player", () => {
+  it("walks the steps with the inspector following, staying in its view", () => {
+    renderGuided();
+    fireEvent.click(screen.getByTestId("tour-start"));
+    expect(screen.getByTestId("tour-progress").textContent).toBe("Step 1 of 3");
+    expect(screen.getByTestId("tour-step-label").textContent).toBe("Your application");
+    expect(screen.getByTestId("inspector-title").textContent).toContain("Your application");
+
+    fireEvent.click(screen.getByTestId("tour-next"));
+    expect(screen.getByTestId("tour-progress").textContent).toBe("Step 2 of 3");
+    expect(screen.getByTestId("inspector-title").textContent).toContain("Scheduler");
+
+    fireEvent.click(screen.getByTestId("tour-prev"));
+    expect(screen.getByTestId("tour-progress").textContent).toBe("Step 1 of 3");
+    expect((screen.getByTestId("tour-prev") as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("tour-next"));
+    fireEvent.click(screen.getByTestId("tour-next"));
+    expect(screen.getByTestId("tour-progress").textContent).toBe("Step 3 of 3");
+    expect((screen.getByTestId("tour-next") as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("tour-end"));
+    expect(screen.queryByTestId("tour-player")).toBeNull();
+    // Ending keeps the last selection: the inspector stays where the tour left it.
+    expect(screen.getByTestId("inspector-title").textContent).toContain("Executors");
+  });
+
+  it("frames the current step instead of the whole canvas", () => {
+    // One animation frame that finishes immediately.
+    let now = 0;
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => {
+      now += 1000;
+      cb(now);
+      return 1;
+    });
+    try {
+      renderGuided();
+      const canvas = within(screen.getByTestId("system-model")).getByRole("group");
+      const full = canvas.getAttribute("viewBox");
+      fireEvent.click(screen.getByTestId("tour-start"));
+      expect(canvas.getAttribute("viewBox")).not.toBe(full);
+      fireEvent.click(screen.getByTestId("tour-end"));
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("jumps when a step in the list is clicked mid-tour", () => {
+    renderGuided();
+    fireEvent.click(screen.getByTestId("tour-start"));
+    const steps = screen.getAllByTestId("walkthrough-step");
+    fireEvent.click(steps[2]);
+    expect(screen.getByTestId("tour-progress").textContent).toBe("Step 3 of 3");
+    expect(screen.getByTestId("inspector-title").textContent).toContain("Executors");
+  });
+});
+
+describe("edge inspector", () => {
+  it("opens a relationship, then follows its endpoints", () => {
+    renderGuided();
+    const buttons = screen.getAllByTestId("architecture-edge-button");
+    const app = buttons.find((b) => b.getAttribute("data-edge") === "concept:app->concept:scheduler")!;
+    fireEvent.click(app);
+    const panel = screen.getByTestId("edge-inspector");
+    expect(panel.textContent).toContain("Your application");
+    expect(panel.textContent).toContain("Scheduler");
+    // This link's only evidence is documentation with no file to cite.
+    expect(panel.textContent).toContain("Interpreted from the surrounding evidence");
+
+    fireEvent.click(within(panel).getByRole("button", { name: "Scheduler" }));
+    expect(screen.getByTestId("inspector-title").textContent).toContain("Scheduler");
+    expect(screen.queryByTestId("edge-inspector")).toBeNull();
+  });
+
+  it("lists file evidence as citations when the relationship has it", () => {
+    const view = guidedView();
+    render(
+      <EdgeInspector
+        edge={{
+          source: "step:read",
+          target: "step:join",
+          type: "data_flow",
+          description: "Orders with customer ids.",
+          provenance: "static",
+          evidence: [{ path: "jobs/job.py", start_line: 6, end_line: 6, commit_sha: null, excerpt: null }],
+          confidence: 0.9,
+        }}
+        graph={view.graph}
+        repoUrl={view.repo_url}
+        commit={view.commit_sha}
+        onSelect={() => {}}
+      />,
+    );
+    expect(screen.getByTestId("edge-inspector").textContent).toContain("Orders with customer ids.");
+    expect(screen.getByTestId("edge-evidence").textContent).toContain("jobs/job.py");
   });
 });

@@ -82,6 +82,26 @@ plus service-check SKIP semantics.
       Playwright e2e, `make smoke` (live models), `test-docker` / `slow` /
       `network` markers. Same limitation applies to the source tree here.
 
+## Architecture tour player + edge inspector (2026-11-02)
+
+Inspired by `devrel-demos/agents/repo-walkthrough` (plan approved, media/TTS
+explicitly excluded). Web-only change set, 8 files:
+- Tour player: `Walkthroughs` panels gained "Play tour" — steps advance with
+  Prev/Next buttons, arrow keys, or list clicks; each step selects its node
+  (inspector follows, no subsystem navigation mid-tour), the graph camera
+  eases to the node + neighbors (`cameraFor` in `web/lib/architecture.ts`,
+  imperative viewBox animation honoring reduced-motion), others dim.
+- Edge inspector: graph relationships are clickable (wide invisible hit path,
+  keyboard accessible); the side panel shows endpoints (navigable), type,
+  description, provenance, and file evidence. `conceptGraph` now keeps
+  file-backed link evidence instead of dropping it.
+- Snippets step needed no work: the inspector already renders each citation's
+  `excerpt` inline, with the full source viewer a click away.
+- Stretch (layer band labels) skipped: our columns are flow positions, not
+  semantic layers, so band labels would decorate without informing.
+- Verified: vitest 149/149 (14 files), `tsc --noEmit` clean, `eslint` clean.
+  No backend changes; media (TTS audio/video) out of scope per instruction.
+
 ## Full Nebius removal (2026-11-02)
 
 - Deleted: `repolab/sandbox/nebius.py`, `scripts/deploy/bootstrap_nebius.sh`,
@@ -139,3 +159,18 @@ plus service-check SKIP semantics.
 - [ ] New: offline `pytest` (default deselected markers)
 - [ ] New: `scripts/check_services.py` SKIP semantics without keys
 - [ ] New: web `vitest run` (if time permits; web logic unchanged)
+
+## Diagram module branch (2026-11-03, `feature/answer-diagrams`)
+
+- Branch goal: reusable interactive diagram module for Ask answers; no media.
+- Visual-prompt coverage closed: `explain how…` → FLOW and
+  `explain the (system|codebase|repository|…)` → ARCHITECTURE in
+  `repolab/questions/triage.py`, anchored to the question start and excluding
+  `explain what…`-style concept prompts; new table rows in
+  `tests/test_question_triage.py` (6 rows).
+- Gates on branch: web `vitest` 157/157 (incl. new
+  `components/__tests__/diagram.test.tsx` + ask.test grounding row), `tsc`
+  clean, `eslint` clean; backend `ruff check` + `ruff format --check` clean,
+  `tests/test_question_{triage,layout,answer}.py` all pass.
+- State: tour changes + diagram module uncommitted on the branch; merge to
+  `main` pending user go-ahead.

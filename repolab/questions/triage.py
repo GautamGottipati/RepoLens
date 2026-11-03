@@ -98,6 +98,7 @@ _SHAPES: dict[ExplanationShape, tuple[str, ...]] = {
         r"\bhow (does|do) (data|information|records?) (get|go|flow|move|reach)\b",
         r"\bdata ?flow\b",
         r"\bhow do .+ (communicate|interact|talk)\b",
+        r"^\s*(please\s+)?explain\s+how\b",
     ),
     ExplanationShape.DEBUGGING: (
         r"\b(why|what causes|how (do|can) i (fix|debug)|debug)\b.*\b(slow|fail\w*|errors?|"
@@ -113,6 +114,7 @@ _SHAPES: dict[ExplanationShape, tuple[str, ...]] = {
         r"(organi[sz]ed|structured|laid out)\b",
         r"\bmain (parts|components|pieces|modules)\b",
         r"\bhow does (this|the) (system|project|repository|application|app|codebase) work\b",
+        r"^\s*(please\s+)?explain\s+(the\s+)?(system|codebase|repository|project|application|app)\b",
     ),
     ExplanationShape.DEFINITION: (
         r"^\s*what (is|are) (a |an |the )?[\w .+/@-]+\??\s*$",

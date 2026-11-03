@@ -33,6 +33,7 @@ import {
 } from "@/lib/architecture";
 import { SourceRef } from "./source-ref";
 import type {
+  ArchitectureEdge,
   ArchitectureGraph,
   ArchitectureNode,
   Evidence,
@@ -325,6 +326,83 @@ export function ConceptInspector({
 // ---------------------------------------------------------------------------
 // Shared parts
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// A relationship
+// ---------------------------------------------------------------------------
+
+export function EdgeInspector({
+  edge,
+  graph,
+  repoUrl,
+  commit,
+  onSelect,
+}: {
+  edge: ArchitectureEdge;
+  graph: ArchitectureGraph;
+  repoUrl: string;
+  commit: string;
+  onSelect: (id: string) => void;
+}) {
+  const label = (id: string) =>
+    graph.nodes.find((n) => n.id === id)?.label ??
+    graph.system_model?.concepts.find((c) => c.id === id)?.label ??
+    id;
+  return (
+    <section data-testid="edge-inspector" className="flex flex-col gap-4">
+      <header>
+        <h3 className="text-base font-semibold" data-testid="inspector-title">
+          <button type="button" onClick={() => onSelect(edge.source)} className="hover:underline">
+            {label(edge.source)}
+          </button>
+          <span aria-hidden className="mx-1 text-fg-muted">
+            →
+          </span>
+          <button type="button" onClick={() => onSelect(edge.target)} className="hover:underline">
+            {label(edge.target)}
+          </button>
+          {edge.provenance === "inferred" && <InferredTag />}
+        </h3>
+        <div className="mt-1 flex flex-wrap gap-1.5">
+          <Badge>{edge.type.replace(/_/g, " ")}</Badge>
+        </div>
+      </header>
+
+      <Meaning title="What passes along it?">
+        {edge.description ? (
+          edge.description
+        ) : (
+          <span className="text-fg-secondary">
+            RepoLab read the connection from the code but wrote no plain-language description for it.
+          </span>
+        )}
+      </Meaning>
+
+      <Evidenced>
+        {edge.evidence.length > 0 ? (
+          <ul className="flex flex-col gap-2" data-testid="edge-evidence">
+            {edge.evidence.map((ref, index) => (
+              <li key={`${ref.path}:${ref.start_line}-${index}`}>
+                <SourceRef
+                  reference={ref}
+                  repoUrl={repoUrl}
+                  commitSha={commit}
+                  reason={`Evidence for ${label(edge.source)} ${edge.type.replace(/_/g, " ")} ${label(edge.target)}.`}
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-xs text-fg-secondary">
+            {edge.provenance === "inferred"
+              ? "Interpreted from the surrounding evidence rather than read from one place."
+              : "No single citation was kept for this connection."}
+          </p>
+        )}
+      </Evidenced>
+    </section>
+  );
+}
 
 function Meaning({ title, testId, children }: { title: string; testId?: string; children: React.ReactNode }) {
   return (

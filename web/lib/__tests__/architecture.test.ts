@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { askUrl, flowWalkthroughs, focusFor, layout, sourceUrl } from "../architecture";
+import { askUrl, cameraFor, conceptGraph, flowWalkthroughs, focusFor, fullView, layout, sourceUrl } from "../architecture";
 import type { ArchitectureGraph, Walkthrough } from "../types";
 import { pipelineView } from "@/components/__tests__/fixtures";
 
@@ -52,6 +52,85 @@ describe("links and context", () => {
   it("encodes the question in the Ask URL", () => {
     expect(askUrl("j", "n:1", "Why & how?")).toBe("/r/j/ask?node=n%3A1&q=Why+%26+how%3F");
   });
+});
+
+describe("cameraFor", () => {
+  const dims = { boxWidth: 170, boxHeight: 48, columnGap: 64, rowGap: 18 };
+  const canvasOf = (placements: Map<string, { rank: number; row: number }>) => {
+    const columns = Math.max(1, ...[...placements.values()].map((p) => p.rank + 1));
+    const rows = Math.max(1, ...[...placements.values()].map((p) => p.row + 1));
+    return { width: columns * dims.boxWidth + (columns - 1) * dims.columnGap, height: rows * dims.boxHeight + (rows - 1) * dims.rowGap };
+  };
+  const canvas = { width: 1000, height: 500 };
+
+  it("returns null when nothing requested is placed, meaning the full canvas", () => {
+    const placements = layout(pipelineView().graph);
+    expect(cameraFor(placements, [], dims, canvas)).toBeNull();
+    expect(cameraFor(placements, ["missing"], dims, canvas)).toBeNull();
+    expect(fullView(canvas)).toEqual({ x: -8, y: -8, w: 1016, h: 516 });
+  });
+
+  it("frames one node with padding on every side", () => {
+    const placements = layout(pipelineView().graph);
+    const view = cameraFor(placements, ["step:join"], dims, canvas)!;
+    const at = placements.get("step:join")!;
+    const x = at.rank * (dims.boxWidth + dims.columnGap);
+    const y = at.row * (dims.boxHeight + dims.rowGap);
+    expect(view.x).toBeLessThanOrEqual(x);
+    expect(view.y).toBeLessThanOrEqual(y);
+    expect(view.x + view.w).toBeGreaterThanOrEqual(x + dims.boxWidth);
+    expect(view.y + view.h).toBeGreaterThanOrEqual(y + dims.boxHeight);
+    expect(view.w).toBeLessThan(canvas.width);
+  });
+
+  it("frames a cluster spanning columns and ignores unknown ids", () => {
+    const placements = layout(pipelineView().graph);
+    const view = cameraFor(placements, ["entry:job", "missing", "step:write"], dims, canvasOf(placements))!;
+    const left = placements.get("entry:job")!.rank * (dims.boxWidth + dims.columnGap);
+    const rightNode = placements.get("step:write")!;
+    const right = rightNode.rank * (dims.boxWidth + dims.columnGap) + dims.boxWidth;
+    expect(view.x).toBeLessThanOrEqual(left);
+    expect(view.x + view.w).toBeGreaterThanOrEqual(right);
+  });
+
+  it("clamps to the canvas instead of running past its edges", () => {
+    const placements = layout(pipelineView().graph);
+    const view = cameraFor(placements, ["entry:job"], dims, canvas, 10000)!;
+    expect(view.x).toBe(-8);
+    expect(view.y).toBe(-8);
+    expect(view.x + view.w).toBeLessThanOrEqual(canvas.width + 8);
+    expect(view.y + view.h).toBeLessThanOrEqual(canvas.height + 8);
+  });
+});
+
+describe("conceptGraph", () => {
+  it("keeps file-backed link evidence as citations, drops url-only evidence", () => {
+    const edges = conceptGraph(guidedViewForLinks().graph).edges;
+    expect(edges).toHaveLength(1);
+    expect(edges[0].evidence.map((e) => e.path)).toEqual(["core/sched.py"]);
+  });
+
+  function guidedViewForLinks() {
+    const view = pipelineView();
+    view.graph.system_model = {
+      concepts: [],
+      links: [
+        {
+          source: "a",
+          target: "b",
+          type: "calls",
+          description: null,
+          provenance: "static",
+          evidence: [
+            { kind: "source", label: "sched", path: "core/sched.py", line: 12, url: null, target_id: null, excerpt: null },
+            { kind: "documentation", label: "docs", path: null, line: null, url: "https://example.com", target_id: null, excerpt: null },
+          ],
+        },
+      ],
+      provenance: "static",
+    };
+    return view;
+  }
 });
 
 describe("flowWalkthroughs", () => {
